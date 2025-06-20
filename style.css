@@ -31,6 +31,18 @@ body {
     --list-item-bg: #ffffff;
     --list-item-border: #e2e8f0;
     --list-item-hover-bg: #f1f5f9;
+    --canvas-bg: #f8fafc; /* For mind map canvas */
+    --node-bg: #ffffff;
+    --node-border: #e2e8f0;
+    --node-text: #0f172a;
+    --node-selected-border: var(--accent-blue);
+    --connection-color: #64748b;
+    --achievement-bg: #ffffff;
+    --achievement-border: #e2e8f0;
+    --achievement-unlocked-bg: #dcfce7; /* Light green for unlocked */
+    --achievement-unlocked-text: #166534; /* Dark green for unlocked */
+    --achievement-locked-bg: #f1f5f9; /* Light gray for locked */
+    --achievement-locked-text: #64748b; /* Gray for locked */
 }
 
 /* Theme Variables - Dark Theme */
@@ -59,6 +71,18 @@ body {
     --list-item-bg: #2d3a4b;
     --list-item-border: #475569;
     --list-item-hover-bg: #37455a;
+    --canvas-bg: #1e293b; /* For mind map canvas */
+    --node-bg: #334155;
+    --node-border: #475569;
+    --node-text: #f8fafc;
+    --node-selected-border: var(--accent-blue);
+    --connection-color: #94a3b8;
+    --achievement-bg: #334155;
+    --achievement-border: #475569;
+    --achievement-unlocked-bg: #22c55e; /* Green for unlocked */
+    --achievement-unlocked-text: #f8fafc; /* White for unlocked */
+    --achievement-locked-bg: #475569; /* Darker gray for locked */
+    --achievement-locked-text: #94a3b8; /* Lighter gray for locked */
 }
 
 /* Theme Variables - Vibrant Theme */
@@ -87,6 +111,18 @@ body {
     --list-item-bg: #e0f2f7;
     --list-item-border: #a5f3fc;
     --list-item-hover-bg: #d1f4ff;
+    --canvas-bg: #ecfeff; /* For mind map canvas */
+    --node-bg: #e0f2f7;
+    --node-border: #a5f3fc;
+    --node-text: #083344;
+    --node-selected-border: var(--accent-blue);
+    --connection-color: #22d3ee;
+    --achievement-bg: #e0f2f7;
+    --achievement-border: #a5f3fc;
+    --achievement-unlocked-bg: #67e8f9; /* Vibrant Cyan for unlocked */
+    --achievement-unlocked-text: #0e7490; /* Dark Cyan for unlocked */
+    --achievement-locked-bg: #a5f3fc; /* Lighter Cyan for locked */
+    --achievement-locked-text: #22d3ee; /* Cyan for locked */
 }
 
 /* General element styling using theme variables */
@@ -291,7 +327,9 @@ input[type="checkbox"] {
 
 .quiz-option-btn.selected {
     border-color: var(--accent-blue);
-    box-shadow: 0 0 0 2px rgba(var(--accent-blue-rgb), 0.5); /* A custom property needed for RGB */
+    /* This requires custom CSS property to convert RGB to RGBA for boxShadow */
+    /* You would define --accent-blue-rgb in your JS for this if needed, or use a hardcoded color */
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5); /* Fallback */
 }
 
 .quiz-option-btn.correct {
@@ -309,3 +347,120 @@ input[type="checkbox"] {
     outline: 2px solid var(--accent-blue);
     outline-offset: 2px;
 }
+
+/* Mind Map Canvas Styling */
+#mind-map-canvas {
+    background-color: var(--canvas-bg);
+    touch-action: none; /* Disable default touch actions for custom drag/pan */
+}
+
+/* Specific AI Content Formatting */
+.formatted-ai-content h3 {
+    font-size: 1.25rem; /* text-xl */
+    font-weight: 600; /* font-semibold */
+    color: var(--text-primary);
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.25rem;
+}
+
+.formatted-ai-content ul {
+    list-style: disc; /* Default bullet style */
+    margin-left: 1.5rem; /* Indent bullets */
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+.formatted-ai-content li {
+    margin-bottom: 0.5rem;
+}
+
+.formatted-ai-content p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+/* Styles for Achievement Cards */
+.achievement-card {
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background-color: var(--achievement-locked-bg);
+    border: 1px solid var(--achievement-border);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.achievement-card.unlocked {
+    background-color: var(--achievement-unlocked-bg);
+    color: var(--achievement-unlocked-text);
+    border-color: rgba(var(--text-green-rgb), 0.5); /* A slightly darker shade for unlocked border */
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.achievement-card .icon {
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
+    line-height: 1; /* ensure icon is centered vertically */
+}
+
+.achievement-card.unlocked .icon {
+    color: var(--achievement-unlocked-text);
+}
+
+.achievement-card.locked .icon {
+    color: var(--achievement-locked-text);
+    opacity: 0.6;
+}
+
+.achievement-card h4 {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 600; /* font-semibold */
+    color: var(--text-primary); /* Default to primary text */
+    margin-bottom: 0.5rem;
+}
+
+.achievement-card.unlocked h4 {
+    color: var(--achievement-unlocked-text); /* Use specific color for unlocked text */
+}
+
+.achievement-card.locked h4 {
+    color: var(--achievement-locked-text); /* Use specific color for locked text */
+}
+
+.achievement-card p {
+    font-size: 0.875rem; /* text-sm */
+    color: var(--text-secondary); /* Default to secondary text */
+}
+
+.achievement-card.unlocked p {
+    color: var(--achievement-unlocked-text); /* Use specific color for unlocked text */
+}
+.achievement-card.locked p {
+    color: var(--achievement-locked-text); /* Use specific color for locked text */
+}
+
+
+/* Glossary list item styling */
+.glossary-item {
+    background-color: var(--list-item-bg);
+    border: 1px solid var(--list-item-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.glossary-item h4 {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.glossary-item p {
+    color: var(--text-secondary);
+}
+
