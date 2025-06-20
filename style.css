@@ -1,0 +1,311 @@
+/* General body styling and font application */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc; /* Default light theme background */
+    color: #0f172a; /* Default light theme primary text color */
+}
+
+/* Theme Variables - Light Theme */
+.theme-light {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+    --accent-blue: #2563eb;
+    --accent-blue-hover: #1d4ed8;
+    --nav-active-bg: #e2e8f0;
+    --nav-active-text: #0f172a;
+    --card-front-bg: #ffffff;
+    --card-back-bg: #ffffff;
+    --input-bg: #ffffff;
+    --input-text: #0f172a;
+    --text-red: #dc2626;
+    --text-orange: #f97316;
+    --text-yellow: #facc15;
+    --text-green: #22c54a;
+    --text-red-rgb: 220, 38, 38;
+    --text-orange-rgb: 249, 115, 22;
+    --text-yellow-rgb: 250, 204, 21;
+    --text-green-rgb: 34, 197, 74;
+    --list-item-bg: #ffffff;
+    --list-item-border: #e2e8f0;
+    --list-item-hover-bg: #f1f5f9;
+}
+
+/* Theme Variables - Dark Theme */
+.theme-dark {
+    --bg-primary: #1e293b;
+    --bg-secondary: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --border-color: #475569;
+    --accent-blue: #60a5fa;
+    --accent-blue-hover: #3b82f6;
+    --nav-active-bg: #475569;
+    --nav-active-text: #f8fafc;
+    --card-front-bg: #334155;
+    --card-back-bg: #334155;
+    --input-bg: #1e293b;
+    --input-text: #f8fafc;
+    --text-red: #ef4444;
+    --text-orange: #fb923c;
+    --text-yellow: #fde047;
+    --text-green: #4ade80;
+    --text-red-rgb: 239, 68, 68;
+    --text-orange-rgb: 251, 146, 60;
+    --text-yellow-rgb: 253, 224, 71;
+    --text-green-rgb: 74, 222, 128;
+    --list-item-bg: #2d3a4b;
+    --list-item-border: #475569;
+    --list-item-hover-bg: #37455a;
+}
+
+/* Theme Variables - Vibrant Theme */
+.theme-vibrant {
+    --bg-primary: #ecfeff;
+    --bg-secondary: #e0f2f7;
+    --text-primary: #083344;
+    --text-secondary: #22d3ee;
+    --border-color: #a5f3fc;
+    --accent-blue: #0ea5e9;
+    --accent-blue-hover: #0284c7;
+    --nav-active-bg: #bae6fd;
+    --nav-active-text: #083344;
+    --card-front-bg: #ffffff;
+    --card-back-bg: #ffffff;
+    --input-bg: #ecfeff;
+    --input-text: #083344;
+    --text-red: #ef4444;
+    --text-orange: #fb923c;
+    --text-yellow: #fde047;
+    --text-green: #4ade80;
+    --text-red-rgb: 239, 68, 68;
+    --text-orange-rgb: 251, 146, 60;
+    --text-yellow-rgb: 253, 224, 71;
+    --text-green-rgb: 74, 222, 128;
+    --list-item-bg: #e0f2f7;
+    --list-item-border: #a5f3fc;
+    --list-item-hover-bg: #d1f4ff;
+}
+
+/* General element styling using theme variables */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+aside,
+header,
+.bg-secondary,
+.modal > div {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+.text-primary {
+    color: var(--text-primary);
+}
+.text-secondary {
+    color: var(--text-secondary);
+}
+.border-border-color {
+    border-color: var(--border-color);
+}
+
+/* Specific hover state for nav items, using theme var */
+.nav-item:hover {
+    background-color: var(--nav-active-bg);
+}
+.nav-item-active {
+    background-color: var(--nav-active-bg);
+    color: var(--nav-active-text);
+    font-weight: 600;
+}
+.bg-accent-blue {
+    background-color: var(--accent-blue);
+}
+.hover\:bg-accent-blue-hover:hover {
+    background-color: var(--accent-blue-hover);
+}
+.text-accent-blue {
+    color: var(--accent-blue);
+}
+.bg-border-color {
+    background-color: var(--border-color);
+}
+
+/* Input specific styles for theme */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+textarea,
+select {
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    border-color: var(--border-color);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border-width: 1px; /* Ensure border is visible */
+    width: 100%; /* Make sure inputs take full width */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+input[type="checkbox"] {
+    /* Basic styling for checkbox */
+    accent-color: var(--accent-blue); /* Changes the color of the checked box */
+}
+
+
+/* Recall button specific styles for theme */
+.recall-btn.bg-red-100 {
+    background-color: rgba(var(--text-red-rgb), 0.1);
+    color: var(--text-red);
+}
+.recall-btn.bg-orange-100 {
+    background-color: rgba(var(--text-orange-rgb), 0.1);
+    color: var(--text-orange);
+}
+.recall-btn.bg-yellow-100 {
+    background-color: rgba(var(--text-yellow-rgb), 0.1);
+    color: var(--text-yellow);
+}
+.recall-btn.bg-green-100 {
+    background-color: rgba(var(--text-green-rgb), 0.1);
+    color: var(--text-green);
+}
+
+/* List item styles using new variables */
+.list-item-themed {
+    background-color: var(--list-item-bg);
+    border-color: var(--list-item-border);
+}
+.list-item-themed:hover {
+    background-color: var(--list-item-hover-bg);
+}
+
+/* Other utility classes */
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 300px; /* Default height */
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    max-height: 40vh; /* Responsive height for charts */
+}
+@media (min-width: 768px) {
+    .chart-container {
+        height: 350px;
+    }
+}
+
+/* Flashcard flip effect */
+.flip-card {
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+}
+.flip-card.flipped {
+    transform: rotateY(180deg);
+}
+.flip-card-front,
+.flip-card-back {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden; /* For Safari */
+    background-color: var(--card-front-bg); /* Use theme variable */
+}
+.flip-card-back {
+    transform: rotateY(180deg);
+    background-color: var(--card-back-bg); /* Use theme variable */
+}
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* Modal Overlay Styling */
+.modal {
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Notification Toast Styling */
+#notification-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50; /* Green for success */
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    min-width: 250px;
+    text-align: center;
+}
+#notification-toast.show {
+    opacity: 1;
+    visibility: visible;
+}
+#notification-toast.error {
+    background-color: #f44336; /* Red for error */
+}
+
+/* Mobile Sidebar Specific Transitions */
+#mobile-sidebar-container {
+    transition: background-color 0.3s ease-in-out;
+}
+#mobile-sidebar {
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Specific styling for quiz options */
+.quiz-option-btn {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    text-align: left;
+    transition: background-color 0.2s, border-color 0.2s;
+    border: 1px solid var(--border-color);
+    background-color: var(--list-item-bg); /* Use list item background */
+    color: var(--text-primary); /* Use primary text color */
+}
+
+.quiz-option-btn:hover {
+    background-color: var(--list-item-hover-bg); /* Use list item hover background */
+}
+
+.quiz-option-btn.selected {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(var(--accent-blue-rgb), 0.5); /* A custom property needed for RGB */
+}
+
+.quiz-option-btn.correct {
+    background-color: rgba(var(--text-green-rgb), 0.2); /* Light green for correct */
+    border-color: var(--text-green);
+}
+
+.quiz-option-btn.incorrect {
+    background-color: rgba(var(--text-red-rgb), 0.2); /* Light red for incorrect */
+    border-color: var(--text-red);
+}
+
+/* Ensure focus outline for accessibility */
+*:focus {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+}
