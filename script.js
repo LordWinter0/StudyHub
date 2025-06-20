@@ -11,14 +11,18 @@ document.addEventListener('DOMContentLoaded', () => {
         dashboard: document.getElementById('view-dashboard'),
         library: document.getElementById('view-library'),
         'ai-learning': document.getElementById('view-ai-learning'),
+        'mind-map': document.getElementById('view-mind-map'), // New
+        glossary: document.getElementById('view-glossary'),   // New
         analytics: document.getElementById('view-analytics'),
+        achievements: document.getElementById('view-achievements'), // New
         study: document.getElementById('view-study'),
         focus: document.getElementById('view-focus'),
         'learning-hub': document.getElementById('view-learning-hub'),
         settings: document.getElementById('view-settings'),
-        tutorial: document.getElementById('view-tutorial') // New Tutorial View
+        tutorial: document.getElementById('view-tutorial')
     };
     const startReviewBtn = document.getElementById('start-review-btn');
+    const studyWeakAtomsBtn = document.getElementById('study-weak-atoms-btn'); // New
     const showAnswerBtn = document.getElementById('show-answer-btn');
     const flashcardContainer = document.getElementById('flashcard-container');
     const recallButtons = document.querySelectorAll('.recall-btn');
@@ -59,8 +63,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const aiOutputTitle = document.getElementById('ai-output-title');
     const aiOutputContentDisplay = document.getElementById('ai-output-content-display');
 
+    // Mind Map elements (New)
+    const mindMapCanvas = document.getElementById('mind-map-canvas');
+    const mindMapCtx = mindMapCanvas.getContext('2d');
+    const mindMapAddNodeBtn = document.getElementById('mind-map-add-node-btn');
+    const mindMapClearAllBtn = document.getElementById('mind-map-clear-all-btn');
+    const mindMapNodeTextInput = document.getElementById('mind-map-node-text-input');
+    const mindMapSaveBtn = document.getElementById('mind-map-save-btn');
+    const mindMapLoadSelect = document.getElementById('mind-map-load-select');
+
+    // Glossary elements (New)
+    const glossarySearchInput = document.getElementById('glossary-search-input');
+    const glossaryList = document.getElementById('glossary-list');
+    const emptyGlossaryMessage = document.getElementById('empty-glossary-message');
+
+    // Achievements elements (New)
+    const achievementsList = document.getElementById('achievements-list');
+    const emptyAchievementsMessage = document.getElementById('empty-achievements-message');
+
     // Notification Toast (Global)
     const notificationToast = document.getElementById('notification-toast');
+    const backupReminder = document.getElementById('backup-reminder'); // New
 
     const emptyLibraryMessage = document.getElementById('empty-library-message');
     const quickAddAtomBtnDashboard = document.getElementById('quick-add-atom-btn-dashboard');
@@ -101,9 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarUsername = document.getElementById('sidebar-username');
     const sidebarUsernameMobile = document.getElementById('sidebar-username-mobile');
     const globalSearchInput = document.getElementById('global-search-input');
-    const searchResultsModal = document.getElementById('search-results-modal'); // New search results modal
-    const closeSearchResultsModalBtn = document.getElementById('close-search-results-modal'); // New search results modal close button
-    const searchResultsContent = document.getElementById('search-results-content'); // New search results content div
+    const searchResultsModal = document.getElementById('search-results-modal');
+    const closeSearchResultsModalBtn = document.getElementById('close-search-results-modal');
+    const searchResultsContent = document.getElementById('search-results-content');
 
     // Settings Spaced Repetition Intervals
     const intervalPerfectInput = document.getElementById('interval-perfect');
@@ -160,15 +183,17 @@ document.addEventListener('DOMContentLoaded', () => {
         focusedSubjects: [],
         dailyChallengeProgress: 0,
         lastChallengeDate: null,
-        // Default Spaced Repetition Intervals (in days, 0.5 means 12 hours)
         srsIntervals: { perfect: 7, good: 3, struggled: 1, forgot: 0.25 }, // 0.25 days = 6 hours
-        // New SM-2 properties for each atom: ease factor, interval, repetitions
-        srsFactors: { perfect: 2.5, good: 2.0, struggled: 1.5, forgot: 1.3 } // Base Ease Factors
+        srsFactors: { perfect: 2.5, good: 2.0, struggled: 1.5, forgot: 1.3 },
+        achievements: [], // New: Store unlocked achievement IDs
+        lastExportDate: null // New: Track last data export for reminders
     };
 
     let initialLearningAtoms = [];
     let initialSubjects = [];
     let initialAiMaterials = [];
+    let initialGlossary = []; // New
+    let initialMindMaps = []; // New
 
     // All application data stored in mockData, loaded from localStorage
     let mockData = {
@@ -184,13 +209,15 @@ document.addEventListener('DOMContentLoaded', () => {
             repetitions: a.repetitions || 0
         })),
         aiMaterials: (JSON.parse(localStorage.getItem('auralearn_ai_materials')) || initialAiMaterials),
+        glossary: (JSON.parse(localStorage.getItem('auralearn_glossary')) || initialGlossary), // New
+        mindMaps: (JSON.parse(localStorage.getItem('auralearn_mind_maps')) || initialMindMaps), // New
         soundscapes: [
             { name: 'Rain', icon: '🌧️', file: 'rain.mp3' },
             { name: 'Forest', icon: '🌲', file: 'forest.mp3' },
             { name: 'Cafe', icon: '☕', file: 'cafe.mp3' },
             { name: 'Waves', icon: '🌊', file: 'waves.mp3' }
         ],
-        // Learning Hub Content with LLM-expandable details
+        // Learning Hub Content with LLM-expandable details (will be formatted by AI)
         learningHubContent: {
             auralearnBasics: [
                 { title: "What are Learning Atoms?", summary: "The building blocks of your knowledge in AuraLearn.", details: "In AuraLearn, a 'Learning Atom' is the smallest, most fundamental piece of information or concept you want to master. Breaking down knowledge into these atomic units allows AuraLearn's intelligent Spaced Repetition System (SRS) to precisely track your mastery of each individual piece and schedule it for optimal review, ensuring you don't waste time on what you already know while reinforcing challenging concepts." },
@@ -198,64 +225,64 @@ document.addEventListener('DOMContentLoaded', () => {
                 { title: "Your Mastery Score", summary: "Understanding your progress.", details: "Your 'Mastery Score' in AuraLearn reflects how deeply ingrained a 'Learning Atom' is in your long-term memory. It's dynamically updated based on your recall performance during study sessions. The higher your mastery, the less frequently an atom needs to be reviewed. This metric provides a clear, objective view of your knowledge retention over time across all your subjects." }
             ],
             techniques: [
-                { title: "Spaced Repetition", summary: "Reviewing material at increasing intervals to optimize retention.", details: "This technique is a cornerstone of effective learning. It leverages the 'spacing effect,' which demonstrates that learning is more effective when study sessions are spaced out over time rather than crammed into a single session. AuraLearn's algorithm dynamically adjusts the review intervals for each 'learning atom' based on your recall performance. If you recall an atom easily, it's scheduled further into the future (e.g., 7 days); if you struggle, it comes back sooner (e.g., 1 day or even hours). This adaptive scheduling ensures you revisit information just as you're about to forget it, significantly enhancing long-term memory consolidation and reducing study time on already mastered concepts." },
-                { title: "Active Recall", summary: "Testing yourself rather than passively re-reading.", details: "Active recall, also known as 'retrieval practice,' is a powerful study technique that involves actively pulling information from your memory rather than passively rereading notes or textbooks. When you practice active recall (e.g., through flashcards, self-quizzing, or explaining concepts aloud), you strengthen the neural pathways associated with that information, making it easier to retrieve in the future. This effortful retrieval process is much more effective for long-term retention than simply reviewing material. AuraLearn's flashcard system and 'Explain Concept' AI feature are designed to facilitate active recall, transforming passive study into active, effective learning." },
-                { title: "Feynman Technique", summary: "Learn by teaching; simplify complex ideas.", details: "The Feynman Technique, named after Nobel laureate physicist Richard Feynman, is a method for deeply understanding concepts by attempting to explain them in simple terms. The process involves four steps: 1) Choose a concept and study it, 2) Explain it as if to a child, 3) Identify gaps in your explanation and go back to the source material, and 4) Organize and simplify your explanation until it's clear and concise. This technique forces you to identify areas where your understanding is superficial, encourages simplification, and solidifies your knowledge by making connections. It's highly practical for moving from memorization to true comprehension." },
-                { title: "Interleaving", summary: "Mixing different topics/problems during study.", details: "Interleaving is a study strategy where you mix different types of problems or topics within a single study session, rather than 'blocking' (studying one topic exhaustively before moving to the next). For example, instead of practicing 20 algebra problems, then 20 geometry problems, you would mix them up. While initially it might feel harder because it requires your brain to constantly switch contexts, research shows interleaving leads to stronger long-term retention and better transfer of knowledge to new situations. It helps you discriminate between different concepts and choose the correct strategy for each problem type." },
-                { title: "Elaboration", summary: "Connecting new info to existing knowledge.", details: "Elaboration is a powerful memory encoding strategy that involves actively trying to connect new information with what you already know, or by creating a deeper understanding of the new material. This can involve asking 'why?' or 'how?' questions about the material, thinking of real-world examples, creating analogies, or finding personal relevance. By building a richer and more interconnected web of knowledge, you create more retrieval pathways, making the information easier to recall and less likely to be forgotten. It turns rote memorization into meaningful learning." },
-                { title: "Retrieval Practice", summary: "Actively pulling information out of your brain.", details: "Retrieval practice is the act of recalling learned information from memory. This is not just a way to assess knowledge, but a powerful learning strategy in itself. Every time you successfully retrieve a piece of information, the memory trace for that information becomes stronger and more stable. This means that activities like self-quizzing, using flashcards, writing summaries from memory, or attempting practice problems without looking at notes are incredibly effective. It's about effortful recall, which solidifies learning more than passive re-reading or highlighting." },
-                { title: "Reading & Understanding Fast", summary: "Strategies to accelerate comprehension without losing depth.", details: "Efficient reading isn't just about speed; it's about accelerating comprehension without sacrificing depth. Key strategies include: 1) **Previewing:** Skim the title, headings, introduction, and conclusion to get a general idea. 2) **Questioning:** Formulate questions before and during reading. 3) **Active Engagement:** Highlight key points, take concise notes, and summarize sections in your own words. 4) **Chunking:** Read in phrases rather than word-by-word. 5) **Minimizing Subvocalization:** Try to reduce mentally 'saying' words as you read. These practices help you extract the most important information quickly and improve overall understanding." },
-                { title: "Study Effectively", summary: "Optimizing your study time for maximum impact.", details: "Studying effectively is about maximizing the quality, not just the quantity, of your study time. Practical strategies include: 1) **Set Clear Goals:** Define what you want to achieve in each session. 2) **Active Learning:** Prioritize active recall, spaced repetition, and problem-solving over passive methods. 3) **Minimize Distractions:** Create a dedicated study environment free from interruptions. 4) **Take Strategic Breaks:** Use methods like Pomodoro (25 min work, 5 min break) to maintain focus and prevent burnout. 5) **Self-Assessment:** Regularly test yourself to identify knowledge gaps. 6) **Vary Study Methods:** Mix techniques to keep engagement high. These habits build consistent, high-impact learning." }
+                { title: "Spaced Repetition", summary: "Reviewing material at increasing intervals to optimize retention.", details: "" },
+                { title: "Active Recall", summary: "Testing yourself rather than passively re-reading.", details: "" },
+                { title: "Feynman Technique", summary: "Learn by teaching; simplify complex ideas.", details: "" },
+                { title: "Interleaving", summary: "Mixing different topics/problems during study.", details: "" },
+                { title: "Elaboration", summary: "Connecting new info to existing knowledge.", details: "" },
+                { title: "Retrieval Practice", summary: "Actively pulling information out of your brain.", details: "" },
+                { title: "Reading & Understanding Fast", summary: "Strategies to accelerate comprehension without losing depth.", details: "" },
+                { title: "Study Effectively", summary: "Optimizing your study time for maximum impact.", details: "" }
             ],
             memorization: [
-                { title: "Mnemonic Devices", summary: "Using memory aids like acronyms or rhymes.", details: "Mnemonic devices are techniques that act as memory aids, helping you recall information that might otherwise be difficult to remember. They work by creating a vivid and often unusual connection between the new information and something you already know. Common types include: 1) **Acronyms:** Using the first letter of each word to form a new word (e.g., 'ROY G BIV' for the colors of the rainbow). 2) **Acrostics:** Creating a sentence where the first letter of each word represents an item to be remembered (e.g., 'My Very Educated Mother Just Served Us Noodles' for planets). 3) **Rhymes & Songs:** Setting information to a catchy tune or rhyme. 4) **Visual Imagery:** Creating a bizarre mental picture involving the items. These techniques provide strong retrieval cues for complex information." },
-                { title: "Method of Loci (Memory Palace)", summary: "Associating items with locations in a familiar place.", details: "The Method of Loci, or 'Memory Palace,' is an ancient memorization technique that leverages our strong spatial memory. You associate items you want to remember with specific locations along a familiar mental 'journey' or within a well-known building (your 'palace'). To recall the information, you mentally 'walk' through your palace, encountering the items in their assigned locations. The more vivid and interactive your mental images are, the more effective this method becomes. It's particularly useful for remembering lists, sequences, or speeches, as it transforms abstract information into a concrete, navigable mental landscape." },
-                { title: "Chunking", summary: "Grouping information into smaller, manageable units.", details: "Chunking is a cognitive strategy that involves organizing individual pieces of information into larger, more meaningful units or 'chunks.' Our working memory has a limited capacity (roughly 7 +/- 2 items). By grouping related items into a single chunk, you effectively expand this capacity. For example, remembering a 10-digit phone number as three chunks (e.g., 555-123-4567) is easier than remembering 10 individual digits. This technique is highly practical for memorizing long numbers, lists, or even complex concepts by breaking them down into digestible, interconnected components." },
-                { title: "Visual Imagery", summary: "Creating vivid mental pictures to aid recall.", details: "Visual imagery for memorization involves forming strong, vivid mental pictures of the information you want to remember. The human brain is highly adept at processing visual information. The more bizarre, exaggerated, humorous, or interactive the mental image you create, the more memorable it becomes. This technique is especially effective for concrete nouns, but it can also be applied to abstract concepts by translating them into visual metaphors. For instance, picturing a specific historical event unfolding like a movie scene can embed it more firmly in your memory than simply reading about it." },
-                { title: "Story Method", summary: "Weaving items into a narrative.", details: "The Story Method, or 'chaining,' is a mnemonic technique where you connect items you need to remember by creating a narrative or story that links them together. The story doesn't necessarily need to be logical or make perfect sense; in fact, often the more imaginative, unusual, or humorous the story, the easier it is to recall the sequence of items. Each item in your list becomes a 'character' or 'event' in your mental narrative. This method is particularly useful for remembering lists in a specific order, as the flow of the story provides a natural retrieval cue." },
-                { title: "Remember What You Read", summary: "Strategies to retain information from texts.", details: "To effectively remember what you read, passive consumption isn't enough. Employ active reading techniques: 1) **SQ3R Method:** Survey, Question, Read, Recite, Review. 2) **Highlight & Annotate:** But do so selectively; don't just highlight everything. Add your own thoughts and questions in the margins. 3) **Take Summary Notes:** After each section, close the book and write down the main ideas in your own words. 4) **Active Recall:** Periodically quiz yourself on what you've just read. 5) **Connect to Prior Knowledge:** Relate new information to what you already know to create stronger memory links. These strategies transform reading into an active learning process." },
-                { title: "Memorize Fast", summary: "Accelerated memorization techniques.", details: "To memorize quickly and effectively for long-term retention, combine multiple powerful techniques: 1) **Understand First:** Don't try to memorize what you don't understand. Deep comprehension makes memorization easier. 2) **Spaced Repetition:** Use tools like AuraLearn to schedule optimal review times. 3) **Active Recall:** Constantly test yourself. 4) **Chunking:** Break information into smaller, digestible units. 5) **Mnemonic Devices:** Employ acronyms, visual imagery, or the Method of Loci for complex lists. 6) **Teach Others:** Explaining a concept solidifies your own understanding and exposes gaps. Focus on these active, scientifically-backed methods rather than passive cramming." }
+                { title: "Mnemonic Devices", summary: "Using memory aids like acronyms or rhymes.", details: "" },
+                { title: "Method of Loci (Memory Palace)", summary: "Associating items with locations in a familiar place.", details: "" },
+                { title: "Chunking", summary: "Grouping information into smaller, manageable units.", details: "" },
+                { title: "Visual Imagery", summary: "Creating vivid mental pictures to aid recall.", details: "" },
+                { title: "Story Method", summary: "Weaving items into a narrative.", details: "" },
+                { title: "Remember What You Read", summary: "Strategies to retain information from texts.", details: "" },
+                { title: "Memorize Fast", summary: "Accelerated memorization techniques.", details: "" }
             ],
             biases: [
-                { title: "Confirmation Bias", summary: "Seeking info that confirms existing beliefs.", details: "Confirmation bias is the tendency to seek out, interpret, and favor information that confirms your existing beliefs or hypotheses, while disproportionately ignoring or downplaying evidence that contradicts them. In the context of learning, this can be detrimental because it prevents objective evaluation of new information. For example, if you believe a certain study method is best, you might only notice successes and dismiss failures. To combat this, actively seek out diverse perspectives, consider alternative explanations, and specifically look for evidence that challenges your current understanding. AuraLearn's reflection tools can prompt you to consider different viewpoints." },
-                { title: "Availability Heuristic", summary: "Overestimating based on ease of recall.", details: "The Availability Heuristic is a mental shortcut where we estimate the likelihood or frequency of an event based on how easily examples or instances come to mind. If something is easily recalled (e.g., due to recent exposure, vividness, or emotional impact), we tend to overestimate its prevalence. In learning, this might lead you to believe you understand a topic thoroughly because the most common examples are at the tip of your tongue, even if you lack a deeper, comprehensive grasp. To mitigate this, intentionally seek out less obvious or more challenging examples, and rely on systematic review rather than just what feels familiar." },
-                { title: "Dunning-Kruger Effect", summary: "Mistakenly overestimating one's knowledge/ability.", details: "The Dunning-Kruger Effect is a cognitive bias in which people with low ability at a task overestimate their own ability, while those with high ability tend to underestimate their competence. In learning, this means novices might falsely believe they've mastered a subject after a superficial review, leading to insufficient study. Conversely, true experts might assume a task is easy for everyone, underestimating the effort required. AuraLearn's objective mastery tracking and spaced repetition system aim to provide concrete, unbiased feedback on your true knowledge gaps, helping you allocate study time effectively and overcome both overconfidence and undue self-doubt." },
-                { title: "Anchoring Bias", summary: "Over-relying on the first piece of info encountered.", details: "Anchoring bias is the tendency to rely too heavily on the first piece of information offered (the 'anchor') when making decisions or judgments. Subsequent information is then interpreted relative to this initial anchor. In learning, an initial incorrect or limited understanding of a concept can become an 'anchor,' making it difficult to adjust your understanding later, even when presented with more accurate information. For instance, if you first learn a simplified version of a complex theory, that simplification might 'anchor' your understanding, hindering you from grasping its full nuances later. Be aware of your initial impressions and be willing to actively challenge and adjust them as new information comes in." },
-                { title: "Hindsight Bias", summary: "'I knew it all along' phenomenon.", details: "Hindsight bias, often called the 'I-knew-it-all-along' effect, is the inclination, after an event has occurred, to see the event as having been predictable, despite there having been little or no objective basis for predicting it beforehand. This bias can impede effective learning from past mistakes because you falsely believe you already understood the outcome or the solution, reducing the perceived need for deeper analysis or corrective action. To combat this, actively record your predictions *before* an event or problem is solved, and compare them with the actual outcomes to realistically assess your initial knowledge and identify true learning opportunities." }
+                { title: "Confirmation Bias", summary: "Seeking info that confirms existing beliefs.", details: "" },
+                { title: "Availability Heuristic", summary: "Overestimating based on ease of recall.", details: "" },
+                { title: "Dunning-Kruger Effect", summary: "Mistakenly overestimating one's knowledge/ability.", details: "" },
+                { title: "Anchoring Bias", summary: "Over-relying on the first piece of info encountered.", details: "" },
+                { title: "Hindsight Bias", summary: "'I knew it all along' phenomenon.", details: "" }
             ],
             productivity: [
-                { title: "The 1-Hour Study Method", summary: "Structured, efficient study blocks.", details: "The 1-Hour Study Method is a structured time management technique designed to maximize focus and productivity. It involves dedicating **50 minutes to intense, uninterrupted, focused study**, immediately followed by a **10-minute break**. This method is similar to the Pomodoro Technique but allows for a slightly longer period of deep work, which can be beneficial for complex subjects requiring more sustained concentration. The short, scheduled breaks help prevent mental fatigue, improve retention, and keep you refreshed. It trains your brain to concentrate for set periods, making your study sessions much more efficient than unstructured, lengthy sessions prone to distraction." },
-                { title: "Love Disciplining Yourself", summary: "Strategies for building self-discipline.", details: "Building self-discipline for learning isn't about harshness, but about consistent, small actions that build momentum. Key strategies include: 1) **Set Clear Micro-Goals:** Break large goals into tiny, achievable daily tasks. 2) **Establish Routines:** Consistently study at the same time and place to create strong habits. 3) **Eliminate Distractions:** Design your environment to make studying easier and distractions harder (e.g., put phone away). 4) **Practice Delayed Gratification:** Resist immediate temptations for long-term rewards. 5) **Reward Small Wins:** Acknowledge your efforts and progress to reinforce positive behavior. 6) **Understand Your 'Why':** Connect your discipline to your overarching learning goals and purpose. Discipline is a muscle that strengthens with consistent exercise." },
-                { title: "Stop Phone Addiction", summary: "Practical steps to reduce digital distractions.", details: "Phone addiction severely impacts focus and learning. To combat it effectively: 1) **Set App Limits:** Use your phone's built-in features to limit time on distracting apps. 2) **Use 'Do Not Disturb' Modes:** Silence notifications during study blocks. 3) **Physical Separation:** Keep your phone in another room or out of sight during focused work. 4) **Scheduled Checks:** Designate specific times to check messages/social media. 5) **Find Alternatives:** Replace phone-checking habits with productive or relaxing break activities (e.g., light stretching, reading a physical book). 6) **Awareness:** Track your usage to understand triggers. Gradually reducing reliance helps regain focus and control over your attention." },
-                { title: "6-Step Method for Catching Up", summary: "A structured approach to recover lost study time.", details: "When you fall behind, a structured approach is crucial to avoid overwhelm: 1) **Prioritize ruthlessly:** Identify the most critical topics or exams that need immediate attention. 2) **Break it down:** Divide the daunting backlog into very small, manageable chunks. 3) **Schedule dedicated blocks:** Allocate specific, uninterrupted time slots in your calendar just for catch-up work. 4) **Focus on active recall:** Use self-quizzing, flashcards, or practice problems to maximize efficiency. 5) **Leverage summaries:** If time is extremely short, focus on summaries, key concepts, and past exam questions rather than re-reading entire chapters. 6) **Seek help strategically:** Don't hesitate to ask specific questions from teachers or peers for clarity on difficult points. Avoid the urge to cram everything; focus on high-impact learning." },
-                { title: "Use Second Brain", summary: "Organizing your knowledge outside your head.", details: "A 'Second Brain' is a digital system for organizing all your notes, ideas, and learning resources, essentially serving as an extension of your own memory. Tools like Notion, Evernote, or Obsidian allow you to: 1) **Capture:** Quickly save anything interesting or important you encounter. 2) **Organize:** Structure your notes by projects, areas of interest, resources, and archives. 3) **Distill:** Summarize and highlight key information. 4) **Express:** Use your organized knowledge to create, write, and learn more effectively. This system frees up your mental RAM, reduces cognitive load, and allows you to connect disparate ideas, fostering deeper learning and creativity." },
-                { title: "5 Productivity Tips Teachers Never Teach", summary: "Unconventional but effective study habits.", details: "Beyond traditional advice, these 'secret' A+ study tips focus on deep learning and efficiency: 1) **Teach What You Learn:** Explaining a concept to someone else (or even an imaginary audience) exposes gaps in your understanding and solidifies knowledge. 2) **Strategic Breaks:** Go beyond just short breaks; take walks in nature, engage in light exercise, or meditate to refresh your mind. 3) **Change Your Study Environment:** Shifting locations can improve memory retention due to context-dependent learning. 4) **Use Background Music (Carefully):** Instrumental music, especially classical or lo-fi beats, can enhance focus for some, but lyrics can distract. 5) **Know Your Peak Performance Times:** Identify when you are most alert and focused, and schedule your most challenging tasks for those times. Experiment to discover what truly works for your unique learning style." },
-                { title: "Manage Your Study Schedule", summary: "Creating and sticking to an effective learning routine.", details: "An effective study schedule is a roadmap to consistent progress. Practical steps: 1) **Assess Your Time:** Honestly evaluate how much time you *actually* have. 2) **Prioritize:** List subjects/tasks by importance and urgency. 3) **Allocate Time:** Assign specific blocks for each subject, including review and break times. Be realistic. 4) **Be Specific:** Instead of 'Study Math,' write 'Complete Ch 3 problems 1-10.' 5) **Build Flexibility:** Don't overschedule; leave buffer time for unexpected events. 6) **Review & Adapt:** Weekly, review your progress and adjust your schedule based on what worked and what didn't. Consistency in following a well-planned schedule is far more important than a perfect, but unrealistic, one." },
-                { title: "Best Study Schedules for YOU!", summary: "Tailoring study plans to individual needs.", details: "There's no one-size-fits-all study schedule. The best one is tailored to *your* unique energy levels, commitments, and learning style. Consider: 1) **Chronotype:** Are you a morning lark or a night owl? Schedule your hardest tasks when you're most alert. 2) **Commitments:** Factor in classes, work, and personal obligations. 3) **Learning Style:** Do you prefer short, intense bursts (like Pomodoro) or longer, deep-dive sessions? 4) **Subject Needs:** Some subjects might require more frequent, shorter sessions, while others benefit from longer, focused blocks. Experiment with different structures (e.g., block scheduling, interleaved scheduling) and adjust until you find a rhythm that maximizes your focus, retention, and well-being. Flexibility and self-awareness are key." },
-                { title: "Combat ADHD (Study Tips)", summary: "Strategies for studying with attention challenges.", details: "For individuals with ADHD, effective study strategies are crucial for maintaining focus and maximizing learning: 1) **Break Tasks into Micro-Chunks:** Instead of 'write essay,' think 'outline essay,' 'write intro paragraph,' etc. 2) **Use Visual Aids & Timers:** Visual timers can help manage time and transition. 3) **Incorporate Movement:** Fidgeting or short bursts of exercise can help release restless energy. 4) **Create a Distraction-Free Zone:** Minimize visual and auditory clutter; consider noise-cancelling headphones. 5) **Externalize Information:** Don't rely solely on memory; use notes, checklists, and reminders. 6) **Regular Breaks & Rewards:** Short, frequent breaks prevent burnout, and small rewards can boost motivation. 7) **Medication/Therapy:** These can be powerful tools when combined with behavioral strategies. Focus on structured, engaging, and multi-sensory approaches." },
-                { title: "5 Most Effective Note-Taking Methods", summary: "Optimizing your notes for better retention and recall.", details: "Effective note-taking transforms passive listening into active learning. Here are 5 highly effective methods: 1) **Cornell Notes:** Divide your paper into sections for main notes, cues, and a summary. Promotes active recall. 2) **Sketchnoting:** Combines drawings, symbols, and text to represent ideas visually. Enhances engagement and memory. 3) **Mind Mapping:** Branching diagrams connect central ideas to sub-ideas, showing relationships. Great for brainstorming and complex topics. 4) **Linear Note-Taking:** Traditional bullet points, but with careful use of headings and subheadings. Good for structured information. 5) **Outlining Method:** Uses Roman numerals, letters, and numbers to organize notes hierarchically. Excellent for highly structured lectures or texts. Choose the method that best suits the content and your learning style, or combine elements from different methods." },
-                { title: "5 Effective Study Methods to Boost Motivation", summary: "Techniques to stay engaged and energized.", details: "Maintaining study motivation can be challenging. Here are 5 effective methods: 1) **Set Small, Achievable Goals:** Instead of 'study for 3 hours,' aim for 'complete this section.' Success builds confidence. 2) **Reward Yourself:** Plan small, immediate rewards for completing tasks (e.g., a short break, a favorite snack). 3) **Find a Study Buddy/Group:** Accountability and collaborative learning can boost morale. 4) **Understand Your 'Why':** Connect your current study efforts to your long-term aspirations. Remind yourself of the bigger picture. 5) **Practice Positive Self-Talk:** Challenge negative thoughts; focus on your progress and capabilities. Remember, motivation isn't constant; it's something you actively cultivate." },
-                { title: "Understand Better and Faster", summary: "Deepening comprehension with efficient techniques.", details: "To understand concepts better and faster, move beyond superficial engagement: 1) **Pre-Read/Scan:** Get a general idea before diving deep. 2) **Ask Questions:** Formulate 'why' and 'how' questions as you read/listen. 3) **Explain Aloud:** Articulate the concept in your own words, as if teaching someone. This quickly reveals gaps. 4) **Connect Ideas:** Actively link new information to what you already know. Use analogies. 5) **Summarize Actively:** After a section, summarize it from memory. 6) **Seek Clarification:** Don't let confusion linger; ask questions. These active strategies force deeper processing and lead to more robust, lasting understanding." },
-                { title: "Focus When Feeling Tired", summary: "Tips for maintaining concentration when fatigued.", details: "Studying effectively when tired requires smart strategies: 1) **Short Power Naps:** A 10-20 minute nap can significantly boost alertness. 2) **Hydration & Nutrition:** Drink water and have a healthy snack. 3) **Light Physical Activity:** A quick walk or stretch can increase blood flow and energy. 4) **Change Tasks/Environment:** Switch to a less demanding task or move to a different study spot. 5) **Use Ambient Sounds:** Gentle background noise can sometimes help block out other distractions. 6) **Prioritize Sleep:** These are temporary fixes; consistent, adequate sleep is the ultimate foundation for sustained focus. If truly exhausted, prioritize rest over ineffective study." },
-                { title: "5 Scientifically-Backed Study Methods to Build Discipline", summary: "Practical strategies for fostering self-control in learning.", details: "Building study discipline is about creating strong habits reinforced by science: 1) **Habit Stacking:** Attach a new study habit to an existing one (e.g., 'After I brush my teeth, I will review flashcards for 10 minutes'). 2) **Environmental Design:** Make your study environment conducive to focus and remove temptations (e.g., phone in another room). 3) **If-Then Plans:** Decide in advance how you'll handle common distractions or procrastination triggers ('If I feel like checking social media, then I will immediately do 5 push-ups'). 4) **Accountability Partners:** A study buddy or mentor can provide external motivation and structure. 5) **Progress Tracking:** Visually track your consistent study sessions (e.g., on a calendar or in AuraLearn's analytics) to see your progress and reinforce the habit loop. These methods leverage behavioral psychology to make discipline easier and more automatic." }
+                { title: "The 1-Hour Study Method", summary: "Structured, efficient study blocks.", details: "" },
+                { title: "Love Disciplining Yourself", summary: "Strategies for building self-discipline.", details: "" },
+                { title: "Stop Phone Addiction", summary: "Practical steps to reduce digital distractions.", details: "" },
+                { title: "6-Step Method for Catching Up", summary: "A structured approach to recover lost study time.", details: "" },
+                { title: "Use Second Brain", summary: "Organizing your knowledge outside your head.", details: "" },
+                { title: "5 Productivity Tips Teachers Never Teach", summary: "Unconventional but effective study habits.", details: "" },
+                { title: "Manage Your Study Schedule", summary: "Creating and sticking to an effective learning routine.", details: "" },
+                { title: "Best Study Schedules for YOU!", summary: "Tailoring study plans to individual needs.", details: "" },
+                { title: "Combat ADHD (Study Tips)", summary: "Strategies for studying with attention challenges.", details: "" },
+                { title: "5 Most Effective Note-Taking Methods", summary: "Optimizing your notes for better retention and recall.", details: "" },
+                { title: "5 Effective Study Methods to Boost Motivation", summary: "Techniques to stay engaged and energized.", details: "" },
+                { title: "Understand Better and Faster", summary: "Deepening comprehension with efficient techniques.", details: "" },
+                { title: "Focus When Feeling Tired", summary: "Tips for maintaining concentration when fatigued.", details: "" },
+                { title: "5 Scientifically-Backed Study Methods to Build Discipline", summary: "Practical strategies for fostering self-control in learning.", details: "" }
             ],
             examPrep: [
-                { title: "How to Predict Exam Questions", summary: "Strategies to anticipate potential test content.", details: "Predicting exam questions is about strategic preparation: 1) **Analyze Past Exams:** Look for recurring themes, question formats, and highly tested concepts. 2) **Instructor Clues:** Pay close attention to topics emphasized repeatedly in lectures, readings, or homework assignments. What does your teacher say is 'important'? 3) **Review Learning Objectives/Syllabus:** These often directly state what you're expected to know. 4) **Transform Headings into Questions:** Convert chapter/section headings into questions you can answer. 5) **Practice Problem Patterns:** Understand the *types* of problems rather than just memorizing solutions. 6) **Connect Concepts:** Exam questions often test your ability to link different parts of the material. AuraLearn's AI prediction feature can further assist by generating potential questions based on your input." },
-                { title: "A+ Study Tips Students Won't Tell", summary: "Insider tips for achieving top grades.", details: "Beyond the obvious, these 'secret' A+ study tips focus on deep learning and efficiency: 1) **Active Recall from Day One:** Don't just re-read; test yourself continuously. 2) **Teach to Learn:** Explain concepts to friends, family, or even pets. If you can teach it, you understand it. 3) **Explain Aloud:** Verbally articulating concepts forces coherent understanding. 4) **Vary Study Environments:** Studying in different locations can create more retrieval cues. 5) **Focus on Weaknesses:** Don't just review what you know; identify and actively target your knowledge gaps. 6) **Strategic Breaks & Rewards:** Use short, refreshing breaks and small rewards to maintain motivation and prevent burnout. These methods prioritize quality and active engagement." },
-                { title: "Ace Your Science Exams", summary: "Specific strategies for excelling in science subjects.", details: "Acing science exams requires a specific approach: 1) **Understand Principles:** Don't just memorize facts; grasp the 'why' behind phenomena. 2) **Practice Problem-Solving Relentlessly:** Science is applied knowledge. Work through all practice problems available. 3) **Draw Diagrams & Visuals:** Illustrate processes, structures, and relationships. Label everything. 4) **Concept Maps:** Create visual maps to connect disparate ideas and see the 'big picture.' 5) **Consistent Review:** Science builds incrementally; regular spaced repetition is vital. Focus on active application of knowledge." },
-                { title: "Study Less and Get Higher Grades", summary: "Efficiency strategies for academic success.", details: "This isn't about laziness; it's about smart, high-leverage studying. Strategies include: 1) **Prioritize High-Yield Topics:** Focus on concepts most likely to appear on exams or those fundamental to understanding the subject. 2) **Active Learning Over Passive:** Spend more time quizzing yourself, teaching, and problem-solving, and less time re-reading. 3) **Spaced Repetition:** Let AuraLearn's algorithm optimize your review schedule so you don't overstudy. 4) **Pre-reading:** Skim material before lectures to get context. 5) **Effective Note-Taking:** Use methods that encourage active processing (e.g., Cornell, mind maps). 6) **Quality Over Quantity:** A focused 30-minute session using active recall is more effective than 2 hours of distracted passive reading. It's about working smarter, not harder." },
-                { title: "Ace Exams in Just 3 Days", summary: "High-intensity, focused exam preparation.", details: "While not ideal for deep retention, this is a crisis strategy for urgent exam prep: 1) **Triage Content:** Ruthlessly prioritize. Focus only on the absolute most important topics based on syllabus, past exams, and instructor cues. 2) **Active Recall ONLY:** No passive reading. Use flashcards, rapid self-quizzing, and practice problems immediately. 3) **Timed Practice:** Do full-length practice exams under strict time limits to build stamina and identify weak spots. 4) **Summarize Key Concepts:** Quickly write down everything you remember about crucial topics. 5) **Prioritize Sleep:** Even during crunch time, some sleep is better than none for cognitive function. This method is about maximizing short-term retrieval, but long-term mastery still requires spaced, consistent effort." },
-                { title: "Decode Exam Questions Like a Pro", summary: "Understanding what questions are truly asking.", details: "Mastering exam questions goes beyond knowing the content; it's about understanding the question itself: 1) **Read Carefully, Twice:** Don't skim. Identify all keywords and constraints. 2) **Identify Command Words:** Words like 'compare,' 'contrast,' 'analyze,' 'explain,' 'evaluate,' 'describe,' 'define,' tell you *what* to do. 3) **Break Down Complex Questions:** If a question has multiple parts, deconstruct it into individual components. 4) **Rephrase in Your Own Words:** If unsure, rephrase the question simply to ensure you grasp its core meaning. 5) **Outline Your Answer:** Before writing, mentally (or physically) outline the key points you'll include, ensuring you address all parts of the prompt. This systematic approach prevents 'answer-what-you-know' instead of 'answer-what-is-asked'." }
+                { title: "How to Predict Exam Questions", summary: "Strategies to anticipate potential test content.", details: "" },
+                { title: "A+ Study Tips Students Won't Tell", summary: "Insider tips for achieving top grades.", details: "" },
+                { title: "Ace Your Science Exams", summary: "Specific strategies for excelling in science subjects.", details: "" },
+                { title: "Study Less and Get Higher Grades", summary: "Efficiency strategies for academic success.", details: "" },
+                { title: "Ace Exams in Just 3 Days", summary: "High-intensity, focused exam preparation.", details: "" },
+                { title: "Decode Exam Questions Like a Pro", summary: "Understanding what questions are truly asking.", details: "" }
             ],
             advanced: [
-                { title: "Metacognition & Self-Regulation", summary: "Understanding and managing your own learning.", details: "Metacognition is 'thinking about thinking' – your awareness and understanding of your own thought processes. Self-regulation in learning is the ability to actively manage and direct your learning process. This involves: 1) **Planning:** Setting goals and choosing strategies. 2) **Monitoring:** Checking your comprehension and progress during learning. 3) **Evaluating:** Assessing the effectiveness of your strategies and your overall learning outcome. 4) **Adapting:** Adjusting your approach based on what you've learned from monitoring and evaluating. AuraLearn encourages metacognition through features like reflection prompts and detailed analytics, empowering you to become a more independent, strategic, and ultimately more effective learner." },
-                { title: "Dual Coding Theory", summary: "Combining verbal and visual representations.", details: "Dual Coding Theory, proposed by Allan Paivio, suggests that information is processed and stored in memory through two distinct channels: one for verbal information (words, text) and another for non-verbal information (images, diagrams, sounds). Learning is significantly enhanced when both channels are engaged simultaneously. For example, when you read about a concept (verbal) and also visualize it or look at a diagram (non-verbal), you create two separate mental representations. This dual encoding makes the information more robust in memory and increases the likelihood of successful retrieval. Practical applications include using diagrams, illustrations, mind maps, or creating mental images while reading or listening." },
-                { title: "Desirable Difficulties", summary: "Strategies that slow learning but aid long-term retention.", details: "Desirable difficulties are learning conditions that, while initially seeming to make learning harder or slower, actually lead to better long-term retention and transfer of knowledge. Examples include: 1) **Spaced Repetition:** Spreading out study sessions over time instead of cramming. 2) **Active Recall:** Testing yourself rather than just re-reading. 3) **Interleaving:** Mixing different types of problems or topics. 4) **Varied Practice:** Practicing skills in different contexts. These strategies introduce a beneficial 'struggle' that forces deeper cognitive processing and strengthens memory traces, making the learning more robust and flexible for future application. Embrace the effort, as it often signifies more effective learning." },
-                { title: "Growth Mindset", summary: "Believing intelligence can be developed.", details: "A Growth Mindset, a concept developed by Carol Dweck, is the belief that your basic abilities, intelligence, and talents can be developed through dedication and hard work. In contrast to a Fixed Mindset (belief that abilities are static), a growth mindset sees challenges as opportunities for growth, effort as a path to mastery, and mistakes as learning experiences. Embracing this mindset leads to greater persistence in the face of setbacks, a love of learning, and a stronger drive to improve. For learners, cultivating a growth mindset means focusing on the process of learning, celebrating effort, and seeing failures not as an end, but as valuable feedback for improvement." },
-                { title: "Pomodoro Technique", summary: "Structured time management for focus.", details: "The Pomodoro Technique is a time management method developed by Francesco Cirillo. It uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks. Each interval is known as a 'pomodoro'. The steps are: 1) Choose a task. 2) Set a timer for 25 minutes. 3) Work on the task until the timer rings. 4) Take a 5-minute short break. 5) After four pomodoros, take a longer break (15-30 minutes). This technique helps improve focus, prevents burnout, and fosters a sense of urgency. It teaches your brain to concentrate for fixed periods and provides regular opportunities to rest and recharge, making long study sessions more manageable and effective." }
+                { title: "Metacognition & Self-Regulation", summary: "Understanding and managing your own learning.", details: "" },
+                { title: "Dual Coding Theory", summary: "Combining verbal and visual representations.", details: "" },
+                { title: "Desirable Difficulties", summary: "Strategies that slow learning but aid long-term retention.", details: "" },
+                { title: "Growth Mindset", summary: "Believing intelligence can be developed.", details: "" },
+                { title: "Pomodoro Technique", summary: "Structured time management for focus.", details: "" }
             ]
         },
-        // Tutorial content data
+        // Tutorial content data (as previously defined)
         tutorialContent: {
             dashboard: {
                 title: "Dashboard Overview",
@@ -279,6 +306,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         heading: "Recommended for You",
                         content: "AuraLearn intelligently suggests atoms you might want to review next, helping you prioritize your learning.",
                         highlightElementId: "recommended-atoms-list"
+                    },
+                    {
+                        heading: "Study Weak Atoms",
+                        content: "Target your most challenging concepts with a dedicated study session for 'Weak Atoms'. These are cards you've struggled with.",
+                        highlightElementId: "study-weak-atoms-btn"
+                    },
+                    {
+                        heading: "Backup Reminder",
+                        content: "AuraLearn stores your data locally. Remember to export your data regularly as a backup!",
+                        highlightElementId: "backup-reminder"
                     }
                 ]
             },
@@ -356,8 +393,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: "Deep Dive: Spaced Repetition System (SRS)",
                 isDetailedGuide: true,
                 content: `
-                    <h3>What is Spaced Repetition?</h3>
-                    <p>Spaced Repetition is a learning technique where you review material at increasing intervals over time. The goal is to revisit information just as you're about to forget it, which dramatically improves long-term retention compared to cramming.</p>
+                    <h3>Main Info</h3>
+                    <ul>
+                        <li>Spaced Repetition is a learning technique where you review material at increasing intervals over time. The goal is to revisit information just as you're about to forget it, which dramatically improves long-term retention compared to cramming.</li>
+                    </ul>
                     <h3>How AuraLearn's SRS Works</h3>
                     <ul>
                         <li><strong>Recall Rating:</strong> After reviewing a flashcard, you rate your recall: Forgot (0), Struggled (1), Good (2), Perfect (3).</li>
@@ -371,15 +410,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             </ul>
                         </li>
                     </ul>
-                    <p>This adaptive system ensures that concepts you find easy are reviewed less often, freeing up time for more challenging material.</p>
+                    <h3>Conclusion</h3>
+                    <ul>
+                        <li>This adaptive system ensures that concepts you find easy are reviewed less often, freeing up time for more challenging material.</li>
+                    </ul>
                 `
             },
             'customizing-ai': {
                 title: "Customizing AI Generation",
                 isDetailedGuide: true,
                 content: `
-                    <h3>Getting the Best Results from AI Learning Studio</h3>
-                    <p>The AI Learning Studio is powerful, but good input leads to great output:</p>
+                    <h3>Main Info</h3>
+                    <ul>
+                        <li>The AI Learning Studio is powerful, but good input leads to great output.</li>
+                    </ul>
+                    <h3>Tips for Getting the Best Results from AI Learning Studio</h3>
                     <ul>
                         <li><strong>Be Specific:</strong> The more precise your prompt or input text, the better the AI can understand your needs.</li>
                         <li><strong>Topic Mode vs. Text Mode:</strong>
@@ -392,14 +437,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         <li><strong>Iterate:</strong> If the first output isn't perfect, try rephrasing your input or generating a different type of material.</li>
                         <li><strong>Edit Output:</strong> Don't treat AI output as final. It's a starting point! Use it as a draft and refine it to perfectly suit your learning style and needs.</li>
                     </ul>
+                    <h3>Conclusion</h3>
+                    <ul>
+                        <li>By providing clear instructions and refining outputs, you can maximize the AI's effectiveness as a study aid.</li>
+                    </ul>
                 `
             },
             'goal-setting': {
                 title: "Effective Goal Setting",
                 isDetailedGuide: true,
                 content: `
-                    <h3>Setting SMART Learning Goals</h3>
-                    <p>Goals help you stay motivated and track progress. Use the SMART framework:</p>
+                    <h3>Main Info</h3>
+                    <ul>
+                        <li>Goals help you stay motivated and track progress in your learning journey.</li>
+                    </ul>
+                    <h3>Using the SMART Framework for Learning Goals</h3>
                     <ul>
                         <li><strong>Specific:</strong> Clearly define what you want to achieve. (e.g., "Master 50 new JavaScript atoms" instead of "Learn JavaScript").</li>
                         <li><strong>Measurable:</strong> Ensure your goal can be tracked. AuraLearn helps with this by tracking mastered atoms and study time.</li>
@@ -407,26 +459,38 @@ document.addEventListener('DOMContentLoaded', () => {
                         <li><strong>Relevant:</strong> Your goals should align with your broader academic or personal development objectives.</li>
                         <li><strong>Time-bound:</strong> Give your goal a clear end date. This creates urgency.</li>
                     </ul>
-                    <p><strong>In AuraLearn:</strong> Go to the Analytics view and click "+ Add Goal" to set your objectives.</p>
+                    <h3>How to Set Goals in AuraLearn</h3>
+                    <ul>
+                        <li>Go to the <strong>Analytics</strong> view and click "<strong>+ Add Goal</strong>" to set your objectives.</li>
+                    </ul>
+                    <h3>Conclusion</h3>
+                    <ul>
+                        <li>Setting SMART goals will provide clear direction and motivate consistent effort.</li>
+                    </ul>
                 `
             },
             'data-management': {
                 title: "Data Backup & Import",
                 isDetailedGuide: true,
                 content: `
-                    <h3>Protecting Your Learning Data</h3>
-                    <p>AuraLearn stores all your data locally in your browser's storage. While convenient, it's a good practice to back up your data regularly.</p>
+                    <h3>Main Info</h3>
                     <ul>
-                        <li><strong>Export Data:</strong>
-                            <p>In the <strong>Settings</strong> view, click the "Export Data" button. This will download a JSON file containing all your user profile, learning atoms, subjects, and AI materials.</p>
-                            <p class="text-sm text-secondary"><em>Recommendation: Store this file in a safe place, like cloud storage (Google Drive, Dropbox) or an external hard drive.</em></p>
-                        </li>
-                        <li><strong>Import Data:</strong>
-                            <p>To restore your data, go to <strong>Settings</strong> and click "Import Data". Select the JSON file you previously exported. This will overwrite your current AuraLearn data with the imported data.</p>
-                            <p class="text-red-500 text-sm"><strong>Warning:</strong> Importing data will replace your current app data. Only import data you trust and intend to use.</p>
-                        </li>
+                        <li>AuraLearn stores all your data locally in your browser's storage. While convenient, it's a good practice to back up your data regularly.</li>
                     </ul>
-                    <p>Regular backups ensure your hard work is never lost!</p>
+                    <h3>How to Export Your Data</h3>
+                    <ul>
+                        <li>In the <strong>Settings</strong> view, click the "<strong>Export Data</strong>" button. This will download a JSON file containing all your user profile, learning atoms, subjects, AI materials, glossary, and mind maps.</li>
+                        <li><em>Recommendation: Store this file in a safe place, like cloud storage (Google Drive, Dropbox) or an external hard drive.</em></li>
+                    </ul>
+                    <h3>How to Import Your Data</h3>
+                    <ul>
+                        <li>To restore your data, go to <strong>Settings</strong> and click "<strong>Import Data</strong>". Select the JSON file you previously exported.</li>
+                        <li><strong>Warning:</strong> Importing data will replace your current AuraLearn data. Only import data you trust and intend to use.</li>
+                    </ul>
+                    <h3>Conclusion</h3>
+                    <ul>
+                        <li>Regular backups ensure your hard work and learning progress are never lost!</li>
+                    </ul>
                 `
             }
         }
@@ -434,20 +498,32 @@ document.addEventListener('DOMContentLoaded', () => {
     let appState = {
         currentView: localStorage.getItem('auralearn_currentView') || 'dashboard',
         studySession: { isActive: false, queue: [], currentIndex: 0, atomsReviewedInSession: 0 },
-        pomodoro: { timerId: null, timeLeft: 25 * 60, isRunning: false, mode: 'work', audio: null }, // Added audio property
+        pomodoro: { timerId: null, timeLeft: 25 * 60, isRunning: false, mode: 'work', audio: null },
         onboardingCompleted: localStorage.getItem('auralearn_onboardingCompleted') === 'true',
         currentTheme: localStorage.getItem('auralearn_theme') || 'light',
         learningHubCategory: 'auralearnBasics',
-        aiInputMode: 'text', // 'text' or 'topic'
-        currentQuiz: null, // Stores the active quiz object
-        quizSession: { isActive: false, questions: [], currentIndex: 0, score: 0, selectedAnswer: null, answers: [] }, // Stores quiz session state
-        currentTutorial: null, // Stores the active tutorial data (e.g., 'dashboard' tour or 'srs-deep-dive' guide)
-        currentTutorialStep: 0, // Current step index within the active tutorial
-        activeSoundscapeAudio: null // To manage single audio playback for soundscapes
+        aiInputMode: 'text',
+        currentQuiz: null,
+        quizSession: { isActive: false, questions: [], currentIndex: 0, score: 0, selectedAnswer: null, answers: [] },
+        currentTutorial: null,
+        currentTutorialStep: 0,
+        activeSoundscapeAudio: null,
+        mindMap: {
+            nodes: [],
+            connections: [],
+            selectedNode: null,
+            connectingNode: null,
+            isDragging: false,
+            dragOffsetX: 0,
+            dragOffsetY: 0,
+            scale: 1, // Future: for zoom
+            offsetX: 0, // Future: for pan
+            offsetY: 0  // Future: for pan
+        }
     };
 
     // Gemini API configuration (placeholder - Canvas will provide this at runtime)
-    const apiKey = "AIzaSyBVDc_pdjpvbv4nzcKnxmRPLiKCu7BXF2I";
+    const apiKey = "";
 
     // --- Helper Functions ---
 
@@ -475,6 +551,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 notificationToast.classList.add('hidden');
             }, 300); // Allow fade out before hiding
         }, 4000); // Display for 4 seconds
+    }
+
+    /**
+     * Checks if a new achievement has been unlocked.
+     * @param {string} achievementId - The ID of the achievement to check.
+     */
+    function unlockAchievement(achievementId) {
+        if (!mockData.user.achievements.includes(achievementId)) {
+            mockData.user.achievements.push(achievementId);
+            showNotification(`Achievement Unlocked: ${mockData.achievements.find(a => a.id === achievementId)?.name || achievementId}! 🏅`);
+            saveUserData();
+            if (appState.currentView === 'achievements') renderAchievements(); // Re-render if on achievements page
+        }
     }
 
     /**
@@ -512,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Calculate new interval
         if (quality < 2) { // Forgot or Struggled
             newInterval = quality === 0 ? mockData.user.srsIntervals.forgot : mockData.user.srsIntervals.struggled;
-            // If the interval is in hours (e.g., 0.5 days = 12 hours), keep it that way for the first review
+            // If the interval is in hours (e.g., 0.25 days = 6 hours), keep it that way for the first review
             if (newInterval < 1) {
                  // For very short intervals, use minutes/hours for more precise timing.
                  // Storing in days, so 0.25 means 6 hours.
@@ -568,6 +657,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * Gets atoms that the user has struggled with (low repetitions, low ease factor).
+     * @returns {Array<Object>} List of weak learning atoms.
+     */
+    function getWeakAtoms() {
+        return mockData.learningAtoms
+            .filter(atom => atom.repetitions < 3 && atom.easeFactor < 2.0 && atom.interval > 0) // Struggled, but not brand new
+            .sort((a, b) => a.easeFactor - b.easeFactor) // Sort by lowest ease factor first
+            .slice(0, 20); // Limit to 20 weak atoms for a session
+    }
+
+    /**
      * Gets recommended atoms (e.g., lowest difficulty and not in today's queue).
      * @returns {Array<Object>} List of recommended learning atoms.
      */
@@ -604,7 +704,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (appState.currentView === 'dashboard') renderDashboard();
         if (appState.currentView === 'library') renderLibrary();
         if (appState.currentView === 'ai-learning') renderAILearning();
+        if (appState.currentView === 'mind-map') renderMindMap(); // New
+        if (appState.currentView === 'glossary') renderGlossary(); // New
         if (appState.currentView === 'analytics') renderAnalytics();
+        if (appState.currentView === 'achievements') renderAchievements(); // New
         if (appState.currentView === 'focus') renderFocusTools();
         if (appState.currentView === 'learning-hub') renderLearningHub();
         if (appState.currentView === 'settings') renderSettings();
@@ -616,6 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function renderDashboard() {
         const dailyQueue = getDailyQueue();
+        const weakAtoms = getWeakAtoms(); // New
         const queueList = document.getElementById('daily-queue-list');
         queueList.innerHTML = ''; // Clear previous list items
 
@@ -642,6 +746,10 @@ document.addEventListener('DOMContentLoaded', () => {
             startReviewBtn.disabled = false;
         }
 
+        // Update Weak Atoms button text
+        studyWeakAtomsBtn.textContent = `Study Weak Atoms (${weakAtoms.length})`;
+        studyWeakAtomsBtn.disabled = weakAtoms.length === 0;
+
         // Render Recommended Atoms
         const recommendedAtoms = getRecommendedAtoms();
         recommendedAtomsList.innerHTML = '';
@@ -664,7 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const reviewBtn = li.querySelector('button');
                 reviewBtn.addEventListener('click', () => {
-                    const atomId = parseInt(reviewBtn.dataset.atomId);
+                    const atomId = parseInt(reviewBtn.dataset.atom-id);
                     const selectedAtom = mockData.learningAtoms.find(a => a.id === atomId);
                     if (selectedAtom) {
                         showDetailModal({ title: selectedAtom.question, details: selectedAtom.answer });
@@ -689,10 +797,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (mockData.user.dailyChallengeProgress >= 5 && mockData.user.lastChallengeDate === today) {
             claimChallengeBtn.classList.remove('hidden');
+            unlockAchievement('daily-challenge-master'); // Unlock achievement
         } else {
             claimChallengeBtn.classList.add('hidden');
         }
         saveUserData();
+
+        // Backup Reminder (New)
+        const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+        const lastExportDate = mockData.user.lastExportDate ? new Date(mockData.user.lastExportDate) : null;
+        if (!lastExportDate || (new Date() - lastExportDate > ONE_WEEK_MS)) {
+            backupReminder.classList.remove('hidden');
+        } else {
+            backupReminder.classList.add('hidden');
+        }
     }
 
     /**
@@ -814,12 +932,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (aiMaterial.type === 'note' || aiMaterial.type === 'summary') {
             contentHtml = aiMaterial.content;
         } else if (aiMaterial.type === 'keywords') {
-            contentHtml = '<h4 class="font-semibold text-primary mb-2">Keywords & Definitions:</h4>';
+            contentHtml = '<h3 class="text-xl font-bold text-primary mb-4">Keywords & Definitions:</h3>';
             aiMaterial.content.forEach(item => {
-                contentHtml += `<div class="mb-3 p-2 border list-item-themed rounded-md"><p class="font-medium text-primary">${item.keyword}:</p><p>${item.definition}</p></div>`;
+                contentHtml += `<div class="mb-3 p-2 border list-item-themed rounded-md"><h4>${item.keyword}:</h4><p>${item.definition}</p></div>`;
             });
         } else if (aiMaterial.type === 'exam-questions') {
-            contentHtml = '<h4 class="font-semibold text-primary mb-2">Predicted Exam Questions:</h4>';
+            contentHtml = '<h3 class="text-xl font-bold text-primary mb-4">Predicted Exam Questions:</h3>';
             aiMaterial.content.forEach((q, index) => {
                 contentHtml += `<p class="mb-2 p-2 border list-item-themed rounded-md">Q${index + 1}: ${q}</p>`;
             });
@@ -925,12 +1043,35 @@ document.addEventListener('DOMContentLoaded', () => {
         let outputTitle = '';
         let savedContentTitle = '';
 
+        // Added specific formatting instructions for notes and summaries
+        const commonNoteFormatInstructions = `Format the content into clear sections:
+        <h3>Main Info</h3>
+        <ul>
+            <li>[Concise bullet point]</li>
+            <li>[Concise bullet point]</li>
+        </ul>
+        <h3>Key Terms/Keywords:</h3>
+        <ul>
+            <li>[Keyword]: [Brief definition]</li>
+            <li>[Keyword]: [Brief definition]</li>
+        </ul>
+        <h3>Extra Info:</h3>
+        <ul>
+            <li>[Additional relevant detail]</li>
+            <li>[Another additional relevant detail]</li>
+        </ul>
+        <h3>Conclusion</h3>
+        <ul>
+            <li>[Brief summary or key takeaway]</li>
+        </ul>
+        Ensure the entire response is valid HTML, strictly using h3 for section headers, and ul/li for all bullet points. Do not include any conversational filler, disclaimers, or extra text outside this structure.`;
+
         switch (type) {
             case 'note':
                 outputTitle = 'AI Notes';
                 savedContentTitle = `AI Notes on: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
-                prompt = `Generate concise, organized notes on the topic or from the text: "${content}". Format the notes as HTML using <ul> and <li> tags for bullet points and <strong> tags for bolding key terms. Ensure the entire response is valid HTML. Focus only on key points and important information, designed specifically to help teach and retain the info with no fluff or unnecessary details. Avoid introductions, conclusions, or conversational filler.`;
-                responseSchema = { type: "STRING" };
+                prompt = `Generate concise, organized notes on the topic or from the text: "${content}". ${commonNoteFormatInstructions}`;
+                responseSchema = { type: "STRING" }; // For direct HTML string output
                 break;
             case 'notes-flashcards':
                 outputTitle = 'Generated Flashcards';
@@ -995,8 +1136,8 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'summary':
                 outputTitle = 'AI Summary';
                 savedContentTitle = `Summary for: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
-                prompt = `Provide a concise, key-point summary of the following text/topic: "${content}". Use HTML paragraphs and <strong> tags for important terms. Keep it brief but informative. Avoid conversational filler.`;
-                responseSchema = { type: "STRING" };
+                prompt = `Provide a concise, key-point summary of the following text/topic: "${content}". ${commonNoteFormatInstructions}`;
+                responseSchema = { type: "STRING" }; // For direct HTML string output
                 break;
             default:
                 showNotification('Invalid AI generation type.', true);
@@ -1064,24 +1205,45 @@ document.addEventListener('DOMContentLoaded', () => {
                             mockData.learningAtoms.push(newAtom);
                         });
                         showNotification(`Generated flashcards added to your '${subjectName}' subject!`);
-                    } else {
+                        unlockAchievement('first-flashcards-generated'); // Unlock achievement
+                    } else if (type === 'keywords') {
+                        generatedContent.forEach(item => {
+                            if (!mockData.glossary.find(g => g.keyword.toLowerCase() === item.keyword.toLowerCase())) {
+                                mockData.glossary.push(item); // Add to global glossary
+                            }
+                        });
+                        showNotification(`Keywords extracted and added to your Glossary!`);
+                        unlockAchievement('first-keywords-extracted'); // Unlock achievement
+                    } else if (type === 'quiz') {
+                         showNotification(`Quiz generated and saved!`);
+                         unlockAchievement('first-quiz-generated'); // Unlock achievement
+                    } else if (type === 'note') {
+                         showNotification(`Notes generated and saved!`);
+                         unlockAchievement('first-ai-note'); // Unlock achievement
+                    } else if (type === 'summary') {
+                        showNotification(`Summary generated and saved!`);
+                    }
+
+
+                    // Save material for all types except notes-flashcards (handled above)
+                    if (type !== 'notes-flashcards') {
                         const newMaterial = {
                             id: mockData.aiMaterials.length + 1,
                             type: type,
                             title: savedContentTitle,
                             content: generatedContent,
                             timestamp: new Date().toISOString(),
-                            subjectId: subjectId
+                            subjectId: subjectId // Can be empty string if no subject selected
                         };
                         mockData.aiMaterials.push(newMaterial);
-                        showNotification(`${outputTitle} generated and saved to 'AI Materials'!`);
                     }
+
 
                     // Display generated content in the output area regardless of where it's saved
                     if (type === 'note' || type === 'summary') {
                         aiOutputContentDisplay.innerHTML = generatedContent;
                     } else if (type === 'quiz') {
-                        aiOutputContentDisplay.innerHTML = '<h4 class="font-semibold text-primary mb-2">Generated Quiz:</h4>';
+                        aiOutputContentDisplay.innerHTML = '<h3 class="text-xl font-bold text-primary mb-4">Generated Quiz:</h3>';
                         generatedContent.forEach((q, index) => {
                             const quizItem = document.createElement('div');
                             quizItem.className = 'p-3 rounded-lg border list-item-themed';
@@ -1094,7 +1256,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             aiOutputContentDisplay.appendChild(quizItem);
                         });
                     } else if (type === 'keywords') {
-                        aiOutputContentDisplay.innerHTML = '<h4 class="font-semibold text-primary mb-2">Extracted Keywords:</h4>';
+                        aiOutputContentDisplay.innerHTML = '<h3 class="text-xl font-bold text-primary mb-4">Extracted Keywords:</h3>';
                         generatedContent.forEach(item => {
                             const keywordItem = document.createElement('div');
                             keywordItem.className = 'p-3 rounded-lg border list-item-themed';
@@ -1102,7 +1264,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             aiOutputContentDisplay.appendChild(keywordItem);
                         });
                     } else if (type === 'exam-questions') {
-                        aiOutputContentDisplay.innerHTML = '<h4 class="font-semibold text-primary mb-2">Predicted Exam Questions:</h4>';
+                        aiOutputContentDisplay.innerHTML = '<h3 class="text-xl font-bold text-primary mb-4">Predicted Exam Questions:</h3>';
                         generatedContent.forEach((q, index) => {
                             const questionItem = document.createElement('p');
                             questionItem.className = 'p-3 rounded-lg border list-item-themed';
@@ -1189,12 +1351,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Placeholder for real study activity data
         const activityData = Array(7).fill(0); // [Mon, Tue, ..., Sun]
-        // Example: Track minutes studied today
         const today = new Date().toISOString().split('T')[0];
         if (mockData.user.dailyStudyLogs) {
             mockData.user.dailyStudyLogs.forEach(log => {
-                if (log.date.startsWith(today)) { // Assuming daily logs are for the current day
-                    const dayOfWeek = new Date(log.date).getDay(); // 0 for Sunday, 1 for Monday
+                // Check if the log date is within the last 7 days from today
+                const logDate = new Date(log.date);
+                const diffTime = Math.abs(today - logDate.getTime());
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays <= 7) {
+                    const dayOfWeek = logDate.getDay(); // 0 for Sunday, 1 for Monday
                     activityData[dayOfWeek === 0 ? 6 : dayOfWeek - 1] += (log.minutes / 60); // Convert minutes to hours
                 }
             });
@@ -1231,24 +1397,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Placeholder for knowledge growth data
-        const growthData = [0, 0, 0, 0, 0, 0]; // Last 6 months
+        const growthData = [0, 0, 0, 0, 0, 0, 0]; // Last 6 months + Current Month
+        const currentMonth = new Date().getMonth(); // 0-11
         if (mockData.user.monthlyMasteryLogs) {
-            const currentMonth = new Date().getMonth(); // 0-11
             mockData.user.monthlyMasteryLogs.forEach(log => {
                 const logDate = new Date(log.date);
+                // Calculate month difference to place data correctly in the last 6 months + current
                 const monthDiff = (currentMonth - logDate.getMonth() + 12) % 12;
-                if (monthDiff < 6) {
-                    growthData[5 - monthDiff] = log.masteredAtoms; // Populate data backwards
+                if (monthDiff < 7) { // 0 for current month, 1 for last month, ..., 6 for 6 months ago
+                    growthData[6 - monthDiff] = log.masteredAtoms;
                 }
             });
         }
-        growthData[5] = masteredCount; // Always show current month's mastered count
+        growthData[6] = masteredCount; // Always show current month's real-time mastered count
 
         const growthCtx = document.getElementById('growthChart').getContext('2d');
         charts.growth = new Chart(growthCtx, {
             type: 'line',
             data: {
-                labels: ['6M Ago', '5M Ago', '4M Ago', '3M Ago', '2M Ago', 'Last Month', 'Current'], // Updated labels
+                labels: ['6M Ago', '5M Ago', '4M Ago', '3M Ago', '2M Ago', 'Last Month', 'Current'],
                 datasets: [{
                     label: 'Total Atoms Mastered',
                     data: growthData,
@@ -1289,14 +1456,15 @@ document.addEventListener('DOMContentLoaded', () => {
             emptyGoalsMessage.classList.add('hidden');
             mockData.user.learningGoals.forEach(goal => {
                 let currentProgressValue = 0;
+                const masteredCount = mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length;
+
                 if (goal.targetType === 'atoms') {
-                    currentProgressValue = masteredCount; // Use actual mastered count
+                    currentProgressValue = masteredCount;
                 } else if (goal.targetType === 'time') {
-                    // Sum up study time from last 7 days for 'weekly study time' target type
                     const now = new Date();
-                    const last7Days = new Date(now.setDate(now.getDate() - 7)).toISOString().split('T')[0];
+                    const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7)).toISOString().split('T')[0];
                     currentProgressValue = (mockData.user.dailyStudyLogs || [])
-                        .filter(log => log.date >= last7Days)
+                        .filter(log => log.date >= sevenDaysAgo)
                         .reduce((sum, log) => sum + log.minutes, 0) / 60; // Convert to hours
                 }
 
@@ -1306,7 +1474,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 goalDiv.innerHTML = `
                     <div class="flex justify-between items-center mb-2">
                         <h4 class="font-semibold text-primary">${goal.name}</h4>
-                        <span class="text-sm text-secondary">${new Date(goal.endDate).toLocaleDateString()}</span>
+                        <span class="text-sm text-secondary">Due: ${new Date(goal.endDate).toLocaleDateString()}</span>
                     </div>
                     <div class="w-full bg-border-color rounded-full h-2.5">
                         <div class="bg-accent-blue h-2.5 rounded-full" style="width: ${progress}%;"></div>
@@ -1317,6 +1485,48 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
+
+    /**
+     * Renders content for the Achievements view. (New)
+     */
+    function renderAchievements() {
+        achievementsList.innerHTML = '';
+        const allAchievements = [
+            { id: 'first-atom', name: 'First Atom Added', description: 'Add your very first learning atom.', icon: '✨' },
+            { id: 'mastery-beginner', name: 'Beginner Master', description: 'Master 10 learning atoms.', icon: '⭐' },
+            { id: 'mastery-intermediate', name: 'Intermediate Master', description: 'Master 50 learning atoms.', icon: '🌟' },
+            { id: 'streak-7-days', name: '7-Day Streak', description: 'Achieve a 7-day study streak.', icon: '🗓️' },
+            { id: 'streak-30-days', name: '30-Day Streak', description: 'Achieve a 30-day study streak.', icon: '🏆' },
+            { id: 'daily-challenge-master', name: 'Daily Challenger', description: 'Complete 10 daily challenges.', icon: '🎯' }, // Note: check for 10 daily challenges, not just one completion
+            { id: 'first-ai-note', name: 'AI Note Creator', description: 'Generate your first AI Note.', icon: '📝' },
+            { id: 'first-flashcards-generated', name: 'Flashcard Progenitor', description: 'Generate flashcards using AI.', icon: '💡' },
+            { id: 'first-quiz-generated', name: 'Quiz Whiz', description: 'Generate your first AI quiz.', icon: '🧠' },
+            { id: 'first-keywords-extracted', name: 'Keyword Explorer', description: 'Extract keywords using AI.', icon: '🔑' },
+            { id: 'first-mind-map', name: 'Mind Mapper', description: 'Create your first Mind Map.', icon: '🗺️' }
+            // Add more achievements here
+        ];
+        mockData.achievements = mockData.user.achievements; // Ensure mockData.achievements always reflects user's unlocked ones
+
+        if (allAchievements.every(ach => !mockData.achievements.includes(ach.id))) {
+            emptyAchievementsMessage.classList.remove('hidden');
+        } else {
+            emptyAchievementsMessage.classList.add('hidden');
+        }
+
+        allAchievements.forEach(ach => {
+            const isUnlocked = mockData.achievements.includes(ach.id);
+            const card = document.createElement('div');
+            card.className = `achievement-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+            card.innerHTML = `
+                <span class="icon">${ach.icon}</span>
+                <h4>${ach.name}</h4>
+                <p>${ach.description}</p>
+                ${isUnlocked ? '<span class="text-xs font-semibold mt-2">Unlocked!</span>' : ''}
+            `;
+            achievementsList.appendChild(card);
+        });
+    }
+
 
     /**
      * Renders content for the Focus Tools view.
@@ -1446,15 +1656,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Study Session (Flashcards) Logic ---
     /**
      * Starts a new study session.
+     * @param {string} queueType - 'daily' for daily queue, 'weak' for weak atoms.
      */
-    function startStudySession() {
+    function startStudySession(queueType = 'daily') {
         appState.studySession.isActive = true;
-        appState.studySession.queue = getDailyQueue();
+        appState.studySession.queue = queueType === 'weak' ? getWeakAtoms() : getDailyQueue();
         appState.studySession.currentIndex = 0;
         appState.studySession.atomsReviewedInSession = 0;
 
         if (appState.studySession.queue.length === 0) {
-            showNotification('Your daily review queue is empty! Import some content to get started.', true);
+            showNotification(`Your ${queueType} review queue is empty! Import some content or review more to create weak atoms.`, true);
             navigate('library');
             return;
         }
@@ -1509,24 +1720,33 @@ document.addEventListener('DOMContentLoaded', () => {
         mockData.user.dailyChallengeProgress += appState.studySession.atomsReviewedInSession;
 
         // Log daily study time (placeholder, actual tracking would be more robust)
-        const currentLog = mockData.user.dailyStudyLogs.find(log => log.date === today);
-        if (currentLog) {
-            currentLog.minutes += appState.studySession.atomsReviewedInSession * 2; // Rough estimate: 2 mins per atom
+        const minutesStudiedThisSession = appState.studySession.atomsReviewedInSession * 2; // Rough estimate: 2 mins per atom
+        if (!mockData.user.dailyStudyLogs) {
+            mockData.user.dailyStudyLogs = [];
+        }
+        const existingLog = mockData.user.dailyStudyLogs.find(log => log.date === today);
+        if (existingLog) {
+            existingLog.minutes += minutesStudiedThisSession;
         } else {
-            mockData.user.dailyStudyLogs.push({ date: today, minutes: appState.studySession.atomsReviewedInSession * 2 });
+            mockData.user.dailyStudyLogs.push({ date: today, minutes: minutesStudiedThisSession });
         }
 
+        // Check for achievements
+        checkAchievements();
         saveUserData();
     }
 
     // Study session button event listeners
-    startReviewBtn.addEventListener('click', startStudySession);
+    startReviewBtn.addEventListener('click', () => startStudySession('daily')); // Start daily queue
+    studyWeakAtomsBtn.addEventListener('click', () => startStudySession('weak')); // Start weak atoms queue
     showAnswerBtn.addEventListener('click', () => { flashcardContainer.classList.add('flipped'); });
 
     recallButtons.forEach(button => {
         button.addEventListener('click', (e) => {
             const quality = parseInt(e.currentTarget.dataset.rating);
             const currentAtom = appState.studySession.queue[appState.studySession.currentIndex];
+
+            const wasMasteredBefore = currentAtom.repetitions >= 3 && currentAtom.easeFactor >= 2.0;
 
             // Update SM-2 properties for the current atom
             const { nextReview, newInterval, newEaseFactor, newRepetitions } = calculateNextReviewDateSM2(
@@ -1539,14 +1759,11 @@ document.addEventListener('DOMContentLoaded', () => {
             currentAtom.easeFactor = newEaseFactor;
             currentAtom.repetitions = newRepetitions;
 
-            // Update total mastered atoms count (if an atom reaches mastery status)
-            const wasMastered = currentAtom.repetitions >= 3 && currentAtom.easeFactor >= 2.0;
-            if (!wasMastered && newRepetitions >= 3 && newEaseFactor >= 2.0) {
-                 // Atom just became mastered
-            } else if (wasMastered && (newRepetitions < 3 || newEaseFactor < 2.0)) {
-                // Atom was mastered but now recalled poorly (lost mastery)
+            const isNowMastered = newRepetitions >= 3 && newEaseFactor >= 2.0;
+            if (!wasMasteredBefore && isNowMastered) {
+                // Atom just became mastered
+                unlockAchievement('first-atom'); // Placeholder, actual mastery achievements would be based on count
             }
-
 
             saveUserData();
             console.log(`Rated card ${currentAtom.id} with rating: ${quality}. Next review: ${currentAtom.nextReview.toLocaleDateString()}`);
@@ -1564,7 +1781,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mockData.user.dailyChallengeProgress >= 5 && mockData.user.lastChallengeDate === today) {
             showNotification('Congratulations! You claimed your daily challenge reward!');
             mockData.user.dailyChallengeProgress = 0; // Reset for next day
+            // Only increment daily challenge count for achievement if it's the first claim today
+            if (mockData.user.lastChallengeClaimDate !== today) {
+                mockData.user.dailyChallengeCount = (mockData.user.dailyChallengeCount || 0) + 1;
+                mockData.user.lastChallengeClaimDate = today;
+            }
             mockData.user.lastChallengeDate = null; // Forces new streak check or challenge reset tomorrow
+            checkAchievements(); // Check again after challenge completion
             saveUserData();
             renderDashboard();
         } else {
@@ -1619,6 +1842,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 showNotification("Break time is over! Time to focus!");
             }
             updatePomodoroDisplay();
+            // Check for achievements related to study time
+            checkAchievements();
         }
     }
 
@@ -1718,6 +1943,8 @@ document.addEventListener('DOMContentLoaded', () => {
         mockData.user.focusedSubjects = subjects.split(',').map(s => s.trim()).filter(s => s);
         mockData.user.dailyStudyLogs = []; // Initialize daily study logs
         mockData.user.monthlyMasteryLogs = []; // Initialize monthly mastery logs
+        mockData.user.lastChallengeClaimDate = null; // New
+        mockData.user.dailyChallengeCount = 0; // New
 
         localStorage.setItem('auralearn_onboardingCompleted', 'true');
         appState.onboardingCompleted = true;
@@ -1738,6 +1965,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Ensure initial user data is saved even on skip
         mockData.user.dailyStudyLogs = [];
         mockData.user.monthlyMasteryLogs = [];
+        mockData.user.lastChallengeClaimDate = null;
+        mockData.user.dailyChallengeCount = 0;
         saveUserData();
         navigate('dashboard');
     });
@@ -1820,16 +2049,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function populateQuickAddSubjectSelect() {
-        quickAddSubjectSelect.innerHTML = '<option value="">Select a Subject</option>';
-        mockData.subjects.forEach(subject => {
-            const option = document.createElement('option');
-            option.value = subject.id;
-            option.textContent = subject.name;
-            quickAddSubjectSelect.appendChild(option);
-        });
-    }
-
     addAtomBtn.addEventListener('click', () => {
         let subjectId;
         let subjectName;
@@ -1872,6 +2091,8 @@ document.addEventListener('DOMContentLoaded', () => {
         saveUserData();
         showNotification('Learning Atom added successfully!');
         quickAddAtomModal.classList.add('hidden');
+        unlockAchievement('first-atom'); // Check if first atom added unlocks achievement
+        checkAchievements(); // Recalculate other achievements potentially
         render();
     });
 
@@ -2011,6 +2232,31 @@ document.addEventListener('DOMContentLoaded', () => {
             foundResults = foundResults.concat(learningHubMatches);
         }
 
+        // Search in Glossary (New)
+        const filteredGlossary = mockData.glossary.filter(g =>
+            g.keyword.toLowerCase().includes(query) ||
+            g.definition.toLowerCase().includes(query)
+        );
+        if (filteredGlossary.length > 0) {
+            foundResults.push({ type: "heading", content: "Glossary Terms" });
+            filteredGlossary.forEach(term => {
+                foundResults.push({ type: "glossary-item", title: term.keyword, subtitle: term.definition });
+            });
+        }
+
+        // Search in Mind Maps (New)
+        const filteredMindMaps = mockData.mindMaps.filter(m =>
+            m.name.toLowerCase().includes(query) ||
+            m.nodes.some(node => node.text.toLowerCase().includes(query))
+        );
+        if (filteredMindMaps.length > 0) {
+            foundResults.push({ type: "heading", content: "Mind Maps" });
+            filteredMindMaps.forEach(map => {
+                foundResults.push({ type: "mind-map-item", title: map.name, subtitle: `Nodes: ${map.nodes.length}`, mapData: map });
+            });
+        }
+
+
         if (foundResults.length === 0) {
             searchResultsContent.innerHTML = `<p class="text-secondary text-center">No matching results found for "${query}".</p>`;
         } else {
@@ -2035,6 +2281,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             showAIGeneratedMaterial(result.materialData); // Use existing AI material display function
                         } else if (result.type === "learning-hub") {
                             showDetailModal(result.itemData); // Use existing Learning Hub display function
+                        } else if (result.type === "glossary-item") {
+                            // For glossary, simply navigate to glossary view and filter/scroll to item
+                            navigate('glossary');
+                            setTimeout(() => {
+                                glossarySearchInput.value = result.title;
+                                renderGlossary();
+                            }, 100); // Small delay for view transition
+                        } else if (result.type === "mind-map-item") {
+                            navigate('mind-map');
+                            // Load the specific mind map
+                            setTimeout(() => loadMindMap(result.mapData.id), 100);
+                            unlockAchievement('first-mind-map');
                         }
                     });
                 }
@@ -2062,9 +2320,31 @@ document.addEventListener('DOMContentLoaded', () => {
         let contentToDisplay = item.details;
 
         // If the item details are short or not yet expanded by LLM, call LLM
+        // Added formatting instructions to the prompt
         if (item.details.length < 200 || !item.llm_expanded) {
             try {
-                const prompt = `Provide a detailed, comprehensive, and practical explanation of the concept or technique "${item.title}". The explanation should be informative, easy to understand, and include actionable insights or real-world relevance where appropriate. Use clear paragraphs, subheadings (h3, h4 tags), and HTML unordered lists (<ul>, <li>) for key points. Use <strong> tags for important terms. Do not include any conversational filler.`;
+                const prompt = `Provide a detailed, comprehensive, and practical explanation of the concept or technique "${item.title}".
+                Format the content into clear sections:
+                <h3>Main Info</h3>
+                <ul>
+                    <li>[Concise bullet point]</li>
+                    <li>[Concise bullet point]</li>
+                </ul>
+                <h3>Key Terms/Keywords:</h3>
+                <ul>
+                    <li>[Keyword]: [Brief definition]</li>
+                    <li>[Keyword]: [Brief definition]</li>
+                </ul>
+                <h3>Extra Info:</h3>
+                <ul>
+                    <li>[Additional relevant detail]</li>
+                    <li>[Another additional relevant detail]</li>
+                </ul>
+                <h3>Conclusion</h3>
+                <ul>
+                    <li>[Brief summary or key takeaway]</li>
+                </ul>
+                Ensure the entire response is valid HTML, strictly using h3 for section headers, and ul/li for all bullet points. Do not include any conversational filler, disclaimers, or extra text outside this structure.`;
 
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: prompt }] });
@@ -2166,6 +2446,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (appState.currentView === 'analytics') {
             renderAnalytics();
         }
+        // Re-render mind map on theme change to update colors
+        if (appState.currentView === 'mind-map') {
+            drawMindMap();
+        }
     }
 
     // --- Data Export/Import ---
@@ -2192,6 +2476,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         showNotification('Data exported successfully!');
+        mockData.user.lastExportDate = new Date().toISOString(); // Update last export date
+        saveUserData();
+        renderDashboard(); // Update dashboard to hide reminder
     }
 
     function importData(event) {
@@ -2224,6 +2511,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!importedData.user.srsFactors) importedData.user.srsFactors = initialUserData.srsFactors;
                     if (!importedData.user.dailyStudyLogs) importedData.user.dailyStudyLogs = [];
                     if (!importedData.user.monthlyMasteryLogs) importedData.user.monthlyMasteryLogs = [];
+                    if (!importedData.user.achievements) importedData.user.achievements = []; // New
+                    if (!importedData.user.lastExportDate) importedData.user.lastExportDate = null; // New
+                    if (!importedData.user.dailyChallengeCount) importedData.user.dailyChallengeCount = 0; // New
+                    if (!importedData.user.lastChallengeClaimDate) importedData.user.lastChallengeClaimDate = null; // New
+
+                    if (!importedData.glossary) importedData.glossary = []; // New
+                    if (!importedData.mindMaps) importedData.mindMaps = []; // New
 
 
                     mockData = importedData;
@@ -2381,6 +2675,13 @@ document.addEventListener('DOMContentLoaded', () => {
         appState.currentTutorial = mockData.tutorialContent[tourId];
         appState.currentTutorialStep = 0;
 
+        // Clear existing highlights from previous tours
+        document.querySelectorAll('[data-tutorial-highlight]').forEach(el => {
+            el.classList.remove('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50');
+            el.removeAttribute('data-tutorial-highlight'); // Remove the marker attribute
+        });
+
+
         if (appState.currentTutorial.isDetailedGuide) {
             // For detailed guides, just display content in the modal
             tutorialStepTitle.textContent = appState.currentTutorial.title;
@@ -2403,12 +2704,18 @@ document.addEventListener('DOMContentLoaded', () => {
         tutorialStepTitle.textContent = `${tour.title} - ${step.heading}`;
         tutorialStepContent.innerHTML = `<p>${step.content}</p>`;
 
+        // Remove previous highlights
+        document.querySelectorAll('[data-tutorial-highlighted]').forEach(el => {
+            el.classList.remove('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50');
+            el.removeAttribute('data-tutorial-highlighted');
+        });
+
         // Highlight the relevant element
-        document.querySelectorAll('[data-tutorial-highlight]').forEach(el => el.classList.remove('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50'));
         if (step.highlightElementId) {
             const targetElement = document.getElementById(step.highlightElementId);
             if (targetElement) {
                 targetElement.classList.add('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50');
+                targetElement.setAttribute('data-tutorial-highlighted', 'true'); // Mark as highlighted
                 targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
@@ -2438,7 +2745,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function endTutorial() {
         tutorialStepModal.classList.add('hidden');
         // Clear all highlights
-        document.querySelectorAll('[data-tutorial-highlight]').forEach(el => el.classList.remove('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50'));
+        document.querySelectorAll('[data-tutorial-highlighted]').forEach(el => {
+            el.classList.remove('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50');
+            el.removeAttribute('data-tutorial-highlighted');
+        });
         // Reset tutorial state
         appState.currentTutorial = null;
         appState.currentTutorialStep = 0;
@@ -2462,6 +2772,334 @@ document.addEventListener('DOMContentLoaded', () => {
     tutorialPrevBtn.addEventListener('click', goToPrevTutorialStep);
     tutorialFinishBtn.addEventListener('click', endTutorial);
 
+    // --- Mind Map Logic (New) ---
+    let mindMapNodes = appState.mindMap.nodes;
+    let mindMapConnections = appState.mindMap.connections;
+    let selectedNode = null;
+    let connectingNode = null;
+    let isDragging = false;
+    let dragStart = { x: 0, y: 0 };
+
+    function renderMindMap() {
+        // Ensure canvas dimensions are set, especially after view change
+        mindMapCanvas.width = mindMapCanvas.offsetWidth;
+        mindMapCanvas.height = mindMapCanvas.offsetHeight;
+        drawMindMap();
+        populateMindMapLoadSelect();
+    }
+
+    function drawMindMap() {
+        mindMapCtx.clearRect(0, 0, mindMapCanvas.width, mindMapCanvas.height);
+
+        // Draw connections first
+        mindMapConnections.forEach(conn => {
+            const nodeA = mindMapNodes.find(n => n.id === conn.from);
+            const nodeB = mindMapNodes.find(n => n.id === conn.to);
+            if (nodeA && nodeB) {
+                mindMapCtx.beginPath();
+                mindMapCtx.moveTo(nodeA.x, nodeA.y);
+                mindMapCtx.lineTo(nodeB.x, nodeB.y);
+                mindMapCtx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--connection-color');
+                mindMapCtx.lineWidth = 2;
+                mindMapCtx.stroke();
+            }
+        });
+
+        // Draw nodes
+        mindMapNodes.forEach(node => {
+            mindMapCtx.beginPath();
+            mindMapCtx.arc(node.x, node.y, 40, 0, Math.PI * 2); // Node circle
+            mindMapCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--node-bg');
+            mindMapCtx.fill();
+            mindMapCtx.strokeStyle = node === selectedNode ? getComputedStyle(document.body).getPropertyValue('--node-selected-border') : getComputedStyle(document.body).getPropertyValue('--node-border');
+            mindMapCtx.lineWidth = node === selectedNode ? 4 : 2;
+            mindMapCtx.stroke();
+
+            // Draw text
+            mindMapCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--node-text');
+            mindMapCtx.font = '14px Inter';
+            mindMapCtx.textAlign = 'center';
+            mindMapCtx.textBaseline = 'middle';
+            mindMapCtx.fillText(node.text, node.x, node.y);
+        });
+
+        // Draw connecting line if a node is selected for connection
+        if (connectingNode && selectedNode) {
+            mindMapCtx.beginPath();
+            mindMapCtx.moveTo(connectingNode.x, connectingNode.y);
+            mindMapCtx.lineTo(selectedNode.x, selectedNode.y); // Draw to selected node for visualization
+            mindMapCtx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--accent-blue');
+            mindMapCtx.lineWidth = 3;
+            mindMapCtx.setLineDash([5, 5]); // Dashed line
+            mindMapCtx.stroke();
+            mindMapCtx.setLineDash([]); // Reset line dash
+        }
+    }
+
+    // Function to add a new node
+    mindMapAddNodeBtn.addEventListener('click', () => {
+        const newNodeId = mindMapNodes.length > 0 ? Math.max(...mindMapNodes.map(n => n.id)) + 1 : 1;
+        const nodeText = mindMapNodeTextInput.value.trim() || `Node ${newNodeId}`;
+        const newNode = {
+            id: newNodeId,
+            text: nodeText,
+            x: mindMapCanvas.width / 2, // Start in center
+            y: mindMapCanvas.height / 2
+        };
+        mindMapNodes.push(newNode);
+        appState.mindMap.nodes = mindMapNodes; // Update appState reference
+        drawMindMap();
+        mindMapNodeTextInput.value = '';
+        showNotification('Node added! Double-click to edit, drag to move.');
+        unlockAchievement('first-mind-map'); // Check for achievement
+    });
+
+    // Clear all nodes and connections
+    mindMapClearAllBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear the entire mind map? This cannot be undone.')) {
+            mindMapNodes = [];
+            mindMapConnections = [];
+            selectedNode = null;
+            connectingNode = null;
+            appState.mindMap.nodes = [];
+            appState.mindMap.connections = [];
+            drawMindMap();
+            showNotification('Mind map cleared.');
+        }
+    });
+
+    // Save Mind Map
+    mindMapSaveBtn.addEventListener('click', () => {
+        const mapName = prompt('Enter a name for this mind map:');
+        if (mapName) {
+            const mapId = mapName.toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9-]/g, '');
+            const existingMapIndex = mockData.mindMaps.findIndex(m => m.id === mapId);
+            const newMap = {
+                id: mapId,
+                name: mapName,
+                nodes: mindMapNodes,
+                connections: mindMapConnections
+            };
+            if (existingMapIndex > -1) {
+                mockData.mindMaps[existingMapIndex] = newMap;
+                showNotification(`Mind map "${mapName}" updated.`);
+            } else {
+                mockData.mindMaps.push(newMap);
+                showNotification(`Mind map "${mapName}" saved.`);
+            }
+            saveUserData();
+            populateMindMapLoadSelect();
+        } else {
+            showNotification('Mind map not saved. Name is required.', true);
+        }
+    });
+
+    // Populate and Load Mind Map
+    function populateMindMapLoadSelect() {
+        mindMapLoadSelect.innerHTML = '<option value="">Load Map</option>';
+        mockData.mindMaps.forEach(map => {
+            const option = document.createElement('option');
+            option.value = map.id;
+            option.textContent = map.name;
+            mindMapLoadSelect.appendChild(option);
+        });
+    }
+
+    mindMapLoadSelect.addEventListener('change', (e) => {
+        const mapId = e.target.value;
+        if (mapId) {
+            loadMindMap(mapId);
+        }
+    });
+
+    function loadMindMap(mapId) {
+        const mapToLoad = mockData.mindMaps.find(m => m.id === mapId);
+        if (mapToLoad) {
+            mindMapNodes = JSON.parse(JSON.stringify(mapToLoad.nodes)); // Deep copy
+            mindMapConnections = JSON.parse(JSON.stringify(mapToLoad.connections)); // Deep copy
+            appState.mindMap.nodes = mindMapNodes;
+            appState.mindMap.connections = mindMapConnections;
+            selectedNode = null;
+            connectingNode = null;
+            drawMindMap();
+            showNotification(`Mind map "${mapToLoad.name}" loaded.`);
+            mindMapLoadSelect.value = mapId; // Set selected option
+        } else {
+            showNotification('Mind map not found.', true);
+        }
+    }
+
+
+    // Mind Map Interaction: Mouse/Touch Events
+    mindMapCanvas.addEventListener('mousedown', (e) => {
+        const rect = mindMapCanvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        // Check if clicking on an existing node
+        const clickedNode = mindMapNodes.find(node => {
+            const distance = Math.sqrt((mouseX - node.x)**2 + (mouseY - node.y)**2);
+            return distance < 40; // 40 is node radius
+        });
+
+        if (clickedNode) {
+            if (e.detail === 2) { // Double click to edit text
+                const newText = prompt('Edit node text:', clickedNode.text);
+                if (newText !== null) { // User didn't cancel
+                    clickedNode.text = newText;
+                    drawMindMap();
+                    saveUserData(); // Save change
+                }
+            } else { // Single click for selection/connection
+                if (connectingNode) { // Already selected a first node, now connecting
+                    if (connectingNode.id !== clickedNode.id) { // Cannot connect to itself
+                        const connectionExists = mindMapConnections.some(conn =>
+                            (conn.from === connectingNode.id && conn.to === clickedNode.id) ||
+                            (conn.from === clickedNode.id && conn.to === connectingNode.id)
+                        );
+                        if (!connectionExists) {
+                            mindMapConnections.push({ from: connectingNode.id, to: clickedNode.id });
+                            appState.mindMap.connections = mindMapConnections;
+                            showNotification('Nodes connected!');
+                            saveUserData(); // Save new connection
+                        } else {
+                            showNotification('Connection already exists.', true);
+                        }
+                    }
+                    connectingNode = null; // Reset for next connection
+                    selectedNode = null; // Deselect to stop highlighting
+                } else { // First node selection for connection or dragging
+                    connectingNode = clickedNode;
+                    selectedNode = clickedNode; // Highlight it as selected
+                    isDragging = true;
+                    dragStart.x = mouseX - clickedNode.x;
+                    dragStart.y = mouseY - clickedNode.y;
+                }
+            }
+        } else { // Clicked on empty space
+            selectedNode = null;
+            connectingNode = null;
+            isDragging = false;
+        }
+        drawMindMap();
+    });
+
+    mindMapCanvas.addEventListener('mousemove', (e) => {
+        if (!isDragging || !selectedNode) return;
+        const rect = mindMapCanvas.getBoundingClientRect();
+        selectedNode.x = e.clientX - rect.left - dragStart.x;
+        selectedNode.y = e.clientY - rect.top - dragStart.y;
+        drawMindMap();
+    });
+
+    mindMapCanvas.addEventListener('mouseup', () => {
+        isDragging = false;
+        if (selectedNode) {
+             // If a node was just dragged, save its new position
+             saveUserData();
+        }
+        // Keep node selected for connection until another click
+    });
+
+    mindMapCanvas.addEventListener('mouseout', () => { // If mouse leaves canvas while dragging
+        isDragging = false;
+    });
+
+    // Adjust canvas size on window resize
+    window.addEventListener('resize', () => {
+        if (appState.currentView === 'mind-map') {
+            renderMindMap(); // Re-render to adjust canvas size and redraw
+        }
+    });
+
+    // --- Glossary Logic (New) ---
+    function renderGlossary() {
+        glossaryList.innerHTML = '';
+        const searchTerm = glossarySearchInput.value.toLowerCase().trim();
+
+        const filteredGlossary = mockData.glossary.filter(item =>
+            item.keyword.toLowerCase().includes(searchTerm) ||
+            item.definition.toLowerCase().includes(searchTerm)
+        ).sort((a, b) => a.keyword.localeCompare(b.keyword)); // Alphabetical sort
+
+        if (filteredGlossary.length === 0) {
+            emptyGlossaryMessage.classList.remove('hidden');
+        } else {
+            emptyGlossaryMessage.classList.add('hidden');
+            filteredGlossary.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'glossary-item';
+                div.innerHTML = `
+                    <h4>${item.keyword}</h4>
+                    <p>${item.definition}</p>
+                `;
+                glossaryList.appendChild(div);
+            });
+        }
+    }
+
+    glossarySearchInput.addEventListener('input', renderGlossary);
+
+
+    // --- Achievements Logic (New) ---
+    function checkAchievements() {
+        const masteredAtomsCount = mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length;
+        const totalAtomsAdded = mockData.learningAtoms.length;
+        const totalAiNotes = mockData.aiMaterials.filter(m => m.type === 'note').length;
+        const totalAiFlashcardsGenerated = mockData.aiMaterials.filter(m => m.type === 'notes-flashcards').length;
+        const totalAiQuizzesGenerated = mockData.aiMaterials.filter(m => m.type === 'quiz').length;
+        const totalAiKeywordsExtracted = mockData.aiMaterials.filter(m => m.type === 'keywords').length;
+        const totalMindMapsCreated = mockData.mindMaps.length;
+
+        // Mastered Atoms
+        if (totalAtomsAdded >= 1 && !mockData.user.achievements.includes('first-atom')) {
+            unlockAchievement('first-atom');
+        }
+        if (masteredAtomsCount >= 10) {
+            unlockAchievement('mastery-beginner');
+        }
+        if (masteredAtomsCount >= 50) {
+            unlockAchievement('mastery-intermediate');
+        }
+
+        // Streak Achievements
+        if (mockData.user.streak >= 7) {
+            unlockAchievement('streak-7-days');
+        }
+        if (mockData.user.streak >= 30) {
+            unlockAchievement('streak-30-days');
+        }
+
+        // Daily Challenge Achievement (assuming 'daily-challenge-master' means completing the challenge N times, e.g., 10 times)
+        // Note: The achievement description for 'daily-challenge-master' states "Complete 10 daily challenges."
+        // We'll increment mockData.user.dailyChallengeCount when they successfully claim the challenge reward.
+        if (mockData.user.dailyChallengeCount >= 10) {
+             unlockAchievement('daily-challenge-master');
+        }
+
+
+        // AI Usage Achievements
+        if (totalAiNotes >= 1) {
+            unlockAchievement('first-ai-note');
+        }
+        if (totalAiFlashcardsGenerated >= 1) {
+            unlockAchievement('first-flashcards-generated');
+        }
+        if (totalAiQuizzesGenerated >= 1) {
+            unlockAchievement('first-quiz-generated');
+        }
+        if (totalAiKeywordsExtracted >= 1) {
+            unlockAchievement('first-keywords-extracted');
+        }
+
+        // Mind Map Achievement
+        if (totalMindMapsCreated >= 1) {
+            unlockAchievement('first-mind-map');
+        }
+
+        saveUserData(); // Ensure achievements are saved
+    }
+
 
     // --- Local Storage Management ---
     /**
@@ -2478,6 +3116,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }))));
             localStorage.setItem('auralearn_subjects', JSON.stringify(mockData.subjects));
             localStorage.setItem('auralearn_ai_materials', JSON.stringify(mockData.aiMaterials));
+            localStorage.setItem('auralearn_glossary', JSON.stringify(mockData.glossary)); // New
+            localStorage.setItem('auralearn_mind_maps', JSON.stringify(mockData.mindMaps)); // New
             // No need to save mockData.soundscapes or mockData.learningHubContent as they are static
         } catch (e) {
             console.error("Error saving to localStorage:", e);
@@ -2497,12 +3137,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     applyTheme(appState.currentTheme);
 
-    // Initialize daily study logs and monthly mastery logs if they don't exist
+    // Initialize new user properties if they don't exist in existing localStorage data
     if (!mockData.user.dailyStudyLogs) {
         mockData.user.dailyStudyLogs = [];
     }
     if (!mockData.user.monthlyMasteryLogs) {
         mockData.user.monthlyMasteryLogs = [];
+    }
+    if (!mockData.user.achievements) { // New
+        mockData.user.achievements = [];
+    }
+    if (!mockData.user.lastExportDate) { // New
+        mockData.user.lastExportDate = null;
+    }
+    if (!mockData.user.dailyChallengeCount) { // New
+        mockData.user.dailyChallengeCount = 0;
+    }
+    if (!mockData.user.lastChallengeClaimDate) { // New
+        mockData.user.lastChallengeClaimDate = null;
     }
 
     // Check and update monthly mastery logs
@@ -2517,9 +3169,9 @@ document.addEventListener('DOMContentLoaded', () => {
             monthYear: currentMonthYear,
             masteredAtoms: mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length
         });
-        // Keep only last 6 months
-        if (mockData.user.monthlyMasteryLogs.length > 6) {
-            mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs.slice(-6);
+        // Keep only last 7 months (6 prior + current)
+        if (mockData.user.monthlyMasteryLogs.length > 7) {
+            mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs.slice(-7);
         }
         saveUserData();
     } else {
@@ -2527,6 +3179,9 @@ document.addEventListener('DOMContentLoaded', () => {
         lastMonthLog.masteredAtoms = mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length;
     }
 
+    // Initialize mockData for new sections if they are empty
+    if (!mockData.glossary) mockData.glossary = [];
+    if (!mockData.mindMaps) mockData.mindMaps = [];
 
     if (!appState.onboardingCompleted) {
         // Reset to initial defaults if onboarding hasn't been completed before
@@ -2534,10 +3189,13 @@ document.addEventListener('DOMContentLoaded', () => {
         mockData.learningAtoms = [];
         mockData.subjects = [];
         mockData.aiMaterials = [];
+        mockData.glossary = []; // Ensure new properties are reset too
+        mockData.mindMaps = []; // Ensure new properties are reset too
         saveUserData();
         showOnboarding();
     } else {
         usernameInput.value = mockData.user.name;
+        checkAchievements(); // Check achievements on load to update initial state
         render();
     }
 });
