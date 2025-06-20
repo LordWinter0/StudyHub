@@ -31,8 +31,14 @@
                         <span class="w-6 h-6 mr-3">📚</span>Library</a></li>
                     <li><a href="#" data-view="ai-learning" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                         <span class="w-6 h-6 mr-3">✨</span>AI Learning</a></li>
+                    <li><a href="#" data-view="mind-map" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                        <span class="w-6 h-6 mr-3">🗺️</span>Mind Map</a></li> <!-- New Mind Map Link -->
+                    <li><a href="#" data-view="glossary" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                        <span class="w-6 h-6 mr-3">📖</span>Glossary</a></li> <!-- New Glossary Link -->
                     <li><a href="#" data-view="analytics" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                         <span class="w-6 h-6 mr-3">📊</span>Analytics</a></li>
+                    <li><a href="#" data-view="achievements" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                        <span class="w-6 h-6 mr-3">🏅</span>Achievements</a></li> <!-- New Achievements Link -->
                     <li><a href="#" data-view="focus" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                         <span class="w-6 h-6 mr-3">🎧</span>Focus Tools</a></li>
                     <li><a href="#" data-view="learning-hub" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
@@ -40,7 +46,7 @@
                     <li><a href="#" data-view="settings" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                         <span class="w-6 h-6 mr-3">⚙️</span>Settings</a></li>
                     <li><a href="#" data-view="tutorial" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">💡</span>Tutorial</a></li> <!-- New Tutorial Link -->
+                        <span class="w-6 h-6 mr-3">💡</span>Tutorial</a></li>
                 </ul>
             </nav>
             <div class="p-4 border-t border-border-color">
@@ -75,8 +81,14 @@
                             <span class="w-6 h-6 mr-3">📚</span>Library</a></li>
                         <li><a href="#" data-view="ai-learning" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                             <span class="w-6 h-6 mr-3">✨</span>AI Learning</a></li>
+                        <li><a href="#" data-view="mind-map" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                            <span class="w-6 h-6 mr-3">🗺️</span>Mind Map</a></li> <!-- New Mobile Mind Map Link -->
+                        <li><a href="#" data-view="glossary" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                            <span class="w-6 h-6 mr-3">📖</span>Glossary</a></li> <!-- New Mobile Glossary Link -->
                         <li><a href="#" data-view="analytics" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                             <span class="w-6 h-6 mr-3">📊</span>Analytics</a></li>
+                        <li><a href="#" data-view="achievements" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                            <span class="w-6 h-6 mr-3">🏅</span>Achievements</a></li> <!-- New Mobile Achievements Link -->
                         <li><a href="#" data-view="focus" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                             <span class="w-6 h-6 mr-3">🎧</span>Focus Tools</a></li>
                         <li><a href="#" data-view="learning-hub" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
@@ -84,7 +96,7 @@
                         <li><a href="#" data-view="settings" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                             <span class="w-6 h-6 mr-3">⚙️</span>Settings</a></li>
                         <li><a href="#" data-view="tutorial" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">💡</span>Tutorial</a></li> <!-- New Tutorial Link -->
+                            <span class="w-6 h-6 mr-3">💡</span>Tutorial</a></li>
                     </ul>
                 </nav>
                 <div class="p-4 border-t border-border-color">
@@ -98,7 +110,7 @@
                 </div>
             </aside>
         </div>
-        
+
         <main class="flex-grow p-4 sm:p-6 lg:p-8 overflow-y-auto pt-20 md:pt-6">
             <div class="fixed top-4 right-4 z-40 md:static md:mb-6 md:flex md:justify-end">
                 <input type="text" id="global-search-input" placeholder="Search atoms or learning hub..." class="p-2 border border-border-color rounded-lg shadow-sm w-48 md:w-64 bg-input-bg text-input-text focus:outline-none focus:ring-2 focus:ring-accent-blue">
@@ -106,6 +118,9 @@
 
             <!-- Dashboard View -->
             <div id="view-dashboard" class="space-y-8">
+                <div id="backup-reminder" class="bg-yellow-100 text-yellow-800 p-3 rounded-lg border border-yellow-200 text-center hidden">
+                    <p class="text-sm">Don't forget to <a href="#" data-view="settings" class="font-semibold underline">export your data</a> regularly for backup!</p>
+                </div>
                 <div>
                     <h2 class="text-3xl font-bold text-primary">Welcome back, <span id="dashboard-username">User</span>!</h2>
                     <p class="text-secondary mt-1">Here's your learning snapshot for today, highlighting key progress and ready actions.</p>
@@ -128,11 +143,16 @@
                     </div>
                 </div>
                 <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3">
                         <h3 class="text-xl font-bold text-primary">Today's Intelligent Review</h3>
-                        <button id="quick-add-atom-btn-dashboard" class="bg-accent-blue text-white text-sm font-semibold py-1.5 px-3 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            + Quick Add Atom
-                        </button>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                             <button id="quick-add-atom-btn-dashboard" class="bg-accent-blue text-white text-sm font-semibold py-1.5 px-3 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
+                                + Quick Add Atom
+                            </button>
+                            <button id="study-weak-atoms-btn" class="bg-orange-500 text-white text-sm font-semibold py-1.5 px-3 rounded-lg hover:bg-orange-600 transition-all shadow-md">
+                                Study Weak Atoms (0)
+                            </button>
+                        </div>
                     </div>
                     <p class="text-secondary mt-1">Your personalized, prioritized list based on AuraLearn's Spaced Repetition algorithm.</p>
                     <ul id="daily-queue-list" class="mt-4 space-y-3"></ul>
@@ -205,7 +225,7 @@
                     </div>
                     <label for="ai-input-content" class="block text-primary text-sm font-semibold mb-2" id="ai-input-content-label">Provide text, a topic, or questions for the AI to process.</label>
                     <textarea id="ai-input-content" class="w-full h-40 p-3 border border-border-color rounded-lg text-primary" placeholder="Enter text, a topic, or specific questions here... e.g., 'Explain blockchain technology', 'Summarize World War 2 causes', or 'Quiz me on React hooks'." rows="6"></textarea>
-                    
+
                     <div>
                         <label for="ai-content-subject-select" class="block text-primary text-sm font-semibold mb-2">Assign to Subject (Optional for categorization, required for Flashcards):</label>
                         <select id="ai-content-subject-select" class="w-full p-3 border border-border-color rounded-lg bg-input-bg text-input-text">
@@ -240,8 +260,49 @@
 
                 <div id="ai-generated-output" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color hidden">
                     <h3 class="text-xl font-bold text-primary mb-4" id="ai-output-title">Generated Content</h3>
-                    <div id="ai-output-content-display" class="space-y-4 text-secondary">
+                    <div id="ai-output-content-display" class="space-y-4 text-secondary formatted-ai-content">
                         <!-- AI generated content will be displayed here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mind Map View (New) -->
+            <div id="view-mind-map" class="hidden space-y-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-primary">Mind Map</h2>
+                    <p class="text-secondary mt-1">Visualize and connect your concepts. Click to add nodes, drag to move, click to connect.</p>
+                </div>
+                <div class="bg-secondary p-4 rounded-xl shadow-sm border border-border-color flex flex-col items-stretch">
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button id="mind-map-add-node-btn" class="bg-accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
+                            Add Node
+                        </button>
+                        <button id="mind-map-clear-all-btn" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-all shadow-md">
+                            Clear All
+                        </button>
+                        <input type="text" id="mind-map-node-text-input" placeholder="Node Text (click to add)" class="flex-grow p-2 border border-border-color rounded-lg text-primary max-w-xs">
+                        <button id="mind-map-save-btn" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-all shadow-md">
+                            Save Map
+                        </button>
+                        <select id="mind-map-load-select" class="p-2 border border-border-color rounded-lg bg-input-bg text-input-text max-w-[150px]">
+                            <option value="">Load Map</option>
+                        </select>
+                    </div>
+                    <canvas id="mind-map-canvas" class="bg-gray-100 rounded-lg border border-border-color w-full h-[600px] cursor-grab"></canvas>
+                    <p class="text-sm text-secondary mt-2">Hint: Double-click a node to edit text. Click once on a node to select, click another to connect. Drag nodes to move them.</p>
+                </div>
+            </div>
+
+            <!-- Glossary View (New) -->
+            <div id="view-glossary" class="hidden space-y-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-primary">Glossary</h2>
+                    <p class="text-secondary mt-1">Your personal dictionary of key terms and definitions, extracted from your learning materials.</p>
+                </div>
+                <div id="glossary-content" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
+                    <input type="text" id="glossary-search-input" placeholder="Search glossary..." class="w-full p-2 border border-border-color rounded-lg mb-4 bg-input-bg text-input-text">
+                    <div id="glossary-list" class="space-y-3">
+                        <p id="empty-glossary-message" class="text-secondary text-center">Your glossary is currently empty. Use the AI Learning Studio to "Extract Keywords" from your notes!</p>
                     </div>
                 </div>
             </div>
@@ -281,7 +342,18 @@
                     </div>
                 </div>
             </div>
-            
+
+            <!-- Achievements View (New) -->
+            <div id="view-achievements" class="hidden space-y-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-primary">Achievements</h2>
+                    <p class="text-secondary mt-1">Celebrate your progress and unlock badges as you master new skills!</p>
+                </div>
+                <div id="achievements-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <p id="empty-achievements-message" class="text-secondary text-center col-span-full">No achievements unlocked yet. Keep learning!</p>
+                </div>
+            </div>
+
             <!-- Study View (Flashcards) -->
             <div id="view-study" class="hidden">
                  <div class="max-w-3xl mx-auto text-center">
@@ -412,7 +484,7 @@
                         </div>
                         <div>
                             <label for="interval-forgot" class="block text-primary text-sm font-semibold mb-2">Forgot Recall (Hours for first review, then days):</label>
-                            <input type="number" id="interval-forgot" class="w-full p-3 border border-border-color rounded-lg" value="0.5">
+                            <input type="number" id="interval-forgot" class="w-full p-3 border border-border-color rounded-lg" value="0.25">
                         </div>
                     </div>
                     <button id="save-intervals-btn" class="mt-4 w-full bg-accent-blue text-white font-semibold py-2 rounded-lg hover:bg-accent-blue-hover transition-all">Save Intervals</button>
@@ -475,7 +547,7 @@
                         <button id="close-detail-modal" class="text-secondary text-2xl hover:text-primary">&times;</button>
                     </div>
                     <div class="space-y-4 text-secondary" id="detail-content">
-                         <div id="detail-content-text"></div>
+                         <div id="detail-content-text" class="formatted-ai-content"></div>
                          <p id="detail-loading" class="text-center text-accent-blue hidden">Generating detailed explanation...</p>
                     </div>
                 </div>
@@ -598,7 +670,7 @@
                 </div>
             </div>
 
-            <!-- Global Search Results Modal (New) -->
+            <!-- Global Search Results Modal -->
             <div id="search-results-modal" class="fixed inset-0 hidden modal z-50">
                 <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-2xl mx-auto overflow-y-auto max-h-[90vh]">
                     <div class="flex justify-between items-center mb-6">
@@ -611,7 +683,7 @@
                 </div>
             </div>
 
-            <!-- Quiz Modal (New) -->
+            <!-- Quiz Modal -->
             <div id="quiz-modal" class="fixed inset-0 hidden modal z-50">
                 <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-3xl mx-auto overflow-y-auto max-h-[90vh]">
                     <div class="flex justify-between items-center mb-6">
@@ -646,7 +718,7 @@
                 </div>
             </div>
 
-             <!-- Tutorial Step Modal (New) -->
+             <!-- Tutorial Step Modal -->
             <div id="tutorial-step-modal" class="fixed inset-0 hidden modal z-50">
                 <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-lg mx-auto overflow-y-auto max-h-[90vh]">
                     <div class="flex justify-between items-center mb-6">
@@ -663,8 +735,6 @@
                     </div>
                 </div>
             </div>
-
-
         </main>
     </div>
 
