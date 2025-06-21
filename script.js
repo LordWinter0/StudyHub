@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { title: "5 Productivity Tips Teachers Never Teach", summary: "Unconventional but effective study habits.", details: "" },
                 { title: "Manage Your Study Schedule", summary: "Creating and sticking to an effective learning routine.", details: "" },
                 { title: "Best Study Schedules for YOU!", summary: "Tailoring study plans to individual needs.", details: "" },
-                { title: "Combat ADHD (Study Tips)", summary: "Strategies for studying with attention challenges.", details: "" },
+                { title: "Combat ADHD (Study Tips)", "summary": "Strategies for studying with attention challenges.", details: "" },
                 { title: "5 Most Effective Note-Taking Methods", summary: "Optimizing your notes for better retention and recall.", details: "" },
                 { title: "5 Effective Study Methods to Boost Motivation", summary: "Techniques to stay engaged and energized.", details: "" },
                 { title: "Understand Better and Faster", summary: "Deepening comprehension with efficient techniques.", details: "" },
@@ -618,6 +618,31 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 300); // Allow fade out before hiding
         }, 4000); // Display for 4 seconds
     }
+
+    /**
+     * Populates the subject dropdown for the Quick Add Flashcard modal, including default subjects.
+     */
+    function populateQuickAddSubjectSelect() {
+        quickAddSubjectSelect.innerHTML = '<option value="">Select or Add New Subject</option>';
+
+        // Add default subjects first
+        defaultSubjects.forEach(subject => {
+            const option = document.createElement('option');
+            option.value = subject.id;
+            option.textContent = subject.name;
+            quickAddSubjectSelect.appendChild(option);
+        });
+
+        // Add user-added subjects, avoiding duplicates if they have the same ID as a default
+        mockData.subjects.filter(s => !defaultSubjects.some(ds => ds.id === s.id)).forEach(subject => {
+            const option = document.createElement('option');
+            option.value = subject.id;
+            option.textContent = subject.name;
+            quickAddSubjectSelect.appendChild(option);
+        });
+        quickAddSubjectSelect.value = "";
+    }
+
 
     /**
      * Checks if a new achievement has been unlocked.
@@ -1063,7 +1088,7 @@ document.addEventListener('DOMContentLoaded', () => {
             appState.calendar.editingEvent = event;
             eventModalTitle.textContent = 'Edit Event';
             eventTitleInput.value = event.title;
-            eventDateInput.value = event.date.toISOString().split('T')[0]; // YYYY-MM-DD
+            eventDateInput.value = event.date.toISOString().split('T')[0]; //YYYY-MM-DD
             eventTimeInput.value = event.time || '';
             eventNotesInput.value = event.notes || '';
             eventTypeSelect.value = event.type || 'other';
@@ -1287,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', () => {
         populateAILearningSubjectSelect();
         updateAiInputUI();
         // Initialize quiz controls visibility (assuming they are there)
-        const quizControls = document.getElementById('quiz-controls'); // You'll need to add this div in HTML
+        const quizControls = document.getElementById('quiz-settings-container'); // Corrected ID
         if (quizControls) {
             quizControls.classList.add('hidden');
         }
@@ -2451,31 +2476,6 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleNewSubjectInputBtn.textContent = 'Add New Subject';
         }
     });
-
-    /**
-     * Populates the subject dropdown for the Quick Add Flashcard modal, including default subjects.
-     */
-    function populateQuickAddSubjectSelect() {
-        quickAddSubjectSelect.innerHTML = '<option value="">Select or Add New Subject</option>';
-
-        // Add default subjects first
-        defaultSubjects.forEach(subject => {
-            const option = document.createElement('option');
-            option.value = subject.id;
-            option.textContent = subject.name;
-            quickAddSubjectSelect.appendChild(option);
-        });
-
-        // Add user-added subjects, avoiding duplicates if they have the same ID as a default
-        mockData.subjects.filter(s => !defaultSubjects.some(ds => ds.id === s.id)).forEach(subject => {
-            const option = document.createElement('option');
-            option.value = subject.id;
-            option.textContent = subject.name;
-            quickAddSubjectSelect.appendChild(option);
-        });
-        quickAddSubjectSelect.value = "";
-    }
-
 
     addFlashcardBtn.addEventListener('click', () => { // Renamed
         let subjectId;
