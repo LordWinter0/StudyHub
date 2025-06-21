@@ -9,241 +9,212 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
     <style>
-        /* Base styles */
-        html, body {
-            height: 100%; /* Ensure html and body take full viewport height */
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* Prevent body scroll, let app-container manage */
-        }
+        /* Base styles using Inter font */
         body { font-family: 'Inter', sans-serif; }
 
-        /* Theme Variables - Light */
+        /* Theme Variables - Default Light */
         .theme-light {
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --border-color: #e2e8f0;
-            --accent-blue: #2563eb;
-            --accent-blue-hover: #1d4ed8;
-            --nav-active-bg: #e2e8f0;
-            --nav-active-text: #0f172a;
+            --bg-primary: #f8fafc; /* Slate 50 */
+            --bg-secondary: #ffffff; /* White */
+            --text-primary: #0f172a; /* Slate 900 */
+            --text-secondary: #64748b; /* Slate 500 */
+            --border-color: #e2e8f0; /* Slate 200 */
+            --accent-blue: #2563eb; /* Blue 600 */
+            --accent-blue-hover: #1d4ed8; /* Blue 700 */
+            --nav-active-bg: #e2e8f0; /* Slate 200 */
+            --nav-active-text: #0f172a; /* Slate 900 */
             --card-front-bg: #ffffff;
             --card-back-bg: #ffffff;
             --input-bg: #ffffff;
             --input-text: #0f172a;
-            --placeholder-text: #94a3b8;
+            --placeholder-text: #94a3b8; /* Slate 400 */
+            --notification-bg: #e0f2f7; /* Cyan 50 */
+            --notification-text: #0e7490; /* Cyan 700 */
+            --notification-error-bg: #fee2e2; /* Red 100 */
+            --notification-error-text: #dc2626; /* Red 600 */
             --button-primary-bg: #2563eb;
             --button-primary-text: #ffffff;
-            --button-secondary-bg: #e2e8f0;
-            --button-secondary-text: #0f172a;
-            --notification-success-bg: #d1fae5;
-            --notification-success-text: #065f46;
-            --notification-error-bg: #fee2e2;
-            --notification-error-text: #991b1b;
-            --text-green: #10b981;
-            --text-orange: #f97316;
-            --sidebar-bg: #ffffff;
-            --sidebar-text: #475569;
-            --sidebar-active-bg: #e2e8f0;
-            --sidebar-active-text: #0f172a;
+            --button-primary-hover-bg: #1d4ed8;
+            --text-green: #22c55e; /* Green 500 */
+            --text-orange: #f97316; /* Orange 500 */
+            --connection-color: #64748b; /* Slate 500 for mind map connections */
+            --node-bg: #cbd5e1; /* Slate 300 for mind map nodes */
+            --node-border: #94a3b8; /* Slate 400 */
+            --node-selected-border: #2563eb; /* Accent blue */
+            --node-text: #0f172a; /* Slate 900 */
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
             --modal-bg: #ffffff;
-            --modal-overlay: rgba(0, 0, 0, 0.4);
-            --connection-color: #64748b; /* Mind map connection color */
-            --node-bg: #ffffff;
-            --node-border: #94a3b8;
-            --node-text: #0f172a;
-            --node-selected-border: #2563eb;
         }
 
-        /* Theme Variables - Dark */
+        /* Dark Theme */
         .theme-dark {
-            --bg-primary: #1e293b;
-            --bg-secondary: #334155;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border-color: #475569;
-            --accent-blue: #60a5fa;
-            --accent-blue-hover: #3b82f6;
-            --nav-active-bg: #475569;
-            --nav-active-text: #f8fafc;
+            --bg-primary: #1e293b; /* Slate 800 */
+            --bg-secondary: #334155; /* Slate 700 */
+            --text-primary: #f8fafc; /* Slate 50 */
+            --text-secondary: #94a3b8; /* Slate 400 */
+            --border-color: #475569; /* Slate 600 */
+            --accent-blue: #60a5fa; /* Blue 400 */
+            --accent-blue-hover: #3b82f6; /* Blue 500 */
+            --nav-active-bg: #475569; /* Slate 600 */
+            --nav-active-text: #f8fafc; /* Slate 50 */
             --card-front-bg: #334155;
             --card-back-bg: #334155;
-            --input-bg: #475569;
+            --input-bg: #334155;
             --input-text: #f8fafc;
             --placeholder-text: #64748b;
+            --notification-bg: #0f172a; /* Slate 900 */
+            --notification-text: #60a5fa; /* Blue 400 */
+            --notification-error-bg: #dc2626; /* Red 600 */
+            --notification-error-text: #f8fafc; /* Slate 50 */
             --button-primary-bg: #60a5fa;
             --button-primary-text: #1e293b;
-            --button-secondary-bg: #475569;
-            --button-secondary-text: #f8fafc;
-            --notification-success-bg: #15803d;
-            --notification-success-text: #d1fae5;
-            --notification-error-bg: #b91c1c;
-            --notification-error-text: #fee2e2;
-            --text-green: #34d399;
-            --text-orange: #fb923c;
-            --sidebar-bg: #1e293b;
-            --sidebar-text: #94a3b8;
-            --sidebar-active-bg: #475569;
-            --sidebar-active-text: #f8fafc;
-            --modal-bg: #334155;
-            --modal-overlay: rgba(0, 0, 0, 0.6);
+            --button-primary-hover-bg: #3b82f6;
+            --text-green: #4ade80; /* Green 400 */
+            --text-orange: #fb923c; /* Orange 400 */
             --connection-color: #94a3b8;
-            --node-bg: #334155;
+            --node-bg: #475569;
             --node-border: #64748b;
-            --node-text: #f8fafc;
             --node-selected-border: #60a5fa;
+            --node-text: #f8fafc;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.7);
+            --modal-bg: #334155;
         }
 
-        /* Theme Variables - Vibrant */
+        /* Vibrant Theme */
         .theme-vibrant {
-            --bg-primary: #fef2f2;
-            --bg-secondary: #ffffff;
-            --text-primary: #831843;
-            --text-secondary: #be185d;
-            --border-color: #fda4af;
-            --accent-blue: #f43f5e;
-            --accent-blue-hover: #e11d48;
-            --nav-active-bg: #ffe4e6;
-            --nav-active-text: #831843;
+            --bg-primary: #ecfeff; /* Cyan 50 */
+            --bg-secondary: #ffffff; /* White */
+            --text-primary: #083344; /* Cyan 950 */
+            --text-secondary: #0e7490; /* Cyan 700 */
+            --border-color: #a5f3fc; /* Cyan 200 */
+            --accent-blue: #06b6d4; /* Cyan 500 */
+            --accent-blue-hover: #0891b2; /* Cyan 600 */
+            --nav-active-bg: #a5f3fc; /* Cyan 200 */
+            --nav-active-text: #083344; /* Cyan 950 */
             --card-front-bg: #ffffff;
             --card-back-bg: #ffffff;
             --input-bg: #ffffff;
-            --input-text: #831843;
-            --placeholder-text: #fbcfe8;
-            --button-primary-bg: #f43f5e;
+            --input-text: #083344;
+            --placeholder-text: #22d3ee; /* Cyan 400 */
+            --notification-bg: #cffafe; /* Cyan 100 */
+            --notification-text: #0e7490; /* Cyan 700 */
+            --notification-error-bg: #fecaca; /* Red 200 */
+            --notification-error-text: #ef4444; /* Red 500 */
+            --button-primary-bg: #06b6d4;
             --button-primary-text: #ffffff;
-            --button-secondary-bg: #ffe4e6;
-            --button-secondary-text: #831843;
-            --notification-success-bg: #d1fae5;
-            --notification-success-text: #065f46;
-            --notification-error-bg: #fee2e2;
-            --notification-error-text: #991b1b;
-            --text-green: #10b981;
-            --text-orange: #f97316;
-            --sidebar-bg: #ffffff;
-            --sidebar-text: #be185d;
-            --sidebar-active-bg: #ffe4e6;
-            --sidebar-active-text: #831843;
+            --button-primary-hover-bg: #0891b2;
+            --text-green: #10b981; /* Emerald 500 */
+            --text-orange: #f59e0b; /* Amber 500 */
+            --connection-color: #0e7490;
+            --node-bg: #67e8f9; /* Cyan 400 */
+            --node-border: #22d3ee; /* Cyan 500 */
+            --node-selected-border: #06b6d4; /* Accent cyan */
+            --node-text: #083344;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
             --modal-bg: #ffffff;
-            --modal-overlay: rgba(0, 0, 0, 0.4);
-            --connection-color: #fda4af;
-            --node-bg: #ffffff;
-            --node-border: #f43f5e;
-            --node-text: #831843;
-            --node-selected-border: #f43f5e;
         }
 
-        /* Theme Variables - Forest Green */
+        /* Forest Green Theme */
         .theme-forest-green {
-            --bg-primary: #ecfdf5;
-            --bg-secondary: #f0fdf4;
-            --text-primary: #064e3b;
-            --text-secondary: #047857;
-            --border-color: #a7f3d0;
-            --accent-blue: #10b981;
-            --accent-blue-hover: #059669;
-            --nav-active-bg: #ccfbf1;
-            --nav-active-text: #064e3b;
-            --card-front-bg: #f0fdf4;
-            --card-back-bg: #f0fdf4;
-            --input-bg: #ffffff;
+            --bg-primary: #f0fdf4; /* Emerald 50 */
+            --bg-secondary: #dcfce7; /* Emerald 100 */
+            --text-primary: #064e3b; /* Emerald 900 */
+            --text-secondary: #047857; /* Emerald 700 */
+            --border-color: #a7f3d0; /* Emerald 200 */
+            --accent-blue: #10b981; /* Emerald 600 */
+            --accent-blue-hover: #059669; /* Emerald 700 */
+            --nav-active-bg: #a7f3d0; /* Emerald 200 */
+            --nav-active-text: #064e3b; /* Emerald 900 */
+            --card-front-bg: #ecfdf5;
+            --card-back-bg: #ecfdf5;
+            --input-bg: #dcfce7;
             --input-text: #064e3b;
-            --placeholder-text: #34d399;
+            --placeholder-text: #34d399; /* Emerald 400 */
+            --notification-bg: #d1fae5; /* Green 100 */
+            --notification-text: #065f46; /* Green 700 */
+            --notification-error-bg: #fecaca; /* Red 200 */
+            --notification-error-text: #ef4444; /* Red 500 */
             --button-primary-bg: #10b981;
             --button-primary-text: #ffffff;
-            --button-secondary-bg: #ccfbf1;
-            --button-secondary-text: #064e3b;
-            --notification-success-bg: #065f46;
-            --notification-success-text: #d1fae5;
-            --notification-error-bg: #b91c1c;
-            --notification-error-text: #fee2e2;
-            --text-green: #34d399;
+            --button-primary-hover-bg: #059669;
+            --text-green: #22c55e;
             --text-orange: #f97316;
-            --sidebar-bg: #ffffff;
-            --sidebar-text: #047857;
-            --sidebar-active-bg: #ccfbf1;
-            --sidebar-active-text: #064e3b;
-            --modal-bg: #f0fdf4;
-            --modal-overlay: rgba(0, 0, 0, 0.4);
             --connection-color: #047857;
-            --node-bg: #f0fdf4;
-            --node-border: #34d399;
+            --node-bg: #34d399;
+            --node-border: #10b981;
+            --node-selected-border: #059669;
             --node-text: #064e3b;
-            --node-selected-border: #10b981;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --modal-bg: #ffffff;
         }
 
-        /* Theme Variables - Ocean Blue */
+        /* Ocean Blue Theme */
         .theme-ocean-blue {
-            --bg-primary: #eff6ff;
-            --bg-secondary: #e0f2fe;
-            --text-primary: #1e3a8a;
-            --text-secondary: #2563eb;
-            --border-color: #93c5fd;
-            --accent-blue: #3b82f6;
-            --accent-blue-hover: #2563eb;
-            --nav-active-bg: #bfdbfe;
-            --nav-active-text: #1e3a8a;
+            --bg-primary: #eff6ff; /* Blue 50 */
+            --bg-secondary: #dbeafe; /* Blue 100 */
+            --text-primary: #1e3a8a; /* Blue 900 */
+            --text-secondary: #2563eb; /* Blue 600 */
+            --border-color: #bfdbfe; /* Blue 200 */
+            --accent-blue: #3b82f6; /* Blue 500 */
+            --accent-blue-hover: #2563eb; /* Blue 600 */
+            --nav-active-bg: #bfdbfe; /* Blue 200 */
+            --nav-active-text: #1e3a8a; /* Blue 900 */
             --card-front-bg: #e0f2fe;
             --card-back-bg: #e0f2fe;
-            --input-bg: #ffffff;
+            --input-bg: #dbeafe;
             --input-text: #1e3a8a;
-            --placeholder-text: #60a5fa;
+            --placeholder-text: #60a5fa; /* Blue 400 */
+            --notification-bg: #e0f2fe; /* Light Blue 100 */
+            --notification-text: #1d4ed8; /* Blue 700 */
+            --notification-error-bg: #fecaca; /* Red 200 */
+            --notification-error-text: #ef4444; /* Red 500 */
             --button-primary-bg: #3b82f6;
             --button-primary-text: #ffffff;
-            --button-secondary-bg: #bfdbfe;
-            --button-secondary-text: #1e3a8a;
-            --notification-success-bg: #d1fae5;
-            --notification-success-text: #065f46;
-            --notification-error-bg: #fee2e2;
-            --notification-error-text: #991b1b;
-            --text-green: #10b981;
+            --button-primary-hover-bg: #2563eb;
+            --text-green: #22c55e;
             --text-orange: #f97316;
-            --sidebar-bg: #ffffff;
-            --sidebar-text: #2563eb;
-            --sidebar-active-bg: #bfdbfe;
-            --sidebar-active-text: #1e3a8a;
-            --modal-bg: #e0f2fe;
-            --modal-overlay: rgba(0, 0, 0, 0.4);
             --connection-color: #2563eb;
-            --node-bg: #e0f2fe;
-            --node-border: #60a5fa;
+            --node-bg: #60a5fa;
+            --node-border: #3b82f6;
+            --node-selected-border: #2563eb;
             --node-text: #1e3a8a;
-            --node-selected-border: #3b82f6;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --modal-bg: #ffffff;
         }
 
-        /* Global Themed Styles */
-        .bg-primary { background-color: var(--bg-primary); }
-        .bg-secondary { background-color: var(--bg-secondary); }
+
+        /* Apply variables */
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
         .text-primary { color: var(--text-primary); }
         .text-secondary { color: var(--text-secondary); }
-        .border-color { border-color: var(--border-color); }
-        .accent-blue { background-color: var(--accent-blue); }
+        .bg-primary { background-color: var(--bg-primary); }
+        .bg-secondary { background-color: var(--bg-secondary); }
+        .border-border-color { border-color: var(--border-color); }
+        .accent-blue { color: var(--accent-blue); }
+        .bg-accent-blue { background-color: var(--accent-blue); }
         .hover\:bg-accent-blue-hover:hover { background-color: var(--accent-blue-hover); }
-        .nav-item-active { background-color: var(--nav-active-bg); color: var(--nav-active-text); }
-        .card-front, .card-back { background-color: var(--card-front-bg); }
-        input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="date"], input[type="time"], textarea, select {
+        .nav-item-active {
+            background-color: var(--nav-active-bg);
+            color: var(--nav-active-text);
+        }
+        .flashcard-front, .flashcard-back {
+            background-color: var(--card-front-bg);
+        }
+        .input-themed {
             background-color: var(--input-bg);
             color: var(--input-text);
             border-color: var(--border-color);
         }
-        input::placeholder, textarea::placeholder { color: var(--placeholder-text); }
-        .btn-primary { background-color: var(--button-primary-bg); color: var(--button-primary-text); }
-        .btn-secondary { background-color: var(--button-secondary-bg); color: var(--button-secondary-text); }
-        .notification-toast {
-            background-color: var(--notification-success-bg);
-            color: var(--notification-success-text);
+        .input-themed::placeholder {
+            color: var(--placeholder-text);
         }
-        .notification-toast.error {
-            background-color: var(--notification-error-bg);
-            color: var(--notification-error-text);
-        }
-        .text-green-600 { color: var(--text-green); } /* Custom var for Charts/Quiz feedback */
-        .text-red-600 { color: #dc2626; } /* Always red for error */
-        .text-orange-500 { color: var(--text-orange); } /* Custom var for Charts */
-
         .list-item-themed {
             background-color: var(--bg-secondary);
             border-color: var(--border-color);
@@ -251,330 +222,532 @@
         .hover\:list-item-themed:hover {
             background-color: var(--nav-active-bg);
         }
+        .notification-toast {
+            background-color: var(--notification-bg);
+            color: var(--notification-text);
+        }
+        .notification-toast.error {
+            background-color: var(--notification-error-bg);
+            color: var(--notification-error-text);
+        }
+        .button-primary {
+            background-color: var(--button-primary-bg);
+            color: var(--button-primary-text);
+        }
+        .button-primary:hover {
+            background-color: var(--button-primary-hover-bg);
+        }
+        .text-green-600 { color: var(--text-green); }
+        .text-orange-500 { color: var(--text-orange); }
 
-        /* Sidebar specific */
-        #sidebar { background-color: var(--sidebar-bg); color: var(--sidebar-text); border-right: 1px solid var(--border-color); }
-        .nav-item { color: var(--sidebar-text); }
-        .nav-item:hover:not(.nav-item-active) { background-color: var(--nav-active-bg); color: var(--nav-active-text); }
-
-        /* Modal specific */
-        .modal-content { background-color: var(--modal-bg); }
-        .modal-overlay { background-color: var(--modal-overlay); }
-
-        /* Ensure all text within prose blocks inherits primary text color */
-        body .prose * { /* Added body to make it more specific and force override */
-            color: var(--text-primary) !important;
+        /* General layout */
+        #app-container {
+            display: flex;
+            min-height: 100vh;
+            border-radius: 1rem; /* Rounded corners for the whole app */
+            overflow: hidden;
         }
 
-        /* Flashcard flip effect */
-        .flashcard-inner {
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-            position: relative;
+        aside {
+            width: 250px;
+            flex-shrink: 0;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border-top-left-radius: 1rem;
+            border-bottom-left-radius: 1rem;
+        }
+
+        main {
+            flex-grow: 1;
+            padding: 1.5rem;
+            background-color: var(--bg-primary);
+            overflow-y: auto;
+            border-top-right-radius: 1rem;
+            border-bottom-right-radius: 1rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .nav-item:hover:not(.nav-item-active) {
+            background-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .flashcard-container {
+            width: 100%;
+            height: 350px;
+            perspective: 1000px;
+        }
+
+        .flashcard {
             width: 100%;
             height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            border-radius: 0.75rem; /* Rounded corners for flashcards */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
         }
-        .flashcard-container.flipped .flashcard-inner {
+
+        .flashcard-container.flipped .flashcard {
             transform: rotateY(180deg);
         }
-        .card-front, .card-back {
+
+        .flashcard-face {
             position: absolute;
             width: 100%;
             height: 100%;
-            -webkit-backface-visibility: hidden; /* Safari */
             backface-visibility: hidden;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 1.5rem;
-            border-radius: 0.75rem; /* rounded-xl */
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+            border-radius: 0.75rem;
+            text-align: center;
+            overflow-y: auto;
         }
-        .card-back {
+
+        .flashcard-front {
+            background-color: var(--card-front-bg);
+            color: var(--text-primary);
+        }
+
+        .flashcard-back {
+            background-color: var(--card-back-bg);
+            color: var(--text-primary);
             transform: rotateY(180deg);
         }
 
-        /* Calendar styles */
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0.5rem;
-        }
-        .calendar-day-cell {
-            padding: 0.75rem;
-            border-radius: 0.5rem;
+        .quiz-option-btn, .soundscape-btn {
             border: 1px solid var(--border-color);
             background-color: var(--bg-secondary);
-            text-align: center;
-            position: relative;
-            cursor: pointer;
-            min-height: 80px; /* Ensure a decent height for day cells */
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
+            color: var(--text-primary);
             transition: background-color 0.2s, border-color 0.2s;
+            border-radius: 0.5rem;
         }
-        .calendar-day-cell.inactive {
-            background-color: var(--bg-primary);
-            color: var(--text-secondary);
-            opacity: 0.7;
-            cursor: not-allowed;
-            border-color: var(--border-color);
-        }
-        .calendar-day-cell.today {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 2px var(--accent-blue-hover);
-        }
-        .calendar-day-cell.selected-day {
+
+        .quiz-option-btn:hover, .soundscape-btn:hover {
             background-color: var(--nav-active-bg);
             border-color: var(--accent-blue);
-            box-shadow: 0 0 0 2px var(--accent-blue-hover);
         }
-        .calendar-day-number {
-            font-weight: 600; /* semibold */
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-        .calendar-event-item {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.75rem; /* text-xs */
-            line-height: 1;
-            margin-top: 0.25rem;
-            color: var(--text-primary);
-        }
-        .calendar-event-marker {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-        /* Event types for calendar markers */
-        .event-type-assignment .calendar-event-marker { background-color: #f59e0b; } /* amber-500 */
-        .event-type-exam .calendar-event-marker { background-color: #ef4444; } /* red-500 */
-        .event-type-study .calendar-event-marker { background-color: #3b82f6; } /* blue-500 */
-        .event-type-other .calendar-event-marker { background-color: #6b7280; } /* gray-500 */
 
-        /* Quiz specific */
-        .quiz-option-btn {
-            @apply w-full p-3 rounded-lg border border-border-color text-primary bg-secondary hover:bg-nav-active-bg transition-colors text-left;
-        }
         .quiz-option-btn.selected {
-            @apply border-accent-blue bg-nav-active-bg;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px var(--accent-blue);
         }
+
         .quiz-option-btn.correct {
-            @apply bg-green-100 border-green-600 text-green-800;
+            background-color: #d1fae5; /* Green 100 */
+            border-color: #34d399; /* Green 500 */
+            color: #065f46; /* Green 900 */
         }
+
         .quiz-option-btn.incorrect {
-            @apply bg-red-100 border-red-600 text-red-800;
+            background-color: #fee2e2; /* Red 100 */
+            border-color: #ef4444; /* Red 500 */
+            color: #991b1b; /* Red 900 */
         }
 
-        /* Achievements specific */
-        .achievement-card {
-            @apply p-4 rounded-lg border list-item-themed flex flex-col items-center justify-center text-center gap-2;
-        }
-        .achievement-card .icon {
-            @apply text-5xl mb-2;
-        }
-        .achievement-card h4 {
-            @apply font-semibold text-primary;
-        }
-        .achievement-card p {
-            @apply text-sm text-secondary;
-        }
-        .achievement-card.locked {
-            @apply opacity-50 grayscale;
+        /* Modal styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-overlay-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
 
-        /* Glossary specific */
-        .glossary-item {
-            @apply p-3 rounded-lg border list-item-themed mb-2;
-        }
-        .glossary-item h4 {
-            @apply font-semibold text-primary;
-        }
-        .glossary-item p {
-            @apply text-sm text-secondary;
-        }
-
-        /* Mind Map Canvas Styling */
-        #mind-map-canvas {
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-secondary);
-            cursor: grab;
-            touch-action: none; /* Disable default touch actions to prevent unintended scrolling/zooming */
-        }
-        #mind-map-canvas.grabbing {
-            cursor: grabbing;
+        .modal-content {
+            background-color: var(--modal-bg);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
         }
 
         /* Notification Toast */
         .notification-toast {
             position: fixed;
-            bottom: 20px;
+            bottom: 1.5rem;
             left: 50%;
             transform: translateX(-50%);
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 1rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             opacity: 0;
-            transition: opacity 0.3s ease-in-out, bottom 0.3s ease-in-out;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            z-index: 1001;
+            font-weight: 500;
         }
         .notification-toast.show {
             opacity: 1;
-            bottom: 30px;
+            visibility: visible;
         }
 
-        /* Utility classes for themed background/text colors */
-        .bg-indigo-100 { background-color: #e0e7ff; } .text-indigo-800 { color: #3730a3; }
-        .bg-emerald-100 { background-color: #d1fae5; } .text-emerald-800 { color: #065f46; }
-        .bg-rose-100 { background-color: #ffe4e6; } .text-rose-800 { color: #9f1239; }
-        .bg-amber-100 { background-color: #fffbeb; } .text-amber-800 { color: #92400e; }
-        .bg-purple-100 { background-color: #f3e8ff; } .text-purple-800 { color: #6b21a8; }
-        .bg-pink-100 { background-color: #fce7f3; } .text-pink-800 { color: #9d174d; }
-        .bg-cyan-100 { background-color: #ecfeff; } .text-cyan-800 { color: #0e7490; }
-        .bg-blue-100 { background-color: #dbeafe; } .text-blue-800 { color: #1e40af; }
+        /* Calendar Styling */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day-cell {
+            padding: 0.5rem;
+            aspect-ratio: 1 / 1; /* Make cells square */
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-day-cell:hover:not(.inactive) {
+            background-color: var(--nav-active-bg);
+            border-color: var(--accent-blue);
+        }
+
+        .calendar-day-cell.inactive {
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            opacity: 0.6;
+            cursor: not-allowed;
+            border-color: var(--border-color);
+        }
+
+        .calendar-day-cell.today {
+            background-color: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .calendar-day-cell.today .calendar-day-number {
+            color: white;
+        }
+
+        .calendar-day-cell.selected-day:not(.today) {
+            border: 2px solid var(--accent-blue);
+            box-shadow: 0 0 0 2px var(--accent-blue);
+        }
+
+        .calendar-day-number {
+            font-weight: 600;
+            color: var(--text-primary);
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            font-size: 0.875rem; /* text-sm */
+        }
+
+        .calendar-event-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-top: 0.25rem;
+            font-size: 0.625rem; /* text-xs */
+            color: var(--text-secondary);
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .calendar-event-marker {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .calendar-event-item.event-type-assignment .calendar-event-marker { background-color: #ef4444; /* Red */ }
+        .calendar-event-item.event-type-exam .calendar-event-marker { background-color: #f97316; /* Orange */ }
+        .calendar-event-item.event-type-study .calendar-event-marker { background-color: #22c55e; /* Green */ }
+        .calendar-event-item.event-type-other .calendar-event-marker { background-color: #6366f1; /* Indigo */ }
+
+        /* Event List for Day */
+        .events-for-day-list li {
+            position: relative;
+        }
+        .events-for-day-list li.event-type-assignment .calendar-event-marker { background-color: #ef4444; }
+        .events-for-day-list li.event-type-exam .calendar-event-marker { background-color: #f97316; }
+        .events-for-day-list li.event-type-study .calendar-event-marker { background-color: #22c55e; }
+        .events-for-day-list li.event-type-other .calendar-event-marker { background-color: #6366f1; }
+
+        /* Mind Map Canvas */
+        #mind-map-canvas {
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            border-radius: 0.75rem;
+            width: 100%;
+            height: 500px; /* Or adjust as needed */
+            touch-action: none; /* Prevent browser touch actions like scrolling */
+        }
+
+        /* Achievements */
+        .achievement-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .achievement-card .icon {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+        }
+        .achievement-card h4 {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .achievement-card p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .achievement-card.locked {
+            filter: grayscale(80%);
+            opacity: 0.7;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            aside {
+                display: none; /* Hide sidebar by default on smaller screens */
+            }
+            main {
+                flex-grow: 1;
+                border-radius: 0; /* No rounded corners for main if sidebar is hidden */
+            }
+            .mobile-header {
+                display: flex; /* Show mobile header */
+            }
+            #app-container {
+                border-radius: 0;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            aside {
+                display: flex; /* Show sidebar on larger screens */
+            }
+            .mobile-header {
+                display: none; /* Hide mobile header */
+            }
+        }
+
+        /* Mobile Sidebar specific styles */
+        #mobile-sidebar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-overlay-bg);
+            z-index: 1000;
+        }
+        #mobile-sidebar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Hide scrollbar for entire app, but allow content to scroll if needed */
+        body {
+            overflow: hidden; /* Hide main body scrollbar */
+        }
+        main {
+            overflow-y: auto; /* Allow scrolling within the main content area */
+        }
+
+        /* Custom styles for theme buttons in settings */
+        .theme-btn[data-theme="light"] { background-color: #f8fafc; color: #0f172a; }
+        .theme-btn[data-theme="dark"] { background-color: #1e293b; color: #f8fafc; }
+        .theme-btn[data-theme="vibrant"] { background-color: #06b6d4; color: #ffffff; }
+        .theme-btn[data-theme="forest-green"] { background-color: #10b981; color: #ffffff; }
+        .theme-btn[data-theme="ocean-blue"] { background-color: #3b82f6; color: #ffffff; }
     </style>
 </head>
-<body class="flex flex-col min-h-screen">
-    <div id="app-container" class="flex flex-1 bg-primary text-primary transition-colors duration-300">
-        <!-- Sidebar (Desktop) -->
-        <aside id="sidebar" class="hidden lg:flex flex-col w-64 p-6 border-r sticky top-0 min-h-screen">
-            <div class="mb-8">
-                <h1 class="text-2xl font-bold text-accent-blue">AuraLearn</h1>
-            </div>
-            <div class="flex-1 overflow-y-auto pr-2"> <!-- Added overflow-y-auto here -->
-                <nav class="space-y-2">
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="dashboard">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                        Dashboard
-                    </a>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="calendar">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        Calendar
-                    </a>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="library">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path></svg>
-                        Library
-                    </a>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="ai-learning">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16L2 12l4-4"></path></svg>
-                        AI Learning Studio
-                    </a>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="mind-map">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5 5L9 9m11-4L4 4m15 15l-5 5L15 9"></path></svg>
-                        Mind Map
-                    </a>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="glossary">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.206 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.794 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.794 5 16.5 5c1.706 0 3.332.477 4.5 1.253v13C19.832 18.477 18.206 18 16.5 18s-3.332.477-4.5 1.253"></path></svg>
-                        Glossary
-                    </a>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="analytics">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-                        Analytics & Goals
-                    </a>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="achievements">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v-2m-2 2H4m5-11l3-3 3 3M21 12h-4M5 12a2 2 0 110-4 2 2 0 010 4zm0 4a2 2 0 110 4 2 2 0 010-4zm4-4a2 2 0 110-4 2 2 0 010 4zm0 4a2 2 0 110 4 2 2 0 010-4zm8-4a2 2 0 110-4 2 2 0 010 4zm0 4a2 2 0 110 4 2 2 0 010-4z"></path></svg>
-                        Achievements
-                    </a>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="focus">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        Focus Tools
-                    </a>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="learning-hub">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.206 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.794 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.794 5 16.5 5c1.706 0 3.332.477 4.5 1.253v13C19.832 18.477 18.206 18 16.5 18s-3.332.477-4.5 1.253"></path></svg>
-                        Learning Hub
-                    </a>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="tutorial">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Tutorial
-                    </a>
-                </nav>
-            </div>
-            <div class="mt-auto pt-4 border-t border-border-color">
-                <p id="sidebar-username" class="font-semibold text-primary"></p>
-                <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors mt-2" data-view="settings">
-                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.545.333 1.203.482 1.905.482zm0 0A2.725 2.725 0 0012 9.25C10.742 9.25 9.75 10.242 9.75 11.5s.992 2.25 2.25 2.25 2.25-.992 2.25-2.25S13.258 9.25 12 9.25z"></path></svg>
-                        Settings
-                    </a>
-                </div>
-            </aside>
+<body class="bg-primary text-primary antialiased">
+    <!-- Main Application Container -->
+    <div id="app-container" class="flex flex-col lg:flex-row min-h-screen w-full mx-auto shadow-lg rounded-2xl">
 
-        <!-- Mobile Sidebar Overlay -->
-        <div id="mobile-sidebar-container" class="fixed inset-0 bg-modal-overlay z-40 hidden lg:hidden transition-opacity duration-300">
-            <aside id="mobile-sidebar" class="bg-primary flex flex-col w-64 h-full p-6 transform -translate-x-full transition-transform duration-300 ease-in-out">
-                <div class="flex justify-between items-center mb-8">
-                    <h1 class="text-2xl font-bold text-accent-blue">AuraLearn</h1>
-                    <button id="close-menu-button" class="text-secondary hover:text-primary">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        <!-- Mobile Header (Visible on smaller screens) -->
+        <header class="mobile-header lg:hidden flex items-center justify-between p-4 bg-secondary border-b border-border-color rounded-t-2xl">
+            <h1 class="text-xl font-bold text-primary">AuraLearn</h1>
+            <button id="menu-button" class="p-2 rounded-md hover:bg-border-color text-primary">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+        </header>
+
+        <!-- Mobile Sidebar (Hidden by default, shown via menu button) -->
+        <div id="mobile-sidebar-container" class="hidden">
+            <aside id="mobile-sidebar" class="w-64 bg-secondary p-6 shadow-xl fixed h-full z-50 rounded-r-2xl">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-2xl font-bold text-primary">AuraLearn</h2>
+                    <button id="close-menu-button" class="p-2 rounded-md hover:bg-border-color text-primary">
+                        <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
-                <div class="flex-1 overflow-y-auto pr-2"> <!-- Added overflow-y-auto here -->
-                    <nav class="space-y-2">
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="dashboard">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                            Dashboard
-                        </a>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="calendar">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            Calendar
-                        </a>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="library">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path></svg>
-                            Library
-                        </a>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="ai-learning">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16L2 12l4-4"></path></svg>
-                            AI Learning Studio
-                        </a>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="mind-map">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5 5L9 9m11-4L4 4m15 15l-5 5L15 9"></path></svg>
-                            Mind Map
-                        </a>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="glossary">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.206 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.794 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.794 5 16.5 5c1.706 0 3.332.477 4.5 1.253v13C19.832 18.477 18.206 18 16.5 18s-3.332.477-4.5 1.253"></path></svg>
-                            Glossary
-                        </a>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="analytics">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-                            Analytics & Goals
-                        </a>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="achievements">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v-2m-2 2H4m5-11l3-3 3 3M21 12h-4M5 12a2 2 0 110-4 2 2 0 010 4zm0 4a2 2 0 110 4 2 2 0 010-4zm4-4a2 2 0 110-4 2 2 0 010 4zm0 4a2 2 0 110 4 2 2 0 010-4zm8-4a2 2 0 110-4 2 2 0 010 4zm0 4a2 2 0 110 4 2 2 0 010-4z"></path></svg>
-                            Achievements
-                        </a>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="focus">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                            Focus Tools
-                        </a>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="learning-hub">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.206 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.794 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.794 5 16.5 5c1.706 0 3.332.477 4.5 1.253v13C19.832 18.477 18.206 18 16.5 18s-3.332.477-4.5 1.253"></path></svg>
-                            Learning Hub
-                        </a>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors" data-view="tutorial">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Tutorial
-                        </a>
-                    </nav>
-                </div>
-                <div class="mt-auto pt-4 border-t border-border-color">
-                    <p id="sidebar-username-mobile" class="font-semibold text-primary"></p>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-nav-active-bg transition-colors mt-2" data-view="settings">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.545.333 1.203.482 1.905.482zm0 0A2.725 2.725 0 0012 9.25C10.742 9.25 9.75 10.242 9.75 11.5s.992 2.25 2.25 2.25 2.25-.992 2.25-2.25S13.258 9.25 12 9.25z"></path></svg>
-                        Settings
+                <nav class="flex-grow">
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="dashboard">
+                        <i class="fas fa-home fa-lg"></i>
+                        <span>Dashboard</span>
                     </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="calendar">
+                        <i class="fas fa-calendar-alt fa-lg"></i>
+                        <span>Calendar</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="library">
+                        <i class="fas fa-book-open fa-lg"></i>
+                        <span>Library</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="ai-learning">
+                        <i class="fas fa-robot fa-lg"></i>
+                        <span>AI Learning Studio</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="mind-map">
+                        <i class="fas fa-brain fa-lg"></i>
+                        <span>Mind Map</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="glossary">
+                        <i class="fas fa-file-alt fa-lg"></i>
+                        <span>Glossary</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="analytics">
+                        <i class="fas fa-chart-line fa-lg"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="achievements">
+                        <i class="fas fa-trophy fa-lg"></i>
+                        <span>Achievements</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="focus">
+                        <i class="fas fa-lightbulb fa-lg"></i>
+                        <span>Focus Tools</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="learning-hub">
+                        <i class="fas fa-graduation-cap fa-lg"></i>
+                        <span>Learning Hub</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="settings">
+                        <i class="fas fa-cog fa-lg"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="tutorial">
+                        <i class="fas fa-question-circle fa-lg"></i>
+                        <span>Tutorial</span>
+                    </a>
+                </nav>
+                <div class="mt-8 pt-4 border-t border-border-color">
+                    <p class="text-sm text-secondary">Logged in as:</p>
+                    <p id="sidebar-username-mobile" class="font-semibold text-primary"></p>
                 </div>
             </aside>
         </div>
 
+        <!-- Desktop Sidebar (Always visible on larger screens) -->
+        <aside class="hidden lg:flex w-64 bg-secondary p-6 flex-col justify-between rounded-l-2xl">
+            <div>
+                <h2 class="text-2xl font-bold text-primary mb-8">AuraLearn</h2>
+                <nav>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="dashboard">
+                        <i class="fas fa-home fa-lg"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="calendar">
+                        <i class="fas fa-calendar-alt fa-lg"></i>
+                        <span>Calendar</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="library">
+                        <i class="fas fa-book-open fa-lg"></i>
+                        <span>Library</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="ai-learning">
+                        <i class="fas fa-robot fa-lg"></i>
+                        <span>AI Learning Studio</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="mind-map">
+                        <i class="fas fa-brain fa-lg"></i>
+                        <span>Mind Map</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="glossary">
+                        <i class="fas fa-file-alt fa-lg"></i>
+                        <span>Glossary</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="analytics">
+                        <i class="fas fa-chart-line fa-lg"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="achievements">
+                        <i class="fas fa-trophy fa-lg"></i>
+                        <span>Achievements</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="focus">
+                        <i class="fas fa-lightbulb fa-lg"></i>
+                        <span>Focus Tools</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="learning-hub">
+                        <i class="fas fa-graduation-cap fa-lg"></i>
+                        <span>Learning Hub</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="settings">
+                        <i class="fas fa-cog fa-lg"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="tutorial">
+                        <i class="fas fa-question-circle fa-lg"></i>
+                        <span>Tutorial</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="mt-8 pt-4 border-t border-border-color">
+                <p class="text-sm text-secondary">Logged in as:</p>
+                <p id="sidebar-username" class="font-semibold text-primary"></p>
+            </div>
+        </aside>
+
         <!-- Main Content Area -->
-        <main class="flex-1 p-6 sm:p-8 md:p-10 overflow-y-auto">
+        <main class="flex-grow p-6 sm:p-8 md:p-10 rounded-r-2xl overflow-y-auto">
             <!-- Global Search Bar -->
             <div class="mb-6">
                 <input type="text" id="global-search-input" placeholder="Search flashcards, notes, concepts..."
@@ -609,14 +782,13 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                     <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
                         <h2 class="text-2xl font-bold text-primary mb-4">Daily Review</h2>
-                        <ul id="daily-queue-list" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                        <ul id="daily-queue-list" class="space-y-3">
                             <!-- Flashcards will be injected here by JS -->
                         </ul>
                         <div class="mt-6 flex flex-col sm:flex-row gap-3">
-                            <button id="start-review-btn" class="btn-primary px-5 py-3 rounded-lg font-semibold flex-grow">Start Daily Review</button>
+                            <button id="start-review-btn" class="button-primary px-5 py-3 rounded-lg font-semibold flex-grow">Start Daily Review</button>
                             <button id="quick-add-atom-btn-dashboard" class="bg-blue-100 text-accent-blue px-5 py-3 rounded-lg font-semibold hover:bg-blue-200 transition-colors flex-grow">
-                                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                                Quick Add Flashcard
+                                <i class="fas fa-plus mr-2"></i>Quick Add Flashcard
                             </button>
                         </div>
                     </div>
@@ -628,7 +800,7 @@
                             <div id="daily-challenge-progress" class="bg-accent-blue h-3 rounded-full" style="width: 0%;"></div>
                         </div>
                         <p id="daily-challenge-status" class="text-sm text-secondary mb-4">0/5 Flashcards Reviewed</p>
-                        <button id="claim-challenge-btn" class="btn-primary px-5 py-3 rounded-lg font-semibold w-full hidden">Claim Reward!</button>
+                        <button id="claim-challenge-btn" class="button-primary px-5 py-3 rounded-lg font-semibold w-full hidden">Claim Reward!</button>
                         <button id="study-weak-atoms-btn" class="bg-orange-100 text-orange-500 px-5 py-3 rounded-lg font-semibold w-full mt-3 hover:bg-orange-200 transition-colors">Study Weak Flashcards</button>
                     </div>
                 </div>
@@ -636,7 +808,7 @@
                 <!-- Recommended Flashcards -->
                 <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8">
                     <h2 class="text-2xl font-bold text-primary mb-4">Recommended for You</h2>
-                    <div id="recommended-atoms-list" class="space-y-3 max-h-48 overflow-y-auto pr-2">
+                    <div id="recommended-atoms-list" class="space-y-3">
                         <!-- Recommended Flashcards will be injected here by JS -->
                     </div>
                 </div>
@@ -644,7 +816,7 @@
                 <!-- Backup Reminder -->
                 <div id="backup-reminder" class="bg-yellow-100 text-yellow-800 p-4 rounded-lg flex items-center justify-between shadow-sm hidden">
                     <p class="text-sm font-medium">
-                        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
                         It's been a while since your last data backup. Remember to export your data in settings!
                     </p>
                     <button class="text-yellow-800 text-sm font-semibold py-1 px-3 rounded-md hover:bg-yellow-200 transition-colors" onclick="navigate('settings')">Go to Settings</button>
@@ -657,9 +829,9 @@
                 <h1 class="text-3xl font-bold mb-6 text-primary">Your Calendar & Events</h1>
                 <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8">
                     <div class="flex justify-between items-center mb-6">
-                        <button id="prev-month-btn" class="p-2 rounded-full hover:bg-border-color text-primary"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                        <button id="prev-month-btn" class="p-2 rounded-full hover:bg-border-color text-primary"><i class="fas fa-chevron-left"></i></button>
                         <h2 id="current-month-year" class="text-xl font-semibold text-primary">June 2025</h2>
-                        <button id="next-month-btn" class="p-2 rounded-full hover:bg-border-color text-primary"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+                        <button id="next-month-btn" class="p-2 rounded-full hover:bg-border-color text-primary"><i class="fas fa-chevron-right"></i></button>
                     </div>
                     <div class="grid grid-cols-7 text-center font-semibold text-secondary mb-4">
                         <div>Sun</div>
@@ -676,12 +848,11 @@
 
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xl font-bold text-primary">Events for <span id="selected-day-display">Today</span></h3>
-                        <button id="add-event-btn" class="btn-primary px-4 py-2 rounded-lg font-semibold text-sm">
-                            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                            Add Event
+                        <button id="add-event-btn" class="button-primary px-4 py-2 rounded-lg font-semibold text-sm">
+                            <i class="fas fa-plus mr-2"></i>Add Event
                         </button>
                     </div>
-                    <ul id="events-list-for-day" class="space-y-3 events-for-day-list max-h-64 overflow-y-auto pr-2">
+                    <ul id="events-list-for-day" class="space-y-3 events-for-day-list">
                         <!-- Events for selected day will be injected here by JS -->
                     </ul>
                 </div>
@@ -692,9 +863,8 @@
                 <h1 class="text-3xl font-bold mb-6 text-primary">Your Learning Library</h1>
 
                 <div class="mb-8">
-                    <button id="quick-add-atom-btn-library" class="btn-primary px-5 py-3 rounded-lg font-semibold w-full sm:w-auto">
-                        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        Quick Add Flashcard
+                    <button id="quick-add-atom-btn-library" class="button-primary px-5 py-3 rounded-lg font-semibold w-full sm:w-auto">
+                        <i class="fas fa-plus mr-2"></i>Quick Add Flashcard
                     </button>
                 </div>
 
@@ -712,7 +882,7 @@
                     <p class="mb-3">No AI-generated materials yet. Head over to the AI Learning Studio to create some!</p>
                     <button class="bg-accent-blue text-white px-4 py-2 rounded-lg hover:bg-accent-blue-hover transition-colors font-semibold" onclick="navigate('ai-learning')">Go to AI Learning Studio</button>
                 </div>
-                <div id="ai-materials-list" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                <div id="ai-materials-list" class="space-y-3">
                     <!-- AI Materials will be injected here by JS -->
                 </div>
             </section>
@@ -764,19 +934,19 @@
 
 
                     <div class="flex flex-wrap gap-3 mt-6 justify-center sm:justify-start">
-                        <button id="generate-ai-notes-btn" class="btn-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Generate Notes</button>
-                        <button id="generate-notes-flashcards-btn" class="btn-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Generate Flashcards</button>
-                        <button id="generate-quiz-btn" class="btn-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Generate Quiz</button>
-                        <button id="extract-keywords-btn" class="btn-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Extract Keywords</button>
-                        <button id="predict-exam-questions-btn" class="btn-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Predict Exam Questions</button>
-                        <button id="summarize-content-btn" class="btn-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Summarize Content</button>
+                        <button id="generate-ai-notes-btn" class="button-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Generate Notes</button>
+                        <button id="generate-notes-flashcards-btn" class="button-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Generate Flashcards</button>
+                        <button id="generate-quiz-btn" class="button-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Generate Quiz</button>
+                        <button id="extract-keywords-btn" class="button-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Extract Keywords</button>
+                        <button id="predict-exam-questions-btn" class="button-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Predict Exam Questions</button>
+                        <button id="summarize-content-btn" class="button-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Summarize Content</button>
                     </div>
 
                     <p id="ai-generation-status" class="text-center text-secondary mt-4 hidden">Generating... Please wait...</p>
 
-                    <div id="ai-generated-output" class="bg-secondary p-5 rounded-xl shadow-sm border border-border-color mt-8 hidden">
+                    <div id="ai-generated-output" class="bg-primary p-5 rounded-xl shadow-sm border border-border-color mt-8 hidden">
                         <h3 id="ai-output-title" class="text-xl font-bold text-primary mb-4">Generated Content</h3>
-                        <div id="ai-output-content-display" class="text-secondary prose max-w-none max-h-80 overflow-y-auto pr-2">
+                        <div id="ai-output-content-display" class="text-secondary prose max-w-none">
                             <!-- AI generated content will be displayed here -->
                         </div>
                     </div>
@@ -792,7 +962,7 @@
                             <label for="mind-map-node-text-input" class="block text-primary text-sm font-semibold mb-1">New Node Text:</label>
                             <input type="text" id="mind-map-node-text-input" placeholder="Enter node text" class="p-2 border rounded-lg input-themed">
                         </div>
-                        <button id="mind-map-add-node-btn" class="btn-primary px-4 py-2 rounded-lg font-semibold">Add Node</button>
+                        <button id="mind-map-add-node-btn" class="button-primary px-4 py-2 rounded-lg font-semibold">Add Node</button>
                         <button id="mind-map-clear-all-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600">Clear All</button>
                         <button id="mind-map-save-btn" class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600">Save Map</button>
                         <select id="mind-map-load-select" class="p-2 border rounded-lg bg-input-bg text-input-text">
@@ -815,7 +985,7 @@
                     <div id="empty-glossary-message" class="text-center text-secondary hidden">
                         <p>Your glossary is empty. Extract keywords using the AI Learning Studio!</p>
                     </div>
-                    <div id="glossary-list" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                    <div id="glossary-list" class="space-y-4">
                         <!-- Glossary terms will be injected here by JS -->
                     </div>
                 </div>
@@ -847,15 +1017,14 @@
 
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-primary">Your Learning Goals</h2>
-                    <button id="add-goal-btn" class="btn-primary px-4 py-2 rounded-lg font-semibold text-sm">
-                        <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        Add Goal
+                    <button id="add-goal-btn" class="button-primary px-4 py-2 rounded-lg font-semibold text-sm">
+                        <i class="fas fa-plus mr-2"></i>Add Goal
                     </button>
                 </div>
                 <div id="empty-goals-message" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color text-center text-secondary hidden">
                     <p>No learning goals set yet. Set a goal to track your long-term progress!</p>
                 </div>
-                <div id="goals-list" class="space-y-4 max-h-64 overflow-y-auto pr-2">
+                <div id="goals-list" class="space-y-4">
                     <!-- Goals will be injected here by JS -->
                 </div>
             </section>
@@ -866,7 +1035,7 @@
                 <div id="empty-achievements-message" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color text-center text-secondary hidden">
                     <p>No achievements unlocked yet. Keep learning and reviewing to earn your first badge!</p>
                 </div>
-                <div id="achievements-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[600px] overflow-y-auto pr-2">
+                <div id="achievements-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <!-- Achievements will be injected here by JS -->
                 </div>
             </section>
@@ -881,13 +1050,13 @@
                 </div>
 
                 <div id="flashcard-container" class="flashcard-container w-full max-w-md mx-auto">
-                    <div class="flashcard-inner">
-                        <div class="flashcard-face card-front">
+                    <div class="flashcard">
+                        <div class="flashcard-face flashcard-front rounded-xl">
                             <p class="text-sm font-medium text-secondary mb-2" id="card-subject-front">Subject</p>
                             <h3 id="card-question" class="text-2xl font-semibold text-primary mb-4 break-words"></h3>
-                            <button id="show-answer-btn" class="btn-primary px-6 py-3 rounded-lg font-semibold mt-4 shadow-md">Show Answer</button>
+                            <button id="show-answer-btn" class="button-primary px-6 py-3 rounded-lg font-semibold mt-4 shadow-md">Show Answer</button>
                         </div>
-                        <div class="flashcard-face card-back">
+                        <div class="flashcard-face flashcard-back rounded-xl">
                             <p class="text-sm font-medium text-secondary mb-2" id="card-subject-back">Subject</p>
                             <h3 class="text-2xl font-semibold text-primary mb-4 break-words">Answer:</h3>
                             <p id="card-answer" class="text-lg text-primary mb-6 break-words"></p>
@@ -910,7 +1079,7 @@
                     <div class="text-6xl font-mono font-bold text-accent-blue mb-4" id="pomodoro-timer">25:00</div>
                     <p id="pomodoro-status" class="text-secondary mb-6">Time to focus!</p>
                     <div class="flex justify-center gap-4">
-                        <button id="pomodoro-start" class="btn-primary px-6 py-3 rounded-lg font-semibold">Start</button>
+                        <button id="pomodoro-start" class="button-primary px-6 py-3 rounded-lg font-semibold">Start</button>
                         <button id="pomodoro-pause" class="bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600">Pause</button>
                         <button id="pomodoro-reset" class="bg-gray-400 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-500">Reset</button>
                     </div>
@@ -937,7 +1106,7 @@
                         <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="examPrep">Exam Prep</button>
                         <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="advanced">Advanced Concepts</button>
                     </div>
-                    <div id="learning-hub-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-2">
+                    <div id="learning-hub-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <!-- Learning content will be injected here by JS -->
                     </div>
                 </div>
@@ -953,7 +1122,7 @@
                         <label for="username-input" class="block text-primary text-sm font-semibold mb-2">Your Name:</label>
                         <input type="text" id="username-input" class="w-full p-3 border rounded-lg input-themed" placeholder="Enter your name">
                     </div>
-                    <button id="save-username-btn" class="btn-primary px-5 py-2 rounded-lg font-semibold">Save Name</button>
+                    <button id="save-username-btn" class="button-primary px-5 py-2 rounded-lg font-semibold">Save Name</button>
                 </div>
 
                 <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8">
@@ -977,7 +1146,7 @@
                             <input type="number" id="interval-forgot" class="w-full p-3 border rounded-lg input-themed" value="0.25" min="0.1" step="0.1">
                         </div>
                     </div>
-                    <button id="save-intervals-btn" class="btn-primary px-5 py-2 rounded-lg font-semibold">Save Intervals</button>
+                    <button id="save-intervals-btn" class="button-primary px-5 py-2 rounded-lg font-semibold">Save Intervals</button>
                 </div>
 
                 <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8">
@@ -996,7 +1165,7 @@
                     <h2 class="text-2xl font-bold text-primary mb-4">Data Management</h2>
                     <p class="text-secondary text-sm mb-4">Export your data for backup or import previously saved data.</p>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <button id="export-data-btn" class="btn-primary px-5 py-2 rounded-lg font-semibold">Export Data</button>
+                        <button id="export-data-btn" class="button-primary px-5 py-2 rounded-lg font-semibold">Export Data</button>
                         <input type="file" id="import-data-input" accept=".json" class="hidden">
                         <button id="import-data-btn" class="bg-gray-400 text-white px-5 py-2 rounded-lg font-semibold hover:bg-gray-500">Import Data</button>
                     </div>
@@ -1010,10 +1179,10 @@
                     <h2 class="text-2xl font-bold text-primary mb-4">Interactive Tours</h2>
                     <p class="text-secondary mb-4">Take a quick tour of key features to get started.</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                        <button class="btn-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="dashboard">Dashboard Tour</button>
-                        <button class="btn-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="library">Library & Flashcards Tour</button>
-                        <button class="btn-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="ai-learning">AI Learning Studio Tour</button>
-                        <button class="btn-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="focus-tools">Focus Tools Tour</button>
+                        <button class="button-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="dashboard">Dashboard Tour</button>
+                        <button class="button-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="library">Library & Flashcards Tour</button>
+                        <button class="button-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="ai-learning">AI Learning Studio Tour</button>
+                        <button class="button-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="focus-tools">Focus Tools Tour</button>
                     </div>
 
                     <h2 class="text-2xl font-bold text-primary mb-4">Detailed Guides</h2>
@@ -1048,7 +1217,7 @@
         <div class="modal-content w-full max-w-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-primary">Search Results</h3>
-                <button id="close-search-results-modal" class="text-secondary hover:text-primary"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="close-search-results-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
             </div>
             <div id="search-results-content" class="space-y-3 max-h-96 overflow-y-auto pr-2">
                 <!-- Results will be injected here -->
@@ -1061,7 +1230,7 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-primary">Quick Add Flashcard</h3>
-                <button id="close-quick-add-modal" class="text-secondary hover:text-primary"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="close-quick-add-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
             </div>
             <div class="mb-4">
                 <label for="quick-add-subject" class="block text-primary text-sm font-semibold mb-2">Subject:</label>
@@ -1081,7 +1250,7 @@
                 <label for="quick-add-answer" class="block text-primary text-sm font-semibold mb-2">Answer/Explanation:</label>
                 <textarea id="quick-add-answer" rows="5" class="w-full p-3 border rounded-lg resize-y input-themed" placeholder="e.g., 'Paris'"></textarea>
             </div>
-            <button id="add-atom-btn" class="btn-primary px-5 py-2 rounded-lg font-semibold w-full">Add Flashcard</button>
+            <button id="add-atom-btn" class="button-primary px-5 py-2 rounded-lg font-semibold w-full">Add Flashcard</button>
         </div>
     </div>
 
@@ -1090,7 +1259,7 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="event-modal-title" class="text-xl font-bold text-primary">Add New Event</h3>
-                <button id="close-event-modal" class="text-secondary hover:text-primary"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="close-event-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
             </div>
             <div class="mb-4">
                 <label for="event-title-input" class="block text-primary text-sm font-semibold mb-2">Event Title:</label>
@@ -1119,7 +1288,7 @@
             </div>
             <div class="flex justify-end gap-3">
                 <button id="delete-event-btn" class="bg-red-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-600 hidden">Delete</button>
-                <button id="save-event-btn" class="btn-primary px-5 py-2 rounded-lg font-semibold">Save Event</button>
+                <button id="save-event-btn" class="button-primary px-5 py-2 rounded-lg font-semibold">Save Event</button>
             </div>
         </div>
     </div>
@@ -1130,7 +1299,7 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-primary">Set New Learning Goal</h3>
-                <button id="close-add-goal-modal" class="text-secondary hover:text-primary"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="close-add-goal-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
             </div>
             <div class="mb-4">
                 <label for="goal-name-input" class="block text-primary text-sm font-semibold mb-2">Goal Name:</label>
@@ -1151,7 +1320,7 @@
                 <label for="goal-end-date" class="block text-primary text-sm font-semibold mb-2">End Date:</label>
                 <input type="date" id="goal-end-date" class="w-full p-3 border rounded-lg input-themed">
             </div>
-            <button id="create-goal-btn" class="btn-primary px-5 py-2 rounded-lg font-semibold w-full">Create Goal</button>
+            <button id="create-goal-btn" class="button-primary px-5 py-2 rounded-lg font-semibold w-full">Create Goal</button>
         </div>
     </div>
 
@@ -1160,13 +1329,13 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="detail-title" class="text-xl font-bold text-primary">Detail Title</h3>
-                <button id="close-detail-modal" class="text-secondary hover:text-primary"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="close-detail-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
             </div>
             <div id="detail-loading" class="text-center text-secondary py-8">
-                <svg class="w-12 h-12 animate-spin text-accent-blue mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 0020 13a8 8 0 00-8-8c-2.887 0-5.433 1.137-7.36 2.946l-3.355 3.355A9.999 9.999 0 011 12C1 7.03 5.03 3 10 3a9.962 9.962 0 015.904 2.195L18 7m-3.5 3H16v-5"></path></svg>
+                <i class="fas fa-spinner fa-spin text-4xl"></i>
                 <p class="mt-4">Loading details...</p>
             </div>
-            <div id="detail-content-text" class="text-secondary prose max-w-none text-base max-h-[calc(90vh-150px)] overflow-y-auto pr-2">
+            <div id="detail-content-text" class="text-secondary prose max-w-none text-base">
                 <!-- Detailed content will be injected here by JS -->
             </div>
         </div>
@@ -1177,7 +1346,7 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="subject-detail-title" class="text-xl font-bold text-primary">Subject Flashcards</h3>
-                <button id="close-subject-detail-modal" class="text-secondary hover:text-primary"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="close-subject-detail-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
             </div>
             <div id="subject-atoms-list" class="space-y-3 max-h-96 overflow-y-auto pr-2">
                 <!-- Flashcards for the selected subject will be injected here by JS -->
@@ -1190,11 +1359,11 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-primary">Session Reflection</h3>
-                <button id="close-reflection-modal" class="text-secondary hover:text-primary"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="close-reflection-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
             </div>
             <p class="text-secondary mb-4">How do you feel about your study session today? What went well, what was challenging?</p>
             <textarea id="reflection-text" rows="6" class="w-full p-3 border rounded-lg resize-y input-themed" placeholder="Write your thoughts here..."></textarea>
-            <button id="save-reflection-btn" class="btn-primary px-5 py-2 rounded-lg font-semibold w-full mt-4">Save Reflection</button>
+            <button id="save-reflection-btn" class="button-primary px-5 py-2 rounded-lg font-semibold w-full mt-4">Save Reflection</button>
         </div>
     </div>
 
@@ -1223,7 +1392,7 @@
             </div>
 
             <div class="flex justify-center gap-4 mt-8">
-                <button id="onboarding-next-btn" class="btn-primary px-6 py-3 rounded-lg font-semibold">Next</button>
+                <button id="onboarding-next-btn" class="button-primary px-6 py-3 rounded-lg font-semibold">Next</button>
                 <button id="onboarding-skip-btn" class="bg-gray-400 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-500">Skip</button>
             </div>
         </div>
@@ -1234,7 +1403,7 @@
         <div class="modal-content max-w-lg">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="quiz-title" class="text-xl font-bold text-primary">Quiz Title</h3>
-                <button id="close-quiz-modal" class="text-secondary hover:text-primary"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="close-quiz-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
             </div>
 
             <!-- Quiz Question Container -->
@@ -1244,7 +1413,7 @@
                     <!-- Options injected here by JS -->
                 </div>
                 <p id="quiz-feedback" class="text-center font-semibold mb-4 hidden"></p>
-                <button id="quiz-submit-answer-btn" class="btn-primary px-5 py-2 rounded-lg font-semibold w-full">Submit Answer</button>
+                <button id="quiz-submit-answer-btn" class="button-primary px-5 py-2 rounded-lg font-semibold w-full">Submit Answer</button>
             </div>
 
             <!-- Quiz Results Container -->
@@ -1252,7 +1421,7 @@
                 <h3 class="text-2xl font-bold text-primary mb-4">Quiz Complete!</h3>
                 <p id="quiz-score-display" class="text-xl font-semibold text-accent-blue mb-6">You scored: 0 / 0</p>
                 <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                    <button id="quiz-retake-btn" class="btn-primary px-5 py-2 rounded-lg font-semibold">Retake Quiz</button>
+                    <button id="quiz-retake-btn" class="button-primary px-5 py-2 rounded-lg font-semibold">Retake Quiz</button>
                     <button id="quiz-review-answers-btn" class="bg-gray-400 text-white px-5 py-2 rounded-lg font-semibold hover:bg-gray-500">Review Answers</button>
                 </div>
             </div>
@@ -1263,7 +1432,7 @@
                 <div id="quiz-review-list" class="space-y-4 max-h-80 overflow-y-auto pr-2">
                     <!-- Review items injected here by JS -->
                 </div>
-                <button id="quiz-back-to-results-btn" class="btn-primary px-5 py-2 rounded-lg font-semibold w-full mt-6">Back to Results</button>
+                <button id="quiz-back-to-results-btn" class="button-primary px-5 py-2 rounded-lg font-semibold w-full mt-6">Back to Results</button>
             </div>
         </div>
     </div>
@@ -1273,15 +1442,15 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="tutorial-step-title" class="text-xl font-bold text-primary">Tutorial Step</h3>
-                <button id="close-tutorial-step-modal" class="text-secondary hover:text-primary"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="close-tutorial-step-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
             </div>
-            <div id="tutorial-step-content" class="text-secondary prose max-w-none text-base max-h-[calc(90vh-150px)] overflow-y-auto pr-2">
+            <div id="tutorial-step-content" class="text-secondary prose max-w-none text-base">
                 <!-- Content will be injected here by JS -->
             </div>
             <div class="flex justify-between mt-6">
                 <button id="tutorial-prev-btn" class="bg-gray-400 text-white px-5 py-2 rounded-lg font-semibold hover:bg-gray-500 hidden">Previous</button>
-                <button id="tutorial-next-btn" class="btn-primary px-5 py-2 rounded-lg font-semibold ml-auto">Next</button>
-                <button id="tutorial-finish-btn" class="btn-primary px-5 py-2 rounded-lg font-semibold ml-auto hidden">Finish Tour</button>
+                <button id="tutorial-next-btn" class="button-primary px-5 py-2 rounded-lg font-semibold ml-auto">Next</button>
+                <button id="tutorial-finish-btn" class="button-primary px-5 py-2 rounded-lg font-semibold ml-auto hidden">Finish Tour</button>
             </div>
         </div>
     </div>
