@@ -715,7 +715,7 @@
             width: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Prevent overall page scrolling */
+            /* Removed overflow: hidden to allow overall page scrolling if content exceeds viewport */
         }
 
         /* Custom styles for theme buttons in settings */
