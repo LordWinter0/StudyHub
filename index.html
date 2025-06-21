@@ -445,7 +445,7 @@
             cursor: pointer;
             transition: background-color 0.2s, border-color 0.2s;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .calendar-day-cell:hover:not(.inactive) {
@@ -494,7 +494,7 @@
             color: var(--text-secondary);
             line-height: 1;
             white-space: nowrap;
-            overflow: hidden;
+            overflow: visible;
             text-overflow: ellipsis;
             width: 100%;
         }
@@ -610,7 +610,7 @@
 
         /* Hide scrollbar for entire app, but allow content to scroll if needed */
         body {
-            overflow: hidden; /* Hide main body scrollbar */
+            overflow: visible; /* Hide main body scrollbar */
         }
         main {
             overflow-y: auto; /* Allow scrolling within the main content area */
