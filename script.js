@@ -64,7 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const aiGeneratedOutput = document.getElementById('ai-generated-output');
     const aiOutputTitle = document.getElementById('ai-output-title');
     const aiOutputContentDisplay = document.getElementById('ai-output-content-display');
-    const quizSettingsContainer = document.getElementById('quiz-settings-container'); // Existing element
+
+    // New Quiz Controls for AI Learning
     const quizQuestionCountInput = document.getElementById('quiz-question-count-input'); // Assuming this exists or will be added to HTML
     const quizDifficultySelect = document.getElementById('quiz-difficulty-select'); // Assuming this exists or will be added to HTML
 
@@ -138,10 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailContentText = document.getElementById('detail-content-text');
     const detailLoading = document.getElementById('detail-loading');
     const subjectDetailModal = document.getElementById('subject-detail-modal');
-    const closeSubjectDetailModalBtn = document.getElementById('close-subject-detail-modal');
+    const closeSubjectDetailModalBtn = document = document.getElementById('close-subject-detail-modal');
     const subjectDetailTitle = document.getElementById('subject-detail-title');
     const subjectFlashcardsList = document.getElementById('subject-atoms-list'); // Renamed
-    const reflectionModal = document = document.getElementById('reflection-modal'); // Corrected typo
+    const reflectionModal = document.getElementById('reflection-modal');
     const closeReflectionModalBtn = document.getElementById('close-reflection-modal');
     const reflectionTextarea = document.getElementById('reflection-text');
     const saveReflectionBtn = document.getElementById('save-reflection-btn');
@@ -185,12 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const quizReviewDetailContainer = document.getElementById('quiz-review-detail-container');
     const quizReviewList = document.getElementById('quiz-review-list');
     const quizBackToResultsBtn = document.getElementById('quiz-back-to-results-btn');
-    const dailyQueueList = document.getElementById('daily-queue-list'); // For dashboard scrollability
-
-    // Charts
-    const masteryChartCanvas = document.getElementById('masteryChart');
-    const activityChartCanvas = document.getElementById('activityChart');
-    const growthChartCanvas = document.getElementById('growthChart');
 
     // Tutorial Elements
     const tutorialTourButtons = document.querySelectorAll('.tutorial-tour-btn');
@@ -221,9 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lastExportDate: null,
         dailyChallengeCount: 0,
         lastChallengeClaimDate: null,
-        onboardingCompleted: false, // Ensure this is explicitly false for new users
-        dailyStudyLogs: [], // Initialize daily study logs
-        monthlyMasteryLogs: [] // Initialize monthly mastery logs
+        onboardingCompleted: false // Ensure this is explicitly false for new users
     };
 
     // Default subjects for quick add and AI learning, in addition to user-added ones
@@ -259,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Rain', icon: '🌧️', file: 'rain.mp3' },
             { name: 'Forest', icon: '🌲', file: 'forest.mp3' },
             { name: 'Cafe', icon: '☕', file: 'cafe.mp3' },
-            { name: 'Waves', icon: '�', file: 'waves.mp3' }
+            { name: 'Waves', icon: '🌊', file: 'waves.mp3' } // Changed '?' to '🌊'
         ],
         // New Themes data (you'll need to update style.css and index.html to fully support these)
         themes: [
@@ -272,8 +265,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 'cool-breeze', name: 'Cool Breeze' },
             { id: 'mono-contrast', name: 'Mono Contrast' }
         ],
-        learningHubContent: {
-            auralearnBasics: [
+        learningHubContent: { /* ... (same as before) ... */
+             auralearnBasics: [
                 { title: "What are Flashcards?", summary: "The building blocks of your knowledge in AuraLearn.", details: "In AuraLearn, a 'Flashcard' is the smallest, most fundamental piece of information or concept you want to master, presented as a question-answer pair. Breaking down knowledge into these atomic units allows AuraLearn's intelligent Spaced Repetition System (SRS) to precisely track your mastery of each individual piece and schedule it for optimal review, ensuring you don't waste time on what you already know while reinforcing challenging concepts." }, // Updated 'Learning Atom'
                 { title: "How Spaced Repetition Works", summary: "A science-backed method for long-term memory.", details: "AuraLearn's core is its Spaced Repetition System (SRS). After you review a 'Flashcard', you rate how well you recalled it. Based on your rating, AuraLearn's algorithm calculates the optimal time to show you that card again – just before you're likely to forget it. Easy concepts are reviewed less often, difficult ones more frequently. This adaptive scheduling is scientifically proven to move information from short-term to long-term memory much more efficiently than traditional cramming." }, // Updated 'Learning Atom'
                 { title: "Your Mastery Score", summary: "Understanding your progress.", details: "Your 'Mastery Score' in AuraLearn reflects how deeply ingrained a 'Flashcard' is in your long-term memory. It's dynamically updated based on your recall performance during study sessions. The higher your mastery, the less frequently a card needs to be reviewed. This metric provides a clear, objective view of your knowledge retention over time across all your subjects." } // Updated 'Learning Atom'
@@ -336,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { title: "Pomodoro Technique", summary: "Structured time management for focus.", details: "" }
             ]
         },
-        tutorialContent: {
+        tutorialContent: { /* ... (same as before) ... */
             dashboard: {
                 title: "Dashboard Overview",
                 steps: [
@@ -484,14 +477,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     </ul>
                     <h3>Tips for Getting the Best Results from AI Learning Studio</h3>
                     <ul>
-                        <li><strong>Be Specific:</strong> The more precise your prompt or input text, the better the AI can understand your needs.</li>
+                        <li><strong>Be Specific::</strong> The more precise your prompt or input text, the better the AI can understand your needs.</li>
                         <li><strong>Topic Mode vs. Text Mode:</strong>
                             <ul>
                                 <li><strong>Topic Mode:</strong> Use for broad subjects (e.g., "Quantum Physics", "French Revolution"). The AI will generate general knowledge.</li>
                                 <li><strong>Text Mode:</strong> Use when you have specific content (e.g., lecture notes, an article snippet) you want the AI to process directly.</li>
                             </ul>
                         </li>
-                        <li><strong>Assign Subjects:</strong> Always assign generated content to a relevant subject for better organization, especially for flashcards.</li>
+                        <li><strong>Assign Subjects:</strong> Always assign generated content to a relevant subject. This is crucial for flashcards to appear in your Library under the correct category.</li>
                         <li><strong>Iterate:</strong> If the first output isn't perfect, try rephrasing your input or generating a different type of material.</li>
                         <li><strong>Edit Output:</strong> Don't treat AI output as final. It's a starting point! Use it as a draft and refine it to perfectly suit your learning style and needs.</li>
                     </ul>
@@ -599,7 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Gemini API configuration (placeholder - Canvas will provide this at runtime)
-    const apiKey = "AIzaSyAy9O8ICJ7kcWTAyPkc1qfHeGWX95wjUxc"; // Keep this empty, Canvas provides it at runtime
+    const apiKey = "AIzaSyBVDc_pdjpvbv4nzcKnxmRPLiKCu7BXF2I";
 
     // --- Helper Functions ---
 
@@ -614,13 +607,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         notificationToast.textContent = message;
-        notificationToast.classList.remove('hidden', 'notification-error', 'notification-success');
+        notificationToast.classList.remove('hidden', 'error');
         if (isError) {
-            notificationToast.classList.add('notification-error');
-            notificationToast.classList.remove('notification-success'); // Ensure success class is removed
-        } else {
-            notificationToast.classList.add('notification-success');
-            notificationToast.classList.remove('notification-error'); // Ensure error class is removed
+            notificationToast.classList.add('error');
         }
         notificationToast.classList.add('show');
         notificationToast.setAttribute('aria-live', isError ? 'assertive' : 'polite'); // Accessibility
@@ -631,26 +620,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 notificationToast.classList.add('hidden');
             }, 300); // Allow fade out before hiding
         }, 4000); // Display for 4 seconds
-    }
-
-    /**
-     * Shows/hides a modal.
-     * @param {HTMLElement} modalElement - The modal DOM element.
-     * @param {boolean} show - True to show, false to hide.
-     */
-    function toggleModal(modalElement, show) {
-        if (show) {
-            modalElement.classList.remove('hidden');
-            // Force reflow for transition
-            void modalElement.offsetWidth;
-            modalElement.classList.add('modal-active');
-        } else {
-            modalElement.classList.remove('modal-active');
-            // Add hidden after transition
-            setTimeout(() => {
-                modalElement.classList.add('hidden');
-            }, 300); // Match CSS transition duration
-        }
     }
 
     /**
@@ -711,12 +680,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Adjust ease factor based on quality
         if (quality === 3) { // Perfect
-            newEaseFactor += (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)); // Quality directly affects ease factor adjustment
+            newEaseFactor += (0.1 - (5 - mockData.user.srsFactors.perfect) * (0.08 + (5 - mockData.user.srsFactors.perfect) * 0.02));
             newRepetitions++;
         } else if (quality === 2) { // Good
             // No change to ease factor
             newRepetitions++;
-        } else { // Forgot (quality === 0) or Struggled (quality === 1)
+        } else if (quality === 1) { // Struggled
+            newEaseFactor -= 0.2;
+            newRepetitions = 0; // Reset repetitions
+        } else { // Forgot (quality === 0)
             newEaseFactor -= 0.2;
             newRepetitions = 0; // Reset repetitions
         }
@@ -724,20 +696,25 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clamp ease factor between 1.3 and 2.5 (or higher if intervals allow, but 2.5 is common max)
         newEaseFactor = Math.max(1.3, newEaseFactor);
 
-        // Calculate new interval using user-defined SRS intervals
+        // Calculate new interval
         if (quality < 2) { // Forgot or Struggled
             newInterval = quality === 0 ? mockData.user.srsIntervals.forgot : mockData.user.srsIntervals.struggled;
+            // If the interval is in hours (e.g., 0.25 days = 6 hours), keep it that way for the first review
+            if (newInterval < 1) {
+                 // For very short intervals, use minutes/hours for more precise timing.
+                 // Storing in days, so 0.25 means 6 hours.
+            }
         } else { // Good or Perfect
             if (newRepetitions === 1) { // First successful recall after learning/reset
-                newInterval = mockData.user.srsIntervals.good;
+                newInterval = mockData.user.srsIntervals.good; // Use good interval for initial successful pass
             } else if (newRepetitions === 2) { // Second consecutive successful recall
-                newInterval = mockData.user.srsIntervals.perfect;
+                newInterval = mockData.user.srsIntervals.perfect; // Use perfect interval for second pass
             } else { // Further successful recalls
                 newInterval = newInterval * newEaseFactor;
             }
         }
 
-        // Ensure interval is at least 1 day if repetitions > 0 and interval was previously short and quality is good/perfect
+        // Ensure interval is at least 1 day if repetitions > 0 and interval was previously short
         if (newRepetitions > 0 && newInterval < 1 && quality >= 2) {
             newInterval = 1; // Minimum 1 day for proper spaced repetition if mastery is good/perfect
         }
@@ -760,13 +737,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const now = new Date();
         now.setHours(0, 0, 0, 0); // Normalize 'now' to start of today for comparison
 
-        return mockData.flashcards.filter(flashcard => {
+        return mockData.flashcards.filter(flashcard => { // Renamed
             const nextReviewDate = flashcard.nextReview instanceof Date ? flashcard.nextReview : new Date(flashcard.nextReview);
             nextReviewDate.setHours(0, 0, 0, 0); // Normalize flashcard's next review date
 
-            // Handle very short intervals (less than a day) correctly for new/forgotten cards
-            if (flashcard.interval < 1 && flashcard.repetitions === 0 && new Date(flashcard.lastReviewed).getTime() + flashcard.interval * 24 * 60 * 60 * 1000 <= new Date().getTime()) {
-                 return true;
+            // Handle very short intervals (less than a day) correctly
+            if (flashcard.interval < 1 && flashcard.repetitions === 0) { // If it's a new/forgotten card with short interval
+                const reviewTime = new Date(flashcard.lastReviewed.getTime() + flashcard.interval * 24 * 60 * 60 * 1000);
+                return reviewTime <= new Date(); // Check if actual time has passed
             }
             return nextReviewDate <= now; // For intervals >= 1 day, just compare dates
         }).sort((a, b) => {
@@ -780,8 +758,8 @@ document.addEventListener('DOMContentLoaded', () => {
      * Gets flashcards that the user has struggled with (low repetitions, low ease factor).
      * @returns {Array<Object>} List of weak flashcards.
      */
-    function getWeakFlashcards() {
-        return mockData.flashcards
+    function getWeakFlashcards() { // Renamed
+        return mockData.flashcards // Renamed
             .filter(flashcard => flashcard.repetitions < 3 && flashcard.easeFactor < 2.0 && flashcard.interval > 0) // Struggled, but not brand new
             .sort((a, b) => a.easeFactor - b.easeFactor) // Sort by lowest ease factor first
             .slice(0, 20); // Limit to 20 weak flashcards for a session
@@ -791,9 +769,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * Gets recommended flashcards (e.g., lowest difficulty and not in today's queue).
      * @returns {Array<Object>} List of recommended flashcards.
      */
-    function getRecommendedFlashcards() {
-        const todayQueueIds = new Set(getDailyQueue().map(f => f.id));
-        return mockData.flashcards
+    function getRecommendedFlashcards() { // Renamed
+        const todayQueueIds = new Set(getDailyQueue().map(f => f.id)); // Renamed
+        return mockData.flashcards // Renamed
             .filter(flashcard => flashcard.repetitions === 0 && !todayQueueIds.has(flashcard.id)) // Only truly new flashcards not in today's queue
             .sort((a, b) => new Date(a.nextReview).getTime() - new Date(b.nextReview).getTime()) // Sort by next review for new flashcards
             .slice(0, 3); // Show top 3 recommendations
@@ -835,8 +813,8 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarUsername.textContent = mockData.user.name;
         sidebarUsernameMobile.textContent = mockData.user.name;
         currentStreak.textContent = `🔥 ${mockData.user.streak} Days`;
-        totalMasteredFlashcards.textContent = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length;
-        dailyQueueCount.textContent = `${getDailyQueue().length} Flashcards`;
+        totalMasteredFlashcards.textContent = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
+        dailyQueueCount.textContent = `${getDailyQueue().length} Flashcards`; // Renamed
         upcomingEventsCount.textContent = getUpcomingEvents().length;
 
         // Render content specific to the current view
@@ -859,16 +837,17 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function renderDashboard() {
         const dailyQueue = getDailyQueue();
-        const weakFlashcards = getWeakFlashcards();
-        dailyQueueList.innerHTML = ''; // Clear previous list items
+        const weakFlashcards = getWeakFlashcards(); // Renamed
+        const queueList = document.getElementById('daily-queue-list');
+        queueList.innerHTML = ''; // Clear previous list items
 
         if (dailyQueue.length === 0) {
-            dailyQueueList.innerHTML = '<li class="p-3 text-secondary text-center list-item-themed">No flashcards due for review today. Great job!</li>';
+            queueList.innerHTML = '<li class="p-3 text-secondary text-center list-item-themed">No flashcards due for review today. Great job!</li>'; // Renamed
             startReviewBtn.textContent = 'No Reviews Today';
             startReviewBtn.disabled = true;
         } else {
-            dailyQueue.forEach(flashcard => {
-                const subject = mockData.subjects.find(s => s.id === flashcard.subjectId) || defaultSubjects.find(s => s.id === flashcard.subjectId);
+            dailyQueue.forEach(flashcard => { // Renamed
+                const subject = mockData.subjects.find(s => s.id === flashcard.subjectId); // Renamed
                 const li = document.createElement('li');
                 li.className = 'flex items-center justify-between p-3 rounded-lg border list-item-themed hover:list-item-themed';
                 const subjectColorClass = subject ? `${subject.color} ${subject.textColor}` : 'bg-gray-200 text-gray-800';
@@ -879,24 +858,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <span class="text-secondary text-lg">›</span>
                 `;
-                dailyQueueList.appendChild(li);
+                queueList.appendChild(li);
             });
             startReviewBtn.textContent = `Start Daily Review (${dailyQueue.length} items)`;
             startReviewBtn.disabled = false;
         }
 
         // Update Weak Flashcards button text
-        studyWeakFlashcardsBtn.textContent = `Study Weak Flashcards (${weakFlashcards.length})`;
-        studyWeakFlashcardsBtn.disabled = weakFlashcards.length === 0;
+        studyWeakFlashcardsBtn.textContent = `Study Weak Flashcards (${weakFlashcards.length})`; // Renamed
+        studyWeakFlashcardsBtn.disabled = weakFlashcards.length === 0; // Renamed
 
         // Render Recommended Flashcards
-        const recommendedFlashcards = getRecommendedFlashcards();
-        recommendedFlashcardsList.innerHTML = '';
-        if (recommendedFlashcards.length === 0) {
-            recommendedFlashcardsList.innerHTML = `<p class="text-secondary text-center mt-4">No specific recommendations yet. Start importing content!</p>`;
+        const recommendedFlashcards = getRecommendedFlashcards(); // Renamed
+        recommendedFlashcardsList.innerHTML = ''; // Renamed
+        if (recommendedFlashcards.length === 0) { // Renamed
+            recommendedFlashcardsList.innerHTML = `<p class="text-secondary text-center mt-4">No specific recommendations yet. Start importing content!</p>`; // Renamed
         } else {
-            recommendedFlashcards.forEach(flashcard => {
-                const subject = mockData.subjects.find(s => s.id === flashcard.subjectId) || defaultSubjects.find(s => s.id === flashcard.subjectId);
+            recommendedFlashcards.forEach(flashcard => { // Renamed
+                const subject = mockData.subjects.find(s => s.id === flashcard.subjectId); // Renamed
                 const li = document.createElement('div');
                 li.className = 'flex items-center justify-between p-3 rounded-lg border list-item-themed hover:list-item-themed';
                 const subjectColorClass = subject ? `${subject.color} ${subject.textColor}` : 'bg-gray-200 text-gray-800';
@@ -906,13 +885,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="text-xs font-semibold ${subjectColorClass} px-2 py-1 rounded-full">${subject ? subject.name : 'Unknown Subject'}</span>
                     </div>
                     <button class="bg-accent-blue text-white text-xs py-1 px-2 rounded-md hover:bg-accent-blue-hover" data-flashcard-id="${flashcard.id}" aria-label="Review ${flashcard.question}">Review</button>
-                `;
-                recommendedFlashcardsList.appendChild(li);
+                `; // Renamed data-atom-id
+                recommendedFlashcardsList.appendChild(li); // Renamed
 
                 const reviewBtn = li.querySelector('button');
                 reviewBtn.addEventListener('click', () => {
-                    const flashcardId = parseInt(reviewBtn.dataset.flashcardId);
-                    const selectedFlashcard = mockData.flashcards.find(f => f.id === flashcardId);
+                    const flashcardId = parseInt(reviewBtn.dataset.flashcardId); // Renamed
+                    const selectedFlashcard = mockData.flashcards.find(f => f.id === flashcardId); // Renamed
                     if (selectedFlashcard) {
                         showDetailModal({ title: selectedFlashcard.question, details: selectedFlashcard.answer });
                     }
@@ -930,13 +909,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 mockData.user.streak = 0;
             }
         }
-        dailyChallengeText.textContent = `Review 5 flashcards to complete today's challenge!`;
+        dailyChallengeText.textContent = `Review 5 flashcards to complete today's challenge!`; // Renamed
         dailyChallengeProgress.style.width = `${(mockData.user.dailyChallengeProgress / 5) * 100}%`;
-        dailyChallengeStatus.textContent = `${mockData.user.dailyChallengeProgress}/5 Flashcards Reviewed`;
+        dailyChallengeStatus.textContent = `${mockData.user.dailyChallengeProgress}/5 Flashcards Reviewed`; // Renamed
 
         if (mockData.user.dailyChallengeProgress >= 5 && mockData.user.lastChallengeDate === today) {
             claimChallengeBtn.classList.remove('hidden');
-            // This achievement is checked in claimChallengeBtn's event listener
+            unlockAchievement('daily-challenge-master'); // Unlock achievement
         } else {
             claimChallengeBtn.classList.add('hidden');
         }
@@ -1107,7 +1086,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add/Edit Event Modal Logic
     function showAddEditEventModal(event = null, dateToPreFill = null) {
-        toggleModal(addEditEventModal, true);
+        addEditEventModal.classList.remove('hidden');
         if (event) {
             appState.calendar.editingEvent = event;
             eventModalTitle.textContent = 'Edit Event';
@@ -1130,7 +1109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     closeEventModalBtn.addEventListener('click', () => {
-        toggleModal(addEditEventModal, false);
+        addEditEventModal.classList.add('hidden');
         appState.calendar.editingEvent = null; // Clear editing state
     });
 
@@ -1174,21 +1153,18 @@ document.addEventListener('DOMContentLoaded', () => {
             showNotification('Event added successfully!');
         }
         saveUserData();
-        toggleModal(addEditEventModal, false);
+        addEditEventModal.classList.add('hidden');
         render(); // Re-render to update calendar and dashboard counts
     });
 
     deleteEventBtn.addEventListener('click', () => {
-        // Use custom confirmation
-        showCustomConfirmation('Are you sure you want to delete this event?', () => {
-            if (appState.calendar.editingEvent) {
-                mockData.calendarEvents = mockData.calendarEvents.filter(event => event.id !== appState.calendar.editingEvent.id);
-                saveUserData();
-                showNotification('Event deleted successfully!');
-                toggleModal(addEditEventModal, false);
-                render(); // Re-render to update calendar and dashboard counts
-            }
-        });
+        if (appState.calendar.editingEvent && confirm('Are you sure you want to delete this event?')) {
+            mockData.calendarEvents = mockData.calendarEvents.filter(event => event.id !== appState.calendar.editingEvent.id);
+            saveUserData();
+            showNotification('Event deleted successfully!');
+            addEditEventModal.classList.add('hidden');
+            render(); // Re-render to update calendar and dashboard counts
+        }
     });
 
     /**
@@ -1196,21 +1172,17 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function renderLibrary() {
         subjectGrid.innerHTML = '';
-        if (mockData.subjects.length === 0 && mockData.flashcards.length === 0) { // Check both for emptiness
+        if (mockData.subjects.length === 0) {
             emptyLibraryMessage.classList.remove('hidden');
         } else {
             emptyLibraryMessage.classList.add('hidden');
-            // Combine default and user-added subjects for display
-            const allSubjects = [...defaultSubjects.filter(ds => !mockData.subjects.some(s => s.id === ds.id)), ...mockData.subjects];
-
-            allSubjects.forEach(subject => {
+            mockData.subjects.forEach(subject => {
                 const div = document.createElement('div');
                 div.className = `p-4 rounded-xl shadow-sm border border-border-color ${subject.color} cursor-pointer hover:shadow-md transition-shadow`;
-                const flashcardsInSubjectCount = mockData.flashcards.filter(f => f.subjectId === subject.id).length;
                 div.innerHTML = `
                     <h4 class="font-bold ${subject.textColor}">${subject.name}</h4>
-                    <p class="text-sm ${subject.textColor.replace('-800', '-600')}">${flashcardsInSubjectCount} Flashcards</p>
-                `;
+                    <p class="text-sm ${subject.textColor.replace('-800', '-600')}">${mockData.flashcards.filter(f => f.subjectId === subject.id).length} Flashcards</p>
+                `; // Renamed
                 div.addEventListener('click', () => showSubjectDetails(subject.id));
                 subjectGrid.appendChild(div);
             });
@@ -1232,18 +1204,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     typeLabel = 'AI Note';
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = aiMaterial.content;
-                    displayContent = `<p>${tempDiv.textContent.substring(0, Math.min(tempDiv.textContent.length, 100))}...</p>`;
+                    displayContent = `<p>${tempDiv.textContent.substring(0, 100)}...</p>`;
                 } else if (aiMaterial.type === 'quiz') {
                     typeLabel = 'AI Quiz';
                     displayContent = `<p>${aiMaterial.content.length} Questions</p>`;
                 } else if (aiMaterial.type === 'keywords') {
                     typeLabel = 'Keywords';
-                    // Check if content is array of objects or just strings
-                    if (Array.isArray(aiMaterial.content) && aiMaterial.content.length > 0 && typeof aiMaterial.content[0] === 'object') {
-                         displayContent = `<p>${aiMaterial.content.map(k => k.keyword).join(', ')}</p>`;
-                    } else if (Array.isArray(aiMaterial.content)) {
-                         displayContent = `<p>${aiMaterial.content.join(', ')}</p>`;
-                    }
+                    displayContent = `<p>${aiMaterial.content.map(k => k.keyword).join(', ')}</p>`;
                 } else if (aiMaterial.type === 'exam-questions') {
                     typeLabel = 'Exam Questions';
                     displayContent = `<p>${aiMaterial.content.length} Questions</p>`;
@@ -1251,7 +1218,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     typeLabel = 'AI Summary';
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = aiMaterial.content;
-                    displayContent = `<p>${tempDiv.textContent.substring(0, Math.min(tempDiv.textContent.length, 100))}...</p>`;
+                    displayContent = `<p>${tempDiv.textContent.substring(0, 100)}...</p>`;
                 }
 
                 materialDiv.innerHTML = `
@@ -1270,19 +1237,19 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} subjectId - The ID of the subject.
      */
     function showSubjectDetails(subjectId) {
-        const subject = mockData.subjects.find(s => s.id === subjectId) || defaultSubjects.find(s => s.id === subjectId);
+        const subject = mockData.subjects.find(s => s.id === subjectId);
         if (!subject) return;
 
-        subjectDetailTitle.textContent = `${subject.name} Flashcards`;
-        subjectFlashcardsList.innerHTML = ''; // Clear previous list
+        subjectDetailTitle.textContent = `${subject.name} Flashcards`; // Renamed
+        subjectFlashcardsList.innerHTML = ''; // Renamed // Clear previous list
 
-        const flashcardsInSubject = mockData.flashcards.filter(flashcard => flashcard.subjectId === subjectId);
+        const flashcardsInSubject = mockData.flashcards.filter(flashcard => flashcard.subjectId === subjectId); // Renamed
 
         if (flashcardsInSubject.length === 0) {
-            subjectFlashcardsList.innerHTML = '<p class="text-secondary text-center list-item-themed">No flashcards in this subject yet.</p>';
+            subjectFlashcardsList.innerHTML = '<p class="text-secondary text-center list-item-themed">No flashcards in this subject yet.</p>'; // Renamed
         } else {
-            flashcardsInSubject.forEach(flashcard => {
-                const flashcardDiv = document.createElement('div');
+            flashcardsInSubject.forEach(flashcard => { // Renamed
+                const flashcardDiv = document.createElement('div'); // Renamed
                 flashcardDiv.className = 'p-3 rounded-lg border list-item-themed hover:list-item-themed cursor-pointer transition-colors';
                 flashcardDiv.innerHTML = `
                     <p class="font-semibold text-primary">${flashcard.question}</p>
@@ -1295,10 +1262,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     e.stopPropagation();
                     showDetailModal({ title: flashcard.question, details: flashcard.answer });
                 });
-                subjectFlashcardsList.appendChild(flashcardDiv);
+                subjectFlashcardsList.appendChild(flashcardDiv); // Renamed
             });
         }
-        toggleModal(subjectDetailModal, true);
+        subjectDetailModal.classList.remove('hidden');
     }
 
     /**
@@ -1331,7 +1298,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         detailContentText.innerHTML = contentHtml;
-        toggleModal(detailModal, true);
+        detailModal.classList.remove('hidden');
     }
 
     /**
@@ -1347,7 +1314,11 @@ document.addEventListener('DOMContentLoaded', () => {
         aiGenerationStatus.classList.add('hidden');
         populateAILearningSubjectSelect();
         updateAiInputUI();
-        toggleQuizSettingsVisibility(false); // Hide quiz settings by default
+        // Initialize quiz controls visibility (assuming they are there)
+        const quizControls = document.getElementById('quiz-settings-container'); // Corrected ID
+        if (quizControls) {
+            quizControls.classList.add('hidden');
+        }
     }
 
     /**
@@ -1389,14 +1360,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Toggles visibility of quiz settings based on active AI generation type.
-     * @param {boolean} show - True to show, false to hide.
+     * @param {string} type - The type of content to generate.
      */
-    function toggleQuizSettingsVisibility(show) {
-        if (quizSettingsContainer) {
-            if (show) {
-                quizSettingsContainer.classList.remove('hidden');
+    function toggleQuizSettingsVisibility(type) {
+        const quizSettings = document.getElementById('quiz-settings-container'); // Assuming you'll add this container in HTML
+        if (quizSettings) {
+            if (type === 'quiz') {
+                quizSettings.classList.remove('hidden');
             } else {
-                quizSettingsContainer.classList.add('hidden');
+                quizSettings.classList.add('hidden');
             }
         }
     }
@@ -1440,13 +1412,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Check if this new subject already exists (either default or user-added)
             if (!mockData.subjects.find(s => s.id === subjectId) && !defaultSubjects.find(ds => ds.id === subjectId)) {
                 // Add to user-specific subjects if it's genuinely new
-                mockData.subjects.push({ id: subjectId, name: subjectName, color: "bg-blue-100", textColor: "text-blue-800", flashcards: 0, lastReviewed: null });
+                mockData.subjects.push({ id: subjectId, name: subjectName, color: "bg-blue-100", textColor: "text-blue-800", flashcards: 0, lastReviewed: null }); // Renamed 'atoms'
             }
         } else {
             // If not adding a new subject, use the selected subject
             subjectId = aiContentSubjectSelect.value;
-            if ((type === 'notes-flashcards' || type === 'quiz') && !subjectId) { // Added quiz to subject requirement
-                showNotification(`Please select an existing subject or add a new one for ${type === 'notes-flashcards' ? 'Flashcards' : 'Quizzes'}.`, true);
+            if (type === 'notes-flashcards' && !subjectId) {
+                showNotification('Please select an existing subject or add a new one for Flashcards.', true); // Renamed
                 aiGenerationStatus.classList.add('hidden');
                 if (currentButton) currentButton.disabled = false;
                 return;
@@ -1459,39 +1431,36 @@ document.addEventListener('DOMContentLoaded', () => {
         let outputTitle = '';
         let savedContentTitle = '';
 
-        const commonNoteFormatInstructions = `Format the content into clear sections:
-        <h3>Main Info</h3>
+        // UPDATED: commonNoteFormatInstructions to match user's requested bolded format with bullets
+        const commonNoteFormatInstructions = `Format the content into clear sections. For section titles, use strong HTML tags. For list items, use ul and li HTML tags.
+        <strong>Main Info</strong>
         <ul>
             <li>[Concise bullet point]</li>
             <li>[Concise bullet point]</li>
         </ul>
-        <h3>Key Terms/Keywords:</h3>
-        <ul>
-            <li>[Keyword]: [Brief definition]</li>
-            <li>[Keyword]: [Brief definition]</li>
-        </ul>
-        <h3>Extra Info:</h3>
+        <strong>Extra Info:</strong>
         <ul>
             <li>[Additional relevant detail]</li>
             <li>[Another additional relevant detail]</li>
         </ul>
-        <h3>Conclusion</h3>
+        <strong>Conclusion</strong>
         <ul>
             <li>[Brief summary or key takeaway]</li>
         </ul>
-        Ensure the entire response is valid HTML, strictly using h3 for section headers, and ul/li for all bullet points. Do not include any conversational filler, disclaimers, or extra text outside this structure.`;
+        Ensure the entire response is valid HTML, strictly using strong, ul, and li tags as specified. Do not include any conversational filler, disclaimers, or extra text outside this structure.`;
+
 
         switch (type) {
             case 'note':
                 outputTitle = 'AI Notes';
                 savedContentTitle = `AI Notes on: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
                 prompt = `Generate concise, organized notes on the topic or from the text: "${content}". ${commonNoteFormatInstructions}`;
-                responseSchema = { type: "STRING" }; // For direct text output
+                responseSchema = { type: "STRING" };
                 break;
             case 'notes-flashcards':
                 outputTitle = 'Generated Flashcards';
                 savedContentTitle = `Flashcards for: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
-                prompt = `Extract key concepts and their explanations, structured as concise question-answer pairs (Flashcards). Provide at least 5 pairs if possible. For each pair, the question should be concise and the answer should be informative but brief enough for a flashcard. Ensure no markdown formatting like asterisks or bullet points are used within the question or answer text. Content: "${content}"`;
+                prompt = `Extract key concepts and their explanations, structured as concise question-answer pairs (Flashcards). Provide at least 5 pairs if possible. For each pair, the question should be concise and the answer should be informative but brief enough for a flashcard. Ensure no markdown formatting like asterisks or bullet points are used within the question or answer text. Content: "${content}"`; // Renamed
                 responseSchema = {
                     type: "ARRAY",
                     items: {
@@ -1554,7 +1523,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 outputTitle = 'AI Summary';
                 savedContentTitle = `Summary for: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
                 prompt = `Provide a concise, key-point summary of the following text/topic: "${content}". ${commonNoteFormatInstructions}`;
-                responseSchema = { type: "STRING" }; // For direct text output
+                responseSchema = { type: "STRING" };
                 break;
             default:
                 showNotification('Invalid AI generation type.', true);
@@ -1566,13 +1535,18 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             let chatHistory = [];
             chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-            let payload = { contents: chatHistory };
-
-            if (Object.keys(responseSchema).length > 0 && (type !== 'note' && type !== 'summary')) {
-                payload.generationConfig = {
+            const payload = {
+                contents: chatHistory,
+                generationConfig: {
                     responseMimeType: "application/json",
                     responseSchema: responseSchema
-                };
+                }
+            };
+
+            // Remove responseMimeType and responseSchema for note/summary as they are expected to return raw text/HTML
+            if (type === 'note' || type === 'summary') {
+                delete payload.generationConfig.responseMimeType;
+                delete payload.generationConfig.responseSchema;
             }
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
@@ -1589,29 +1563,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 result.candidates[0].content && result.candidates[0].content.parts &&
                 result.candidates[0].content.parts.length > 0) {
                 let generatedContent;
-                if (type === 'note' || type === 'summary' || type === 'exam-questions') { // These types return raw string or string array
+                if (type === 'note' || type === 'summary') {
                     generatedContent = result.candidates[0].content.parts[0].text;
-                    if (type === 'exam-questions') {
-                         generatedContent = JSON.parse(generatedContent); // Ensure it's parsed if it's a JSON string
-                    }
-                } else { // These types return JSON objects/arrays
+                } else {
                     generatedContent = JSON.parse(result.candidates[0].content.parts[0].text);
                 }
-
 
                 if (generatedContent && (Array.isArray(generatedContent) ? generatedContent.length > 0 : true)) {
                     aiOutputTitle.textContent = outputTitle;
                     aiGeneratedOutput.classList.remove('hidden');
 
-                    // If generated content needs to be saved to mockData
                     if (type === 'notes-flashcards') {
                         // Merge default subjects with user-added ones for a complete list
                         const allSubjects = [...defaultSubjects, ...mockData.subjects];
                         const subjectObj = allSubjects.find(s => s.id === subjectId);
 
-                        generatedContent.forEach(flashcardData => {
-                            const newFlashcard = {
-                                id: mockData.flashcards.length > 0 ? Math.max(...mockData.flashcards.map(f => f.id)) + 1 : 1,
+                        generatedContent.forEach(flashcardData => { // Renamed
+                            const newFlashcard = { // Renamed
+                                id: mockData.flashcards.length > 0 ? Math.max(...mockData.flashcards.map(f => f.id)) + 1 : 1, // Renamed
                                 subjectId: subjectId,
                                 question: flashcardData.question,
                                 answer: flashcardData.answer,
@@ -1621,9 +1590,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                 repetitions: 0,
                                 nextReview: new Date()
                             };
-                            mockData.flashcards.push(newFlashcard);
+                            mockData.flashcards.push(newFlashcard); // Renamed
                         });
-                        showNotification(`Generated flashcards added to your '${subjectName}' subject!`);
+                        showNotification(`Generated flashcards added to your '${subjectName}' subject!`); // Renamed
                         unlockAchievement('first-flashcards-generated');
                     } else if (type === 'keywords') {
                         generatedContent.forEach(item => {
@@ -1634,23 +1603,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         showNotification(`Keywords extracted and added to your Glossary!`);
                         unlockAchievement('first-keywords-extracted');
                     } else if (type === 'quiz') {
-                        showNotification(`Quiz generated and saved!`);
-                        unlockAchievement('first-quiz-generated');
+                         showNotification(`Quiz generated and saved!`);
+                         unlockAchievement('first-quiz-generated');
                     } else if (type === 'note') {
-                        showNotification(`Notes generated and saved!`);
-                        unlockAchievement('first-ai-note');
+                         showNotification(`Notes generated and saved!`);
+                         unlockAchievement('first-ai-note');
                     } else if (type === 'summary') {
                         showNotification(`Summary generated and saved!`);
                     }
 
-                    // For content types that are NOT directly saved into flashcards/glossary,
-                    // save them to aiMaterials for display in the Library.
-                    if (type !== 'notes-flashcards' && type !== 'keywords') {
+                    if (type !== 'notes-flashcards') {
                         const newMaterial = {
                             id: mockData.aiMaterials.length > 0 ? Math.max(...mockData.aiMaterials.map(m => m.id)) + 1 : 1,
                             type: type,
                             title: savedContentTitle,
-                            content: generatedContent, // Save the actual generated content
+                            content: generatedContent,
                             timestamp: new Date().toISOString(),
                             subjectId: subjectId
                         };
@@ -1660,18 +1627,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Display generated content in the output area regardless of where it's saved
                     if (type === 'note' || type === 'summary') {
                         aiOutputContentDisplay.innerHTML = generatedContent;
-                    } else if (type === 'notes-flashcards') { // Display generated flashcards for review
-                        let html = '<h4 class="font-semibold text-lg mb-3 text-primary">Generated Flashcards:</h4>';
-                        generatedContent.forEach((card, index) => {
-                            html += `
-                                <div class="bg-secondary p-3 rounded-lg shadow-sm border border-border-color mb-2">
-                                    <p class="font-medium text-primary">Q${index + 1}: ${card.question}</p>
-                                    <p class="text-secondary text-sm">A${index + 1}: ${card.answer}</p>
-                                    <p class="text-secondary text-xs italic">Topic: ${subjectName || 'N/A'}</p>
-                                </div>
-                            `;
-                        });
-                        aiOutputContentDisplay.innerHTML = html;
                     } else if (type === 'quiz') {
                         aiOutputContentDisplay.innerHTML = '<h3 class="text-xl font-bold text-primary mb-4">Generated Quiz:</h3>';
                         generatedContent.forEach((q, index) => {
@@ -1703,7 +1658,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                     }
                     saveUserData();
-                    render(); // Re-render views (especially Library) to show newly added materials
+                    render();
                 } else {
                     showNotification('AI did not generate any content. Try a different input or subject.', true);
                     aiGeneratedOutput.classList.add('hidden');
@@ -1737,18 +1692,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderAnalytics() {
         destroyCharts();
 
-        const primaryTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-primary');
-        const secondaryTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary');
-        const accentBlueColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-blue');
-        const borderDivColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color');
-        const textGreenColor = getComputedStyle(document.documentElement).getPropertyValue('--text-green');
-        const textOrangeColor = getComputedStyle(document.documentElement).getPropertyValue('--text-orange');
-        const bgSecondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-secondary');
+        const primaryTextColor = getComputedStyle(document.body).getPropertyValue('--text-primary');
+        const secondaryTextColor = getComputedStyle(document.body).getPropertyValue('--text-secondary');
+        const accentBlueColor = getComputedStyle(document.body).getPropertyValue('--accent-blue');
+        const borderDivColor = getComputedStyle(document.body).getPropertyValue('--border-color');
+        const textGreenColor = getComputedStyle(document.body).getPropertyValue('--text-green');
+        const textOrangeColor = getComputedStyle(document.body).getPropertyValue('--text-orange');
 
-
-        const masteredCount = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length;
-        const learningCount = mockData.flashcards.filter(f => f.repetitions > 0 && !(f.repetitions >= 3 && f.easeFactor >= 2.0)).length;
-        const newCount = mockData.flashcards.filter(f => f.repetitions === 0).length;
+        const masteredCount = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
+        const learningCount = mockData.flashcards.filter(f => f.repetitions > 0 && !(f.repetitions >= 3 && f.easeFactor >= 2.0)).length; // Renamed
+        const newCount = mockData.flashcards.filter(f => f.repetitions === 0).length; // Renamed
 
         const masteryCtx = document.getElementById('masteryChart').getContext('2d');
         charts.mastery = new Chart(masteryCtx, {
@@ -1758,7 +1711,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 datasets: [{
                     data: [masteredCount, learningCount, newCount],
                     backgroundColor: [textGreenColor, textOrangeColor, secondaryTextColor],
-                    borderColor: bgSecondaryColor,
+                    borderColor: getComputedStyle(document.body).getPropertyValue('--bg-secondary'),
                     borderWidth: 4
                 }]
             },
@@ -1772,7 +1725,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             label: (context) => {
                                 let label = context.label || '';
                                 if (label) { label += ': '; }
-                                label += Math.round(context.parsed) + ' flashcards';
+                                label += Math.round(context.parsed) + ' flashcards'; // Renamed
                                 return label;
                             }
                         }
@@ -1783,21 +1736,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Placeholder for real study activity data
         const activityData = Array(7).fill(0); // [Mon, Tue, ..., Sun]
-        const todayMoment = new Date();
-        // Adjust for start of week (Monday = 0 for chart, Sunday = 0 for JS getDay())
-        const startOfWeek = new Date(todayMoment);
-        startOfWeek.setDate(todayMoment.getDate() - (todayMoment.getDay() === 0 ? 6 : todayMoment.getDay() - 1)); // Set to Monday of current week
-        startOfWeek.setHours(0, 0, 0, 0);
-
+        const todayStr = new Date().toISOString().split('T')[0];
         if (mockData.user.dailyStudyLogs) {
             mockData.user.dailyStudyLogs.forEach(log => {
+                // Check if the log date is within the last 7 days from today
                 const logDate = new Date(log.date);
-                logDate.setHours(0, 0, 0, 0);
+                const diffTime = Math.abs(new Date(todayStr) - logDate.getTime());
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                if (logDate >= startOfWeek && logDate <= todayMoment) {
-                    let dayOfWeekIndex = logDate.getDay(); // 0 (Sun) - 6 (Sat)
-                    dayOfWeekIndex = (dayOfWeekIndex === 0) ? 6 : dayOfWeekIndex - 1; // Convert to Mon (0) - Sun (6) for chart labels
-                    activityData[dayOfWeekIndex] += (log.minutes / 60); // Convert minutes to hours
+                if (diffDays <= 7) {
+                    const dayOfWeek = logDate.getDay(); // 0 for Sunday, 1 for Monday
+                    activityData[dayOfWeek === 0 ? 6 : dayOfWeek - 1] += (log.minutes / 60); // Convert minutes to hours
                 }
             });
         }
@@ -1832,57 +1781,32 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Placeholder for knowledge growth data (Last 7 months including current)
-        const growthData = Array(7).fill(0);
-        const growthLabels = [];
-        const currentMonthIdx = new Date().getMonth(); // 0-11
-        const currentYear = new Date().getFullYear();
-
-        // Generate labels for the last 7 months
-        for (let i = 6; i >= 0; i--) {
-            let month = currentMonthIdx - i;
-            let year = currentYear;
-            if (month < 0) {
-                month += 12;
-                year -= 1;
-            }
-            growthLabels.push(new Date(year, month, 1).toLocaleString('en-US', { month: 'short', year: '2-digit' }));
-        }
-
-        // Populate growthData from monthlyMasteryLogs
+        // Placeholder for knowledge growth data
+        const growthData = [0, 0, 0, 0, 0, 0, 0]; // Last 6 months + Current Month
+        const currentMonth = new Date().getMonth(); // 0-11
         if (mockData.user.monthlyMasteryLogs) {
             mockData.user.monthlyMasteryLogs.forEach(log => {
                 const logDate = new Date(log.date);
-                const logMonthYear = `${logDate.getFullYear()}-${logDate.getMonth() + 1}`;
-                const currentMonthYear = `${currentYear}-${currentMonthIdx + 1}`;
-
-                // Find index based on monthYear
-                for (let i = 0; i < 7; i++) {
-                    let monthToCheck = (currentMonthIdx - i + 12) % 12 + 1; // +1 for 1-12 month
-                    let yearToCheck = currentYear;
-                    if (currentMonthIdx - i < 0) yearToCheck--;
-
-                    const labelMonthYear = `${yearToCheck}-${monthToCheck}`;
-                    if (logMonthYear === labelMonthYear) {
-                        growthData[6 - i] = log.masteredFlashcards;
-                        break;
-                    }
+                // Calculate month difference to place data correctly in the last 6 months + current
+                const monthDiff = (currentMonth - logDate.getMonth() + 12) % 12;
+                if (monthDiff < 7) { // 0 for current month, 1 for last month, ..., 6 for 6 months ago
+                    growthData[6 - monthDiff] = log.masteredFlashcards; // Renamed
                 }
             });
         }
-
+        growthData[6] = masteredCount; // Always show current month's real-time mastered count
 
         const growthCtx = document.getElementById('growthChart').getContext('2d');
         charts.growth = new Chart(growthCtx, {
             type: 'line',
             data: {
-                labels: growthLabels,
+                labels: ['6M Ago', '5M Ago', '4M Ago', '3M Ago', '2M Ago', 'Last Month', 'Current'],
                 datasets: [{
-                    label: 'Total Flashcards Mastered',
+                    label: 'Total Flashcards Mastered', // Renamed
                     data: growthData,
                     fill: true,
                     borderColor: accentBlueColor,
-                    backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-blue-rgb').replace(')', ', 0.1)'),
+                    backgroundColor: accentBlueColor.replace('rgb', 'rgba').replace(')', ', 0.1)'),
                     tension: 0.3
                 }]
             },
@@ -1896,7 +1820,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             label: (context) => {
                                 let label = context.dataset.label || '';
                                 if (label) { label += ': '; }
-                                label += context.parsed.y + ' flashcards';
+                                label += context.parsed.y + ' flashcards'; // Renamed
                                 return label;
                             }
                         }
@@ -1917,9 +1841,9 @@ document.addEventListener('DOMContentLoaded', () => {
             emptyGoalsMessage.classList.add('hidden');
             mockData.user.learningGoals.forEach(goal => {
                 let currentProgressValue = 0;
-                const masteredCount = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length;
+                const masteredCount = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
 
-                if (goal.targetType === 'flashcards') {
+                if (goal.targetType === 'flashcards') { // Renamed
                     currentProgressValue = masteredCount;
                 } else if (goal.targetType === 'time') {
                     const now = new Date();
@@ -1940,7 +1864,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="w-full bg-border-color rounded-full h-2.5">
                         <div class="bg-accent-blue h-2.5 rounded-full" style="width: ${progress}%;"></div>
                     </div>
-                    <p class="text-secondary text-sm mt-2">Progress: ${currentProgressValue.toFixed(0)} / ${goal.targetValue} ${goal.targetType === 'time' ? 'hrs' : 'flashcards'}</p>
+                    <p class="text-secondary text-sm mt-2">Progress: ${Math.round(progress)}% (${currentProgressValue.toFixed(0)} / ${goal.targetValue})</p>
                 `;
                 goalsList.appendChild(goalDiv);
             });
@@ -1954,9 +1878,9 @@ document.addEventListener('DOMContentLoaded', () => {
         achievementsList.innerHTML = '';
         // Defined here for clarity, but could be loaded from an external config
         const allAchievements = [
-            { id: 'first-flashcard', name: 'First Flashcard Added', description: 'Add your very first flashcard.', icon: '✨' },
-            { id: 'mastery-beginner', name: 'Beginner Master', description: 'Master 10 flashcards.', icon: '⭐' },
-            { id: 'mastery-intermediate', name: 'Intermediate Master', description: 'Master 50 flashcards.', icon: '🌟' },
+            { id: 'first-flashcard', name: 'First Flashcard Added', description: 'Add your very first flashcard.', icon: '✨' }, // Renamed
+            { id: 'mastery-beginner', name: 'Beginner Master', description: 'Master 10 flashcards.', icon: '⭐' }, // Renamed
+            { id: 'mastery-intermediate', name: 'Intermediate Master', description: 'Master 50 flashcards.', icon: '🌟' }, // Renamed
             { id: 'streak-7-days', name: '7-Day Streak', description: 'Achieve a 7-day study streak.', icon: '🗓️' },
             { id: 'streak-30-days', name: '30-Day Streak', description: 'Achieve a 30-day study streak.', icon: '🏆' },
             { id: 'daily-challenge-master', name: 'Daily Challenger', description: 'Complete 10 daily challenges.', icon: '🎯' },
@@ -2143,12 +2067,12 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function startStudySession(queueType = 'daily') {
         appState.studySession.isActive = true;
-        appState.studySession.queue = queueType === 'weak' ? getWeakFlashcards() : getDailyQueue();
+        appState.studySession.queue = queueType === 'weak' ? getWeakFlashcards() : getDailyQueue(); // Renamed
         appState.studySession.currentIndex = 0;
-        appState.studySession.flashcardsReviewedInSession = 0;
+        appState.studySession.flashcardsReviewedInSession = 0; // Renamed
 
         if (appState.studySession.queue.length === 0) {
-            showNotification(`Your ${queueType} review queue is empty! Import some content or review more to create weak flashcards.`, true);
+            showNotification(`Your ${queueType} review queue is empty! Import some content or review more to create weak flashcards.`, true); // Renamed
             navigate('library');
             return;
         }
@@ -2166,18 +2090,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         flashcardContainer.classList.remove('flipped');
 
-        const currentFlashcard = appState.studySession.queue[appState.studySession.currentIndex];
-        const subject = mockData.subjects.find(s => s.id === currentFlashcard.subjectId) || defaultSubjects.find(s => s.id === currentFlashcard.subjectId);
+        const currentFlashcard = appState.studySession.queue[appState.studySession.currentIndex]; // Renamed
+        const subject = mockData.subjects.find(s => s.id === currentFlashcard.subjectId); // Renamed
 
         document.getElementById('card-subject-front').textContent = subject ? subject.name : 'Unknown';
         document.getElementById('card-subject-back').textContent = subject ? subject.name : 'Unknown';
-        document.getElementById('card-question').textContent = currentFlashcard.question;
-        document.getElementById('card-answer').textContent = currentFlashcard.answer;
+        document.getElementById('card-question').textContent = currentFlashcard.question; // Renamed
+        document.getElementById('card-answer').textContent = currentFlashcard.answer; // Renamed
 
         const totalItems = appState.studySession.queue.length;
         const progress = ((appState.studySession.currentIndex + 1) / totalItems) * 100;
         document.getElementById('study-progress-bar').style.width = `${progress}%`;
-        document.getElementById('study-progress-text').textContent = `Flashcard ${appState.studySession.currentIndex + 1} of ${totalItems}`;
+        document.getElementById('study-progress-text').textContent = `Flashcard ${appState.studySession.currentIndex + 1} of ${totalItems}`; // Renamed
     }
 
     /**
@@ -2200,10 +2124,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         mockData.user.lastChallengeDate = today;
-        mockData.user.dailyChallengeProgress += appState.studySession.flashcardsReviewedInSession;
+        mockData.user.dailyChallengeProgress += appState.studySession.flashcardsReviewedInSession; // Renamed
 
         // Log daily study time (placeholder, actual tracking would be more robust)
-        const minutesStudiedThisSession = appState.studySession.flashcardsReviewedInSession * 2; // Rough estimate: 2 mins per flashcard
+        const minutesStudiedThisSession = appState.studySession.flashcardsReviewedInSession * 2; // Rough estimate: 2 mins per flashcard // Renamed
         if (!mockData.user.dailyStudyLogs) {
             mockData.user.dailyStudyLogs = [];
         }
@@ -2213,6 +2137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             mockData.user.dailyStudyLogs.push({ date: today, minutes: minutesStudiedThisSession });
         }
+        saveUserData(); // Save updated study log
 
         // Check for achievements
         checkAchievements();
@@ -2221,39 +2146,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Study session button event listeners
     startReviewBtn.addEventListener('click', () => startStudySession('daily'));
-    studyWeakFlashcardsBtn.addEventListener('click', () => startStudySession('weak'));
+    studyWeakFlashcardsBtn.addEventListener('click', () => startStudySession('weak')); // Renamed
     showAnswerBtn.addEventListener('click', () => { flashcardContainer.classList.add('flipped'); });
 
     recallButtons.forEach(button => {
         button.addEventListener('click', (e) => {
             const quality = parseInt(e.currentTarget.dataset.rating);
-            const currentFlashcard = appState.studySession.queue[appState.studySession.currentIndex];
+            const currentFlashcard = appState.studySession.queue[appState.studySession.currentIndex]; // Renamed
 
-            const wasMasteredBefore = currentFlashcard.repetitions >= 3 && currentFlashcard.easeFactor >= 2.0;
+            const wasMasteredBefore = currentFlashcard.repetitions >= 3 && currentFlashcard.easeFactor >= 2.0; // Renamed
 
             // Update SM-2 properties for the current flashcard
             const { nextReview, newInterval, newEaseFactor, newRepetitions } = calculateNextReviewDateSM2(
-                currentFlashcard.lastReviewed, quality, currentFlashcard.easeFactor, currentFlashcard.interval, currentFlashcard.repetitions
+                currentFlashcard.lastReviewed, quality, currentFlashcard.easeFactor, currentFlashcard.interval, currentFlashcard.repetitions // Renamed
             );
 
-            currentFlashcard.lastReviewed = new Date();
-            currentFlashcard.nextReview = nextReview;
-            currentFlashcard.interval = newInterval;
-            currentFlashcard.easeFactor = newEaseFactor;
-            currentFlashcard.repetitions = newRepetitions;
+            currentFlashcard.lastReviewed = new Date(); // Renamed
+            currentFlashcard.nextReview = nextReview; // Renamed
+            currentFlashcard.interval = newInterval; // Renamed
+            currentFlashcard.easeFactor = newEaseFactor; // Renamed
+            currentFlashcard.repetitions = newRepetitions; // Renamed
 
             const isNowMastered = newRepetitions >= 3 && newEaseFactor >= 2.0;
             if (!wasMasteredBefore && isNowMastered) {
                 // Flashcard just became mastered
-                // This achievement check is typically handled by checkAchievements
+                unlockAchievement('first-flashcard'); // Renamed
             }
 
             saveUserData();
-            console.log(`Rated card ${currentFlashcard.id} with rating: ${quality}. Next review: ${currentFlashcard.nextReview.toLocaleDateString()}`);
+            console.log(`Rated card ${currentFlashcard.id} with rating: ${quality}. Next review: ${currentFlashcard.nextReview.toLocaleDateString()}`); // Renamed
 
             flashcardContainer.classList.remove('flipped');
             appState.studySession.currentIndex++;
-            appState.studySession.flashcardsReviewedInSession++;
+            appState.studySession.flashcardsReviewedInSession++; // Renamed
             setTimeout(renderCurrentCard, 300);
         });
     });
@@ -2325,7 +2250,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showNotification("Break time is over! Time to focus!");
             }
             updatePomodoroDisplay();
-            // Check for achievements
+            // Check for achievements related to study time
             checkAchievements();
         }
     }
@@ -2367,11 +2292,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // For GitHub Pages, you'd need to host these audio files.
             // For now, this just simulates playback.
             if (soundFile) {
-                // IMPORTANT: For actual sound playback in Canvas, ensure audio files are either
-                // small base64 embedded (for very tiny sounds) or hosted externally with CORS.
-                // Using Tone.js would be ideal for generated sounds without external files.
-                // For this example, we'll assume a dummy audio file for demonstration.
-                const audio = new Audio(`https://file-examples.com/storage/fe33ae969b6574f07e5b536/2017/11/file_example_MP3_700KB.mp3`); // Placeholder dummy audio
+                const audio = new Audio(`audio/${soundFile}`); // Assumes an 'audio' folder exists
                 audio.loop = true;
                 audio.volume = 0.5; // Default volume
                 audio.play().then(() => {
@@ -2390,7 +2311,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentOnboardingStep = 1;
 
     function showOnboarding() {
-        toggleModal(onboardingModal, true);
+        onboardingModal.classList.remove('hidden');
         currentOnboardingStep = 1;
         updateOnboardingStep();
     }
@@ -2436,7 +2357,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         appState.onboardingCompleted = true; // Set appState directly
         localStorage.setItem('auralearn_onboardingCompleted', 'true'); // Persist to localStorage
-        toggleModal(onboardingModal, false);
+        onboardingModal.classList.add('hidden');
         saveUserData(); // Save mockData.user which now contains new initial values
         showNotification('Onboarding complete! Your personalized journey begins now.');
         navigate('dashboard');
@@ -2449,7 +2370,7 @@ document.addEventListener('DOMContentLoaded', () => {
     onboardingSkipBtn.addEventListener('click', () => {
         appState.onboardingCompleted = true; // Set appState directly
         localStorage.setItem('auralearn_onboardingCompleted', 'true'); // Persist to localStorage
-        toggleModal(onboardingModal, false);
+        onboardingModal.classList.add('hidden');
         // Ensure initial user data is saved even on skip, without resetting what was already loaded
         mockData.user.dailyStudyLogs = mockData.user.dailyStudyLogs || [];
         mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs || [];
@@ -2467,6 +2388,7 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleAIContentNewSubjectInput.textContent = 'Select Existing Subject';
         } else {
             aiContentNewSubjectInput.classList.add('hidden');
+            aiContentNewSubjectInput.value = '';
             aiContentSubjectSelect.classList.remove('hidden');
             toggleAIContentNewSubjectInput.textContent = 'Add New Subject';
         }
@@ -2491,37 +2413,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // AI Learning buttons event listeners
     generateAiNotesBtn.addEventListener('click', () => {
-        toggleQuizSettingsVisibility(false); // Hide quiz settings
+        toggleQuizSettingsVisibility('note');
         generateAIContent('note');
     });
     generateNotesFlashcardsBtn.addEventListener('click', () => {
-        toggleQuizSettingsVisibility(false); // Hide quiz settings
+        toggleQuizSettingsVisibility('notes-flashcards');
         generateAIContent('notes-flashcards');
     });
     generateQuizBtn.addEventListener('click', () => {
-        toggleQuizSettingsVisibility(true); // Show quiz settings
+        toggleQuizSettingsVisibility('quiz');
         generateAIContent('quiz');
     });
     extractKeywordsBtn.addEventListener('click', () => {
-        toggleQuizSettingsVisibility(false); // Hide quiz settings
+        toggleQuizSettingsVisibility('keywords');
         generateAIContent('keywords');
     });
     predictExamQuestionsBtn.addEventListener('click', () => {
-        toggleQuizSettingsVisibility(false); // Hide quiz settings
+        toggleQuizSettingsVisibility('exam-questions');
         generateAIContent('exam-questions');
     });
     summarizeContentBtn.addEventListener('click', () => {
-        toggleQuizSettingsVisibility(false); // Hide quiz settings
+        toggleQuizSettingsVisibility('summary');
         generateAIContent('summary');
     });
 
 
     // --- Quick Add Flashcard Modal Handlers ---
-    quickAddFlashcardBtnDashboard.addEventListener('click', showQuickAddFlashcardModal);
-    quickAddFlashcardBtnLibrary.addEventListener('click', showQuickAddFlashcardModal);
+    quickAddFlashcardBtnDashboard.addEventListener('click', showQuickAddFlashcardModal); // Renamed
+    quickAddFlashcardBtnLibrary.addEventListener('click', showQuickAddFlashcardModal); // Renamed
 
-    function showQuickAddFlashcardModal() {
-        toggleModal(quickAddFlashcardModal, true);
+    function showQuickAddFlashcardModal() { // Renamed
+        quickAddFlashcardModal.classList.remove('hidden'); // Renamed
         quickAddQuestionInput.value = '';
         quickAddAnswerInput.value = '';
         newSubjectInput.value = '';
@@ -2532,7 +2454,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     closeQuickAddModalBtn.addEventListener('click', () => {
-        toggleModal(quickAddFlashcardModal, false);
+        quickAddFlashcardModal.classList.add('hidden'); // Renamed
     });
 
     toggleNewSubjectInputBtn.addEventListener('click', () => {
@@ -2558,7 +2480,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    addFlashcardBtn.addEventListener('click', () => {
+    addFlashcardBtn.addEventListener('click', () => { // Renamed
         let subjectId;
         let subjectName;
         // Check if a new subject is being added via the input field
@@ -2568,7 +2490,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Check if this new subject already exists (either default or user-added)
             if (!mockData.subjects.find(s => s.id === subjectId) && !defaultSubjects.find(ds => ds.id === subjectId)) {
                 // Add to user-specific subjects if it's genuinely new
-                mockData.subjects.push({ id: subjectId, name: subjectName, color: "bg-blue-100", textColor: "text-blue-800", flashcards: 0, lastReviewed: null });
+                mockData.subjects.push({ id: subjectId, name: subjectName, color: "bg-blue-100", textColor: "text-blue-800", flashcards: 0, lastReviewed: null }); // Renamed 'atoms'
             }
         } else {
             // If not adding a new subject, use the selected subject
@@ -2588,8 +2510,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const newFlashcard = {
-            id: mockData.flashcards.length > 0 ? Math.max(...mockData.flashcards.map(f => f.id)) + 1 : 1,
+        const newFlashcard = { // Renamed
+            id: mockData.flashcards.length > 0 ? Math.max(...mockData.flashcards.map(f => f.id)) + 1 : 1, // Renamed
             subjectId: subjectId,
             question: question,
             answer: answer,
@@ -2599,26 +2521,26 @@ document.addEventListener('DOMContentLoaded', () => {
             repetitions: 0,
             nextReview: new Date()
         };
-        mockData.flashcards.push(newFlashcard);
+        mockData.flashcards.push(newFlashcard); // Renamed
 
         saveUserData();
-        showNotification('Flashcard added successfully!');
-        toggleModal(quickAddFlashcardModal, false);
-        unlockAchievement('first-flashcard'); // Check if first flashcard added unlocks achievement
+        showNotification('Flashcard added successfully!'); // Renamed
+        quickAddFlashcardModal.classList.add('hidden'); // Renamed
+        unlockAchievement('first-flashcard'); // Renamed // Check if first flashcard added unlocks achievement
         checkAchievements(); // Recalculate other achievements potentially
         render();
     });
 
     // --- Add Goal Modal Handlers ---
     addGoalBtn.addEventListener('click', () => {
-        toggleModal(addGoalModal, true);
+        addGoalModal.classList.remove('hidden');
         goalNameInput.value = '';
         goalTargetValueInput.value = '';
         goalEndDateInput.value = '';
     });
 
     closeAddGoalModalBtn.addEventListener('click', () => {
-        toggleModal(addGoalModal, false);
+        addGoalModal.classList.add('hidden');
     });
 
     createGoalBtn.addEventListener('click', () => {
@@ -2647,18 +2569,18 @@ document.addEventListener('DOMContentLoaded', () => {
         mockData.user.learningGoals.push(newGoal);
         saveUserData();
         showNotification('Goal created successfully!');
-        toggleModal(addGoalModal, false);
+        addGoalModal.classList.add('hidden');
         render();
     });
 
     // --- Reflection Modal Handlers ---
     function showReflectionModal() {
-        toggleModal(reflectionModal, true);
+        reflectionModal.classList.remove('hidden');
         reflectionTextarea.value = '';
     }
 
     closeReflectionModalBtn.addEventListener('click', () => {
-        toggleModal(reflectionModal, false);
+        reflectionModal.classList.add('hidden');
         navigate('dashboard');
     });
 
@@ -2671,7 +2593,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             showNotification('No reflection entered.');
         }
-        toggleModal(reflectionModal, false);
+        reflectionModal.classList.add('hidden');
         navigate('dashboard');
     });
 
@@ -2681,36 +2603,36 @@ document.addEventListener('DOMContentLoaded', () => {
         if (query.length > 2 || query.length === 0) {
             filterAndDisplaySearchResults(query);
         } else if (query.length <= 2 && !searchResultsModal.classList.contains('hidden')) {
-            toggleModal(searchResultsModal, false); // Hide modal if query is too short
+            searchResultsModal.classList.add('hidden'); // Hide modal if query is too short
         }
     });
 
     closeSearchResultsModalBtn.addEventListener('click', () => {
-        toggleModal(searchResultsModal, false);
+        searchResultsModal.classList.add('hidden');
     });
 
     function filterAndDisplaySearchResults(query) {
         searchResultsContent.innerHTML = ''; // Clear previous results
 
         if (query.length === 0) {
-            toggleModal(searchResultsModal, false);
+            searchResultsModal.classList.add('hidden');
             return;
         }
 
         let foundResults = [];
 
         // Search in Flashcards
-        const filteredFlashcards = mockData.flashcards.filter(f =>
+        const filteredFlashcards = mockData.flashcards.filter(f => // Renamed
             f.question.toLowerCase().includes(query) ||
             f.answer.toLowerCase().includes(query) ||
             mockData.subjects.find(s => s.id === f.subjectId)?.name.toLowerCase().includes(query) ||
             defaultSubjects.find(s => s.id === f.subjectId)?.name.toLowerCase().includes(query)
         );
         if (filteredFlashcards.length > 0) {
-            foundResults.push({ type: "heading", content: "Flashcards" });
-            filteredFlashcards.forEach(flashcard => {
-                const subjectName = (mockData.subjects.find(s => s.id === flashcard.subjectId) || defaultSubjects.find(s => s.id === flashcard.subjectId))?.name || 'Unknown';
-                foundResults.push({ type: "flashcard", title: flashcard.question, subtitle: `Subject: ${subjectName}`, details: flashcard.answer });
+            foundResults.push({ type: "heading", content: "Flashcards" }); // Renamed
+            filteredFlashcards.forEach(flashcard => { // Renamed
+                const subjectName = (mockData.subjects.find(s => s.id === flashcard.subjectId) || defaultSubjects.find(s => s.id === flashcard.subjectId))?.name || 'Unknown'; // Renamed
+                foundResults.push({ type: "flashcard", title: flashcard.question, subtitle: `Subject: ${subjectName}`, details: flashcard.answer }); // Renamed
             });
         }
 
@@ -2801,8 +2723,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p class="text-xs text-secondary">${result.subtitle}</p>
                     `;
                     resultDiv.addEventListener('click', () => {
-                        toggleModal(searchResultsModal, false); // Close search modal
-                        if (result.type === "flashcard") {
+                        searchResultsModal.classList.add('hidden'); // Close search modal
+                        if (result.type === "flashcard") { // Renamed
                             showDetailModal({ title: result.title, details: result.details });
                         } else if (result.type === "ai-material") {
                             showAIGeneratedMaterial(result.materialData);
@@ -2832,7 +2754,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 searchResultsContent.appendChild(resultDiv);
             });
         }
-        toggleModal(searchResultsModal, true);
+        searchResultsModal.classList.remove('hidden');
     }
 
     // Learning Hub Tab switching
@@ -2846,7 +2768,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Detail Modal Handlers ---
     async function showDetailModal(item) {
         detailTitle.textContent = item.title;
-        toggleModal(detailModal, true);
+        detailModal.classList.remove('hidden');
         detailContentText.classList.add('hidden');
         detailLoading.classList.remove('hidden');
 
@@ -2857,27 +2779,27 @@ document.addEventListener('DOMContentLoaded', () => {
         if (item.details.length < 200 || !item.llm_expanded) {
             try {
                 const prompt = `Provide a detailed, comprehensive, and practical explanation of the concept or technique "${item.title}".
-                Format the content into clear sections:
-                <h3>Main Info</h3>
+                Format the content into clear sections. For section titles, use strong HTML tags. For list items, use ul and li HTML tags.
+                <strong>Main Info</strong>
                 <ul>
                     <li>[Concise bullet point]</li>
                     <li>[Concise bullet point]</li>
                 </ul>
-                <h3>Key Terms/Keywords:</h3>
+                <strong>Key Terms/Keywords:</strong>
                 <ul>
                     <li>[Keyword]: [Brief definition]</li>
                     <li>[Keyword]: [Brief definition]</li>
                 </ul>
-                <h3>Extra Info:</h3>
+                <strong>Extra Info:</strong>
                 <ul>
                     <li>[Additional relevant detail]</li>
                     <li>[Another additional relevant detail]</li>
                 </ul>
-                <h3>Conclusion</h3>
+                <strong>Conclusion</strong>
                 <ul>
                     <li>[Brief summary or key takeaway]</li>
                 </ul>
-                Ensure the entire response is valid HTML, strictly using h3 for section headers, and ul/li for all bullet points. Do not include any conversational filler, disclaimers, or extra text outside this structure.`;
+                Ensure the entire response is valid HTML, strictly using strong, ul, and li tags as specified. Do not include any conversational filler, disclaimers, or extra text outside this structure.`;
 
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: prompt }] });
@@ -2913,11 +2835,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     closeDetailModalBtn.addEventListener('click', () => {
-        toggleModal(detailModal, false);
+        detailModal.classList.add('hidden');
     });
 
     closeSubjectDetailModalBtn.addEventListener('click', () => {
-        toggleModal(subjectDetailModal, false);
+        subjectDetailModal.classList.add('hidden');
     });
 
     // --- User Profile & Settings ---
@@ -2963,14 +2885,14 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} theme - The name of the theme ('light', 'dark', 'vibrant', 'forest-green', 'ocean-blue').
      */
     function applyTheme(theme) {
-        if (document.documentElement) { // Target the root element for themes
+        if (appContainer) {
             // Remove all existing theme classes and add the new one
-            document.documentElement.classList.forEach(cls => {
+            appContainer.classList.forEach(cls => {
                 if (cls.startsWith('theme-')) {
-                    document.documentElement.classList.remove(cls);
+                    appContainer.classList.remove(cls);
                 }
             });
-            document.documentElement.classList.add(`theme-${theme}`);
+            appContainer.classList.add(`theme-${theme}`);
         }
         // Update button states in settings view
         const themeBtnsInSettings = document.querySelectorAll('#view-settings .theme-btn');
@@ -3042,18 +2964,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const importedData = JSON.parse(e.target.result);
 
                 // Basic validation for imported data structure
-                if (importedData.user && importedData.flashcards && importedData.subjects && importedData.aiMaterials) {
+                if (importedData.user && importedData.flashcards && importedData.subjects && importedData.aiMaterials) { // Renamed
                     // Convert date strings back to Date objects for flashcards
-                    importedData.flashcards = importedData.flashcards.map(f => ({
+                    importedData.flashcards = importedData.flashcards.map(f => ({ // Renamed
                         ...f,
                         lastReviewed: new Date(f.lastReviewed),
                         nextReview: new Date(f.nextReview)
                     }));
                     // Ensure new SM-2 properties are set if missing in old imported data
-                    importedData.flashcards.forEach(flashcard => {
-                        flashcard.easeFactor = flashcard.easeFactor !== undefined ? flashcard.easeFactor : 2.5;
-                        flashcard.interval = flashcard.interval !== undefined ? flashcard.interval : 0;
-                        flashcard.repetitions = flashcard.repetitions !== undefined ? flashcard.repetitions : 0;
+                    importedData.flashcards.forEach(flashcard => { // Renamed
+                        flashcard.easeFactor = flashcard.easeFactor !== undefined ? flashcard.easeFactor : 2.5; // Renamed
+                        flashcard.interval = flashcard.interval !== undefined ? flashcard.interval : 0; // Renamed
+                        flashcard.repetitions = flashcard.repetitions !== undefined ? flashcard.repetitions : 0; // Renamed
                     });
 
                     // Safely merge or set user properties from imported data
@@ -3071,7 +2993,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Overwrite main data arrays
                     mockData.subjects = importedData.subjects;
-                    mockData.flashcards = importedData.flashcards;
+                    mockData.flashcards = importedData.flashcards; // Renamed
                     mockData.aiMaterials = importedData.aiMaterials;
                     mockData.glossary = importedData.glossary || [];
                     mockData.mindMaps = importedData.mindMaps || [];
@@ -3095,41 +3017,6 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsText(file);
     }
 
-    // Custom Confirmation Dialog (Replaces alert/confirm)
-    function showCustomConfirmation(message, onConfirm) {
-        // Remove any existing custom confirm modal to prevent duplicates
-        const existingModal = document.getElementById('custom-confirm-modal');
-        if (existingModal) {
-            existingModal.remove();
-        }
-
-        const modalHtml = `
-            <div id="custom-confirm-modal" class="modal-overlay">
-                <div class="modal-content max-w-sm">
-                    <h3 class="text-xl font-bold text-primary mb-4">Confirm Action</h3>
-                    <p class="text-secondary mb-6">${message}</p>
-                    <div class="flex justify-end space-x-3">
-                        <button id="cancel-confirm-btn" class="bg-gray-400 text-white px-5 py-2 rounded-lg font-semibold hover:bg-gray-500 transition-colors">Cancel</button>
-                        <button id="confirm-action-btn" class="button-primary px-5 py-2 rounded-lg font-semibold">Confirm</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-        const confirmModal = document.getElementById('custom-confirm-modal');
-        toggleModal(confirmModal, true);
-
-        document.getElementById('cancel-confirm-btn').addEventListener('click', () => {
-            toggleModal(confirmModal, false);
-            confirmModal.remove();
-        });
-        document.getElementById('confirm-action-btn').addEventListener('click', () => {
-            toggleModal(confirmModal, false);
-            confirmModal.remove();
-            onConfirm();
-        });
-    }
-
     // --- Quiz Session Logic ---
     function startQuizSession(quizMaterial) {
         appState.currentQuiz = quizMaterial;
@@ -3143,7 +3030,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         quizTitle.textContent = quizMaterial.title;
-        toggleModal(quizModal, true);
+        quizModal.classList.remove('hidden');
         renderQuizQuestion();
     }
 
@@ -3164,7 +3051,7 @@ document.addEventListener('DOMContentLoaded', () => {
         quizOptions.innerHTML = '';
         currentQuestion.options.forEach((option, index) => {
             const optionButton = document.createElement('button');
-            optionButton.className = 'quiz-option-btn button-secondary w-full text-left px-4 py-3 rounded-lg font-semibold hover:bg-border-color transition-colors';
+            optionButton.className = 'quiz-option-btn';
             optionButton.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
             optionButton.dataset.option = option;
             optionButton.addEventListener('click', () => selectQuizOption(optionButton));
@@ -3176,9 +3063,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function selectQuizOption(selectedButton) {
         document.querySelectorAll('.quiz-option-btn').forEach(btn => {
-            btn.classList.remove('selected', 'bg-accent-blue', 'text-white');
+            btn.classList.remove('selected');
         });
-        selectedButton.classList.add('selected', 'bg-accent-blue', 'text-white');
+        selectedButton.classList.add('selected');
         appState.quizSession.selectedAnswer = selectedButton.dataset.option;
         quizSubmitAnswerBtn.disabled = false;
     }
@@ -3210,15 +3097,14 @@ document.addEventListener('DOMContentLoaded', () => {
             isCorrect: isCorrect
         });
 
-        // Highlight correct/incorrect answers
+        // Disable options and submit button after answer
         document.querySelectorAll('.quiz-option-btn').forEach(btn => {
-            btn.disabled = true; // Disable all options
+            btn.disabled = true;
             if (btn.dataset.option === currentQuestion.correct_answer) {
-                btn.classList.add('bg-green-200', 'text-green-800'); // Correct answer highlight
-            } else if (btn.dataset.option === appState.quizSession.selectedAnswer && !isCorrect) {
-                btn.classList.add('bg-red-200', 'text-red-800'); // Incorrect selected answer highlight
+                btn.classList.add('correct');
+            } else if (btn.dataset.option === appState.quizSession.selectedAnswer) {
+                btn.classList.add('incorrect');
             }
-            btn.classList.remove('selected', 'bg-accent-blue', 'text-white'); // Remove selection style
         });
         quizSubmitAnswerBtn.disabled = true;
 
@@ -3261,7 +3147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         quizResultsContainer.classList.remove('hidden');
     });
     closeQuizModalBtn.addEventListener('click', () => {
-        toggleModal(quizModal, false);
+        quizModal.classList.add('hidden');
         appState.quizSession.isActive = false;
         appState.currentQuiz = null;
     });
@@ -3273,8 +3159,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Clear existing highlights from previous tours
         document.querySelectorAll('[data-tutorial-highlighted]').forEach(el => {
-            el.classList.remove('highlighted-element');
-            el.removeAttribute('data-tutorial-highlighted');
+            el.classList.remove('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50');
+            el.removeAttribute('data-tutorial-highlighted'); // Remove the marker attribute
         });
 
 
@@ -3285,11 +3171,11 @@ document.addEventListener('DOMContentLoaded', () => {
             tutorialPrevBtn.classList.add('hidden');
             tutorialNextBtn.classList.add('hidden');
             tutorialFinishBtn.classList.remove('hidden');
-            toggleModal(tutorialStepModal, true);
+            tutorialStepModal.classList.remove('hidden');
         } else {
             // For interactive tours, navigate to the first step
             showTutorialStep();
-            toggleModal(tutorialStepModal, true);
+            tutorialStepModal.classList.remove('hidden');
         }
     }
 
@@ -3302,7 +3188,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Remove previous highlights
         document.querySelectorAll('[data-tutorial-highlighted]').forEach(el => {
-            el.classList.remove('highlighted-element');
+            el.classList.remove('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50');
             el.removeAttribute('data-tutorial-highlighted');
         });
 
@@ -3310,7 +3196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (step.highlightElementId) {
             const targetElement = document.getElementById(step.highlightElementId);
             if (targetElement) {
-                targetElement.classList.add('highlighted-element'); // Use the class defined in CSS
+                targetElement.classList.add('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50');
                 targetElement.setAttribute('data-tutorial-highlighted', 'true'); // Mark as highlighted
                 targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
@@ -3339,19 +3225,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function endTutorial() {
-        toggleModal(tutorialStepModal, false);
+        tutorialStepModal.classList.add('hidden');
         // Clear all highlights
         document.querySelectorAll('[data-tutorial-highlighted]').forEach(el => {
-            el.classList.remove('highlighted-element');
+            el.classList.remove('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50');
             el.removeAttribute('data-tutorial-highlighted');
         });
         // Reset tutorial state
         appState.currentTutorial = null;
         appState.currentTutorialStep = 0;
-        appState.onboardingCompleted = true; // Mark onboarding as complete after tutorial
-        localStorage.setItem('auralearn_onboardingCompleted', 'true');
-        showNotification("Tutorial finished! Welcome to AuraLearn.");
-        navigate('dashboard'); // Go to dashboard after tutorial
     }
 
     // Tutorial Event Listeners
@@ -3399,7 +3281,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 mindMapCtx.beginPath();
                 mindMapCtx.moveTo(nodeA.x, nodeA.y);
                 mindMapCtx.lineTo(nodeB.x, nodeB.y);
-                mindMapCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--connection-color');
+                mindMapCtx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--connection-color');
                 mindMapCtx.lineWidth = 2;
                 mindMapCtx.stroke();
             }
@@ -3409,14 +3291,14 @@ document.addEventListener('DOMContentLoaded', () => {
         mindMapNodes.forEach(node => {
             mindMapCtx.beginPath();
             mindMapCtx.arc(node.x, node.y, 40, 0, Math.PI * 2); // Node circle
-            mindMapCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--node-bg');
+            mindMapCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--node-bg');
             mindMapCtx.fill();
-            mindMapCtx.strokeStyle = node === selectedNode ? getComputedStyle(document.documentElement).getPropertyValue('--node-selected-border') : getComputedStyle(document.documentElement).getPropertyValue('--node-border');
+            mindMapCtx.strokeStyle = node === selectedNode ? getComputedStyle(document.body).getPropertyValue('--node-selected-border') : getComputedStyle(document.body).getPropertyValue('--node-border');
             mindMapCtx.lineWidth = node === selectedNode ? 4 : 2;
             mindMapCtx.stroke();
 
             // Draw text
-            mindMapCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--node-text');
+            mindMapCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--node-text');
             mindMapCtx.font = '14px Inter';
             mindMapCtx.textAlign = 'center';
             mindMapCtx.textBaseline = 'middle';
@@ -3424,11 +3306,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Draw connecting line if a node is selected for connection
-        if (connectingNode && selectedNode && connectingNode.id !== selectedNode.id) {
+        if (connectingNode && selectedNode) {
             mindMapCtx.beginPath();
             mindMapCtx.moveTo(connectingNode.x, connectingNode.y);
             mindMapCtx.lineTo(selectedNode.x, selectedNode.y); // Draw to selected node for visualization
-            mindMapCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-blue');
+            mindMapCtx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--accent-blue');
             mindMapCtx.lineWidth = 3;
             mindMapCtx.setLineDash([5, 5]); // Dashed line
             mindMapCtx.stroke();
@@ -3452,12 +3334,11 @@ document.addEventListener('DOMContentLoaded', () => {
         mindMapNodeTextInput.value = '';
         showNotification('Node added! Double-click to edit, drag to move.');
         unlockAchievement('first-mind-map'); // Check for achievement
-        saveUserData(); // Save the new node
     });
 
     // Clear all nodes and connections
     mindMapClearAllBtn.addEventListener('click', () => {
-        showCustomConfirmation('Are you sure you want to clear the entire mind map? This cannot be undone.', () => {
+        if (confirm('Are you sure you want to clear the entire mind map? This cannot be undone.')) {
             mindMapNodes = [];
             mindMapConnections = [];
             selectedNode = null;
@@ -3467,7 +3348,7 @@ document.addEventListener('DOMContentLoaded', () => {
             drawMindMap();
             showNotification('Mind map cleared.');
             saveUserData(); // Save the cleared state
-        });
+        }
     });
 
     // Save Mind Map
@@ -3630,10 +3511,10 @@ document.addEventListener('DOMContentLoaded', () => {
             emptyGlossaryMessage.classList.add('hidden');
             filteredGlossary.forEach(item => {
                 const div = document.createElement('div');
-                div.className = 'glossary-item p-4 rounded-lg border list-item-themed shadow-sm'; // Added styling
+                div.className = 'glossary-item';
                 div.innerHTML = `
-                    <h4 class="font-semibold text-primary">${item.keyword}</h4>
-                    <p class="text-secondary text-sm">${item.definition}</p>
+                    <h4>${item.keyword}</h4>
+                    <p>${item.definition}</p>
                 `;
                 glossaryList.appendChild(div);
             });
@@ -3645,8 +3526,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Achievements Logic ---
     function checkAchievements() {
-        const masteredFlashcardsCount = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length;
-        const totalFlashcardsAdded = mockData.flashcards.length;
+        const masteredFlashcardsCount = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
+        const totalFlashcardsAdded = mockData.flashcards.length; // Renamed
         const totalAiNotes = mockData.aiMaterials.filter(m => m.type === 'note').length;
         const totalAiFlashcardsGenerated = mockData.aiMaterials.filter(m => m.type === 'notes-flashcards').length;
         const totalAiQuizzesGenerated = mockData.aiMaterials.filter(m => m.type === 'quiz').length;
@@ -3654,13 +3535,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalMindMapsCreated = mockData.mindMaps.length;
 
         // Mastered Flashcards
-        if (totalFlashcardsAdded >= 1 && !mockData.user.achievements.includes('first-flashcard')) {
-            unlockAchievement('first-flashcard');
+        if (totalFlashcardsAdded >= 1 && !mockData.user.achievements.includes('first-flashcard')) { // Renamed
+            unlockAchievement('first-flashcard'); // Renamed
         }
-        if (masteredFlashcardsCount >= 10) {
+        if (masteredFlashcardsCount >= 10) { // Renamed
             unlockAchievement('mastery-beginner');
         }
-        if (masteredFlashcardsCount >= 50) {
+        if (masteredFlashcardsCount >= 50) { // Renamed
             unlockAchievement('mastery-intermediate');
         }
 
@@ -3708,7 +3589,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function saveUserData() {
         try {
             localStorage.setItem('auralearn_user', JSON.stringify(mockData.user));
-            localStorage.setItem('auralearn_flashcards', JSON.stringify(mockData.flashcards.map(f => ({
+            localStorage.setItem('auralearn_flashcards', JSON.stringify(mockData.flashcards.map(f => ({ // Renamed
                 ...f,
                 lastReviewed: f.lastReviewed.toISOString(),
                 nextReview: f.nextReview.toISOString()
@@ -3761,15 +3642,14 @@ document.addEventListener('DOMContentLoaded', () => {
         mockData.user.monthlyMasteryLogs.push({
             date: todayInit.toISOString().split('T')[0],
             monthYear: currentMonthYearInit,
-            masteredFlashcards: mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length
+            masteredFlashcards: mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length // Renamed
         });
         if (mockData.user.monthlyMasteryLogs.length > 7) {
             mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs.slice(-7);
         }
         saveUserData();
     } else {
-        lastMonthLogInit.masteredFlashcards = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length;
-        saveUserData(); // Ensure it's saved even if only updated
+        lastMonthLogInit.masteredFlashcards = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
     }
 
     // Now, determine if onboarding should be shown based on the loaded state
@@ -3782,6 +3662,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // If onboarding completed, just render the app
         usernameInput.value = mockData.user.name;
         checkAchievements(); // Check achievements on load to update initial state
-        render(); // Initial render of the app
+        render();
     }
 });
