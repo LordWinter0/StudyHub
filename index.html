@@ -27,18 +27,20 @@
                 <ul class="space-y-2">
                     <li><a href="#" data-view="dashboard" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                         <span class="w-6 h-6 mr-3">🏠</span>Dashboard</a></li>
+                    <li><a href="#" data-view="calendar" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                        <span class="w-6 h-6 mr-3">📅</span>Calendar</a></li> <!-- New Calendar Link -->
                     <li><a href="#" data-view="library" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                         <span class="w-6 h-6 mr-3">📚</span>Library</a></li>
                     <li><a href="#" data-view="ai-learning" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                         <span class="w-6 h-6 mr-3">✨</span>AI Learning</a></li>
                     <li><a href="#" data-view="mind-map" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">🗺️</span>Mind Map</a></li> <!-- New Mind Map Link -->
+                        <span class="w-6 h-6 mr-3">🗺️</span>Mind Map</a></li>
                     <li><a href="#" data-view="glossary" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">📖</span>Glossary</a></li> <!-- New Glossary Link -->
+                        <span class="w-6 h-6 mr-3">📖</span>Glossary</a></li>
                     <li><a href="#" data-view="analytics" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                         <span class="w-6 h-6 mr-3">📊</span>Analytics</a></li>
                     <li><a href="#" data-view="achievements" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">🏅</span>Achievements</a></li> <!-- New Achievements Link -->
+                        <span class="w-6 h-6 mr-3">🏅</span>Achievements</a></li>
                     <li><a href="#" data-view="focus" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                         <span class="w-6 h-6 mr-3">🎧</span>Focus Tools</a></li>
                     <li><a href="#" data-view="learning-hub" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
@@ -77,18 +79,20 @@
                     <ul class="space-y-2">
                         <li><a href="#" data-view="dashboard" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                             <span class="w-6 h-6 mr-3">🏠</span>Dashboard</a></li>
+                        <li><a href="#" data-view="calendar" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                            <span class="w-6 h-6 mr-3">📅</span>Calendar</a></li> <!-- New Mobile Calendar Link -->
                         <li><a href="#" data-view="library" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                             <span class="w-6 h-6 mr-3">📚</span>Library</a></li>
                         <li><a href="#" data-view="ai-learning" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                             <span class="w-6 h-6 mr-3">✨</span>AI Learning</a></li>
                         <li><a href="#" data-view="mind-map" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">🗺️</span>Mind Map</a></li> <!-- New Mobile Mind Map Link -->
+                            <span class="w-6 h-6 mr-3">🗺️</span>Mind Map</a></li>
                         <li><a href="#" data-view="glossary" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">📖</span>Glossary</a></li> <!-- New Mobile Glossary Link -->
+                            <span class="w-6 h-6 mr-3">📖</span>Glossary</a></li>
                         <li><a href="#" data-view="analytics" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                             <span class="w-6 h-6 mr-3">📊</span>Analytics</a></li>
                         <li><a href="#" data-view="achievements" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">🏅</span>Achievements</a></li> <!-- New Mobile Achievements Link -->
+                            <span class="w-6 h-6 mr-3">🏅</span>Achievements</a></li>
                         <li><a href="#" data-view="focus" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
                             <span class="w-6 h-6 mr-3">🎧</span>Focus Tools</a></li>
                         <li><a href="#" data-view="learning-hub" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
@@ -141,6 +145,12 @@
                         <p class="text-3xl font-bold text-primary mt-2" id="total-mastered-atoms">0</p>
                         <p class="text-xs text-secondary mt-1">Knowledge that sticks</p>
                     </div>
+                    <!-- New: Upcoming Events Card -->
+                    <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
+                        <h3 class="text-sm font-medium text-secondary">Upcoming Events (7 Days)</h3>
+                        <p class="text-3xl font-bold text-primary mt-2" id="upcoming-events-count">0</p>
+                        <p class="text-xs text-secondary mt-1">Assignments, exams & more</p>
+                    </div>
                 </div>
                 <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
                     <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3">
@@ -177,6 +187,36 @@
                     </div>
                     <p id="daily-challenge-status" class="text-secondary text-sm mt-2 text-center">0/5 Atoms Reviewed</p>
                     <button id="claim-challenge-btn" class="mt-4 w-full bg-green-600 text-white font-semibold py-2 rounded-lg hover:bg-green-700 transition-all hidden">Claim Reward!</button>
+                </div>
+            </div>
+
+            <!-- Calendar View (New) -->
+            <div id="view-calendar" class="hidden space-y-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-primary">Learning Calendar</h2>
+                    <p class="text-secondary mt-1">Organize your assignments, exams, and study sessions.</p>
+                </div>
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
+                    <div class="flex justify-between items-center mb-4">
+                        <button id="prev-month-btn" class="p-2 rounded-lg hover:bg-border-color text-primary font-semibold">&lt; Prev</button>
+                        <h3 id="current-month-year" class="text-xl font-bold text-primary"></h3>
+                        <button id="next-month-btn" class="p-2 rounded-lg hover:bg-border-color text-primary font-semibold">Next &gt;</button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-px text-center font-semibold text-sm text-secondary mb-2">
+                        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-px calendar-grid-container">
+                        <!-- Calendar days will be rendered here -->
+                    </div>
+                    <button id="add-event-btn" class="mt-6 w-full bg-accent-blue text-white font-semibold py-3 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
+                        + Add New Event
+                    </button>
+                    <div id="selected-day-events" class="mt-8 space-y-3">
+                        <h4 class="text-xl font-bold text-primary mb-3">Events for <span id="selected-day-display">Today</span></h4>
+                        <ul id="events-list-for-day" class="space-y-2">
+                            <li class="text-secondary text-center">No events for this day.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -343,7 +383,7 @@
                 </div>
             </div>
 
-            <!-- Achievements View (New) -->
+            <!-- Achievements View -->
             <div id="view-achievements" class="hidden space-y-6">
                 <div>
                     <h2 class="text-3xl font-bold text-primary">Achievements</h2>
@@ -654,6 +694,48 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Add/Edit Event Modal (New) -->
+            <div id="add-edit-event-modal" class="fixed inset-0 hidden modal z-50">
+                <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-md mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-primary" id="event-modal-title">Add New Event</h3>
+                        <button id="close-event-modal" class="text-secondary text-2xl hover:text-primary">&times;</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="event-title-input" class="block text-primary text-sm font-semibold mb-2">Event Title:</label>
+                            <input type="text" id="event-title-input" class="w-full p-3 border border-border-color rounded-lg text-primary" placeholder="e.g., Math Homework Due">
+                        </div>
+                        <div>
+                            <label for="event-date-input" class="block text-primary text-sm font-semibold mb-2">Date:</label>
+                            <input type="date" id="event-date-input" class="w-full p-3 border border-border-color rounded-lg text-primary">
+                        </div>
+                        <div>
+                            <label for="event-time-input" class="block text-primary text-sm font-semibold mb-2">Time (Optional):</label>
+                            <input type="time" id="event-time-input" class="w-full p-3 border border-border-color rounded-lg text-primary">
+                        </div>
+                        <div>
+                            <label for="event-notes-input" class="block text-primary text-sm font-semibold mb-2">Notes (Optional):</label>
+                            <textarea id="event-notes-input" class="w-full h-24 p-3 border border-border-color rounded-lg text-primary" placeholder="Any extra details..."></textarea>
+                        </div>
+                        <div>
+                            <label for="event-type-select" class="block text-primary text-sm font-semibold mb-2">Type:</label>
+                            <select id="event-type-select" class="w-full p-3 border border-border-color rounded-lg bg-input-bg text-input-text">
+                                <option value="assignment">Assignment</option>
+                                <option value="exam">Exam</option>
+                                <option value="study">Study Session</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-3 mt-6">
+                        <button id="delete-event-btn" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-all hidden">Delete</button>
+                        <button id="save-event-btn" class="bg-accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:bg-accent-blue-hover transition-all">Save Event</button>
+                    </div>
+                </div>
+            </div>
+
 
             <!-- Reflection Modal -->
             <div id="reflection-modal" class="fixed inset-0 hidden modal z-50">
