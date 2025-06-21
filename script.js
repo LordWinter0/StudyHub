@@ -9,12 +9,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileSidebar = document.getElementById('mobile-sidebar');
     const views = {
         dashboard: document.getElementById('view-dashboard'),
+        calendar: document.getElementById('view-calendar'), // New
         library: document.getElementById('view-library'),
         'ai-learning': document.getElementById('view-ai-learning'),
-        'mind-map': document.getElementById('view-mind-map'), // New
-        glossary: document.getElementById('view-glossary'),   // New
+        'mind-map': document.getElementById('view-mind-map'),
+        glossary: document.getElementById('view-glossary'),
         analytics: document.getElementById('view-analytics'),
-        achievements: document.getElementById('view-achievements'), // New
+        achievements: document.getElementById('view-achievements'),
         study: document.getElementById('view-study'),
         focus: document.getElementById('view-focus'),
         'learning-hub': document.getElementById('view-learning-hub'),
@@ -22,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tutorial: document.getElementById('view-tutorial')
     };
     const startReviewBtn = document.getElementById('start-review-btn');
-    const studyWeakAtomsBtn = document.getElementById('study-weak-atoms-btn'); // New
+    const studyWeakAtomsBtn = document.getElementById('study-weak-atoms-btn');
     const showAnswerBtn = document.getElementById('show-answer-btn');
     const flashcardContainer = document.getElementById('flashcard-container');
     const recallButtons = document.querySelectorAll('.recall-btn');
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dailyQueueCount = document.getElementById('daily-queue-count');
     const currentStreak = document.getElementById('current-streak');
     const totalMasteredAtoms = document.getElementById('total-mastered-atoms');
+    const upcomingEventsCount = document.getElementById('upcoming-events-count'); // New
     const recommendedAtomsList = document.getElementById('recommended-atoms-list');
     const dailyChallengeText = document.getElementById('daily-challenge-text');
     const dailyChallengeProgress = document.getElementById('daily-challenge-progress');
@@ -63,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const aiOutputTitle = document.getElementById('ai-output-title');
     const aiOutputContentDisplay = document.getElementById('ai-output-content-display');
 
-    // Mind Map elements (New)
+    // Mind Map elements
     const mindMapCanvas = document.getElementById('mind-map-canvas');
     const mindMapCtx = mindMapCanvas.getContext('2d');
     const mindMapAddNodeBtn = document.getElementById('mind-map-add-node-btn');
@@ -72,18 +74,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const mindMapSaveBtn = document.getElementById('mind-map-save-btn');
     const mindMapLoadSelect = document.getElementById('mind-map-load-select');
 
-    // Glossary elements (New)
+    // Glossary elements
     const glossarySearchInput = document.getElementById('glossary-search-input');
     const glossaryList = document.getElementById('glossary-list');
     const emptyGlossaryMessage = document.getElementById('empty-glossary-message');
 
-    // Achievements elements (New)
+    // Achievements elements
     const achievementsList = document.getElementById('achievements-list');
     const emptyAchievementsMessage = document.getElementById('empty-achievements-message');
 
+    // Calendar elements (New)
+    const currentMonthYearDisplay = document.getElementById('current-month-year');
+    const prevMonthBtn = document.getElementById('prev-month-btn');
+    const nextMonthBtn = document.getElementById('next-month-btn');
+    const calendarGrid = document.getElementById('calendar-grid');
+    const addEventBtn = document.getElementById('add-event-btn');
+    const selectedDayDisplay = document.getElementById('selected-day-display');
+    const eventsListForDay = document.getElementById('events-list-for-day');
+
+    // Add/Edit Event Modal (New)
+    const addEditEventModal = document.getElementById('add-edit-event-modal');
+    const eventModalTitle = document.getElementById('event-modal-title');
+    const closeEventModalBtn = document.getElementById('close-event-modal');
+    const eventTitleInput = document.getElementById('event-title-input');
+    const eventDateInput = document.getElementById('event-date-input');
+    const eventTimeInput = document.getElementById('event-time-input');
+    const eventNotesInput = document.getElementById('event-notes-input');
+    const eventTypeSelect = document.getElementById('event-type-select');
+    const deleteEventBtn = document.getElementById('delete-event-btn');
+    const saveEventBtn = document.getElementById('save-event-btn');
+
     // Notification Toast (Global)
     const notificationToast = document.getElementById('notification-toast');
-    const backupReminder = document.getElementById('backup-reminder'); // New
+    const backupReminder = document.getElementById('backup-reminder');
 
     const emptyLibraryMessage = document.getElementById('empty-library-message');
     const quickAddAtomBtnDashboard = document.getElementById('quick-add-atom-btn-dashboard');
@@ -192,8 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let initialLearningAtoms = [];
     let initialSubjects = [];
     let initialAiMaterials = [];
-    let initialGlossary = []; // New
-    let initialMindMaps = []; // New
+    let initialGlossary = [];
+    let initialMindMaps = [];
+    let initialCalendarEvents = []; // New
 
     // All application data stored in mockData, loaded from localStorage
     let mockData = {
@@ -209,13 +233,17 @@ document.addEventListener('DOMContentLoaded', () => {
             repetitions: a.repetitions || 0
         })),
         aiMaterials: (JSON.parse(localStorage.getItem('auralearn_ai_materials')) || initialAiMaterials),
-        glossary: (JSON.parse(localStorage.getItem('auralearn_glossary')) || initialGlossary), // New
-        mindMaps: (JSON.parse(localStorage.getItem('auralearn_mind_maps')) || initialMindMaps), // New
+        glossary: (JSON.parse(localStorage.getItem('auralearn_glossary')) || initialGlossary),
+        mindMaps: (JSON.parse(localStorage.getItem('auralearn_mind_maps')) || initialMindMaps),
+        calendarEvents: (JSON.parse(localStorage.getItem('auralearn_calendar_events')) || initialCalendarEvents).map(event => ({ // New
+            ...event,
+            date: new Date(event.date) // Convert date strings back to Date objects
+        })),
         soundscapes: [
             { name: 'Rain', icon: '🌧️', file: 'rain.mp3' },
             { name: 'Forest', icon: '🌲', file: 'forest.mp3' },
             { name: 'Cafe', icon: '☕', file: 'cafe.mp3' },
-            { name: 'Waves', icon: '🌊', file: 'waves.mp3' }
+            { name: 'Waves', icon: '�', file: 'waves.mp3' }
         ],
         // Learning Hub Content with LLM-expandable details (will be formatted by AI)
         learningHubContent: {
@@ -303,6 +331,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         highlightElementId: "current-streak"
                     },
                     {
+                        heading: "Upcoming Events", // New
+                        content: "See how many assignments, exams, or study sessions are coming up in the next 7 days from your calendar.",
+                        highlightElementId: "upcoming-events-count"
+                    },
+                    {
                         heading: "Recommended for You",
                         content: "AuraLearn intelligently suggests atoms you might want to review next, helping you prioritize your learning.",
                         highlightElementId: "recommended-atoms-list"
@@ -364,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     {
                         heading: "Assign to Subjects",
-                        content: "Always assign generated content to a subject for better organization, especially for flashcards.",
+                        content: "Always assign generated content to a relevant subject for better organization, especially for flashcards.",
                         highlightElementId: "ai-content-subject-select"
                     }
                 ]
@@ -519,11 +552,16 @@ document.addEventListener('DOMContentLoaded', () => {
             scale: 1, // Future: for zoom
             offsetX: 0, // Future: for pan
             offsetY: 0  // Future: for pan
+        },
+        calendar: { // New calendar state
+            currentDate: new Date(), // Represents the month/year currently displayed
+            selectedDay: null,       // The day clicked on the calendar
+            editingEvent: null       // The event currently being edited (null for new event)
         }
     };
 
     // Gemini API configuration (placeholder - Canvas will provide this at runtime)
-    const apiKey = "AIzaSyBQOxAbJgKw3NCxj3KOoHnVb_ItMTTwXdM";
+    const apiKey = "";
 
     // --- Helper Functions ---
 
@@ -680,6 +718,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * Gets upcoming calendar events for the next 7 days.
+     * @returns {Array<Object>} List of upcoming events.
+     */
+    function getUpcomingEvents() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const sevenDaysLater = new Date(today);
+        sevenDaysLater.setDate(today.getDate() + 7);
+
+        return mockData.calendarEvents.filter(event => {
+            const eventDate = new Date(event.date);
+            eventDate.setHours(0, 0, 0, 0);
+            return eventDate >= today && eventDate <= sevenDaysLater;
+        }).sort((a, b) => a.date.getTime() - b.date.getTime());
+    }
+
+
+    /**
      * Main render function to switch views and update common UI elements.
      */
     function render() {
@@ -699,19 +755,21 @@ document.addEventListener('DOMContentLoaded', () => {
         currentStreak.textContent = `🔥 ${mockData.user.streak} Days`;
         totalMasteredAtoms.textContent = mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length; // Define mastered as 3+ reps and good ease
         dailyQueueCount.textContent = `${getDailyQueue().length} Atoms`;
+        upcomingEventsCount.textContent = getUpcomingEvents().length; // New: Update upcoming events count
 
         // Render content specific to the current view
         if (appState.currentView === 'dashboard') renderDashboard();
+        if (appState.currentView === 'calendar') renderCalendar(); // New
         if (appState.currentView === 'library') renderLibrary();
         if (appState.currentView === 'ai-learning') renderAILearning();
-        if (appState.currentView === 'mind-map') renderMindMap(); // New
-        if (appState.currentView === 'glossary') renderGlossary(); // New
+        if (appState.currentView === 'mind-map') renderMindMap();
+        if (appState.currentView === 'glossary') renderGlossary();
         if (appState.currentView === 'analytics') renderAnalytics();
-        if (appState.currentView === 'achievements') renderAchievements(); // New
+        if (appState.currentView === 'achievements') renderAchievements();
         if (appState.currentView === 'focus') renderFocusTools();
         if (appState.currentView === 'learning-hub') renderLearningHub();
         if (appState.currentView === 'settings') renderSettings();
-        if (appState.currentView === 'tutorial') renderTutorial(); // Render tutorial view
+        if (appState.currentView === 'tutorial') renderTutorial();
     }
 
     /**
@@ -719,7 +777,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function renderDashboard() {
         const dailyQueue = getDailyQueue();
-        const weakAtoms = getWeakAtoms(); // New
+        const weakAtoms = getWeakAtoms();
         const queueList = document.getElementById('daily-queue-list');
         queueList.innerHTML = ''; // Clear previous list items
 
@@ -772,7 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const reviewBtn = li.querySelector('button');
                 reviewBtn.addEventListener('click', () => {
-                    const atomId = parseInt(reviewBtn.dataset.atom-id);
+                    const atomId = parseInt(reviewBtn.dataset.atomId);
                     const selectedAtom = mockData.learningAtoms.find(a => a.id === atomId);
                     if (selectedAtom) {
                         showDetailModal({ title: selectedAtom.question, details: selectedAtom.answer });
@@ -803,7 +861,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         saveUserData();
 
-        // Backup Reminder (New)
+        // Backup Reminder
         const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
         const lastExportDate = mockData.user.lastExportDate ? new Date(mockData.user.lastExportDate) : null;
         if (!lastExportDate || (new Date() - lastExportDate > ONE_WEEK_MS)) {
@@ -812,6 +870,245 @@ document.addEventListener('DOMContentLoaded', () => {
             backupReminder.classList.add('hidden');
         }
     }
+
+    /**
+     * Renders the Calendar view for the current month. (New)
+     */
+    function renderCalendar() {
+        const today = new Date();
+        const currentMonth = appState.calendar.currentDate.getMonth();
+        const currentYear = appState.calendar.currentDate.getFullYear();
+
+        currentMonthYearDisplay.textContent = new Date(currentYear, currentMonth).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+        calendarGrid.innerHTML = '';
+        eventsListForDay.innerHTML = ''; // Clear events list for selected day initially
+
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+        const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+        const daysInMonth = lastDayOfMonth.getDate();
+        const startDayOfWeek = firstDayOfMonth.getDay(); // 0 for Sunday, 6 for Saturday
+
+        let dayCounter = 1;
+
+        // Add empty cells for days before the 1st of the month
+        for (let i = 0; i < startDayOfWeek; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'calendar-day-cell inactive';
+            calendarGrid.appendChild(emptyCell);
+        }
+
+        // Add actual days of the month
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dayCell = document.createElement('div');
+            dayCell.className = 'calendar-day-cell';
+            dayCell.dataset.date = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`; // YYYY-MM-DD
+            dayCell.innerHTML = `<span class="calendar-day-number">${i}</span>`;
+
+            const fullDate = new Date(currentYear, currentMonth, i);
+
+            // Add 'today' class if it's the current day
+            if (fullDate.toDateString() === today.toDateString()) {
+                dayCell.classList.add('today');
+                // Select today by default on calendar load if no specific day is selected
+                if (!appState.calendar.selectedDay || appState.calendar.selectedDay.toDateString() !== fullDate.toDateString()) {
+                    appState.calendar.selectedDay = fullDate;
+                }
+            }
+
+            // Add 'selected-day' class if it's the currently selected day
+            if (appState.calendar.selectedDay && fullDate.toDateString() === appState.calendar.selectedDay.toDateString()) {
+                dayCell.classList.add('selected-day');
+            }
+
+
+            // Add event markers
+            const eventsForThisDay = mockData.calendarEvents.filter(event => {
+                const eventDate = new Date(event.date);
+                return eventDate.toDateString() === fullDate.toDateString();
+            });
+
+            if (eventsForThisDay.length > 0) {
+                eventsForThisDay.slice(0, 3).forEach(event => { // Show up to 3 events directly on the day cell
+                    const eventItem = document.createElement('div');
+                    eventItem.className = `calendar-event-item event-type-${event.type}`;
+                    eventItem.innerHTML = `<span class="calendar-event-marker"></span><span class="calendar-event-title">${event.title}</span>`;
+                    dayCell.appendChild(eventItem);
+                });
+                if (eventsForThisDay.length > 3) {
+                    const moreEvents = document.createElement('div');
+                    moreEvents.className = 'text-xs text-secondary mt-1 ml-4';
+                    moreEvents.textContent = `+${eventsForThisDay.length - 3} more`;
+                    dayCell.appendChild(moreEvents);
+                }
+            }
+
+            dayCell.addEventListener('click', () => {
+                // Remove selected-day from previously selected cell
+                const prevSelected = calendarGrid.querySelector('.calendar-day-cell.selected-day');
+                if (prevSelected) prevSelected.classList.remove('selected-day');
+
+                // Add selected-day to current cell
+                dayCell.classList.add('selected-day');
+                appState.calendar.selectedDay = fullDate;
+                renderEventsForSelectedDay();
+            });
+
+            calendarGrid.appendChild(dayCell);
+        }
+
+        // Add empty cells for days after the last day of the month
+        const endDayOfWeek = lastDayOfMonth.getDay();
+        for (let i = endDayOfWeek + 1; i <= 6; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'calendar-day-cell inactive';
+            calendarGrid.appendChild(emptyCell);
+        }
+
+        // Ensure events for the initially selected day are rendered
+        renderEventsForSelectedDay();
+    }
+
+    /**
+     * Renders events for the currently selected day in the calendar. (New)
+     */
+    function renderEventsForSelectedDay() {
+        if (!appState.calendar.selectedDay) {
+            eventsListForDay.innerHTML = '<li class="text-secondary text-center">Select a day to view events.</li>';
+            selectedDayDisplay.textContent = 'Today';
+            return;
+        }
+
+        const selectedDate = appState.calendar.selectedDay;
+        selectedDayDisplay.textContent = selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+        const events = mockData.calendarEvents.filter(event => {
+            const eventDate = new Date(event.date);
+            return eventDate.toDateString() === selectedDate.toDateString();
+        }).sort((a, b) => {
+            // Sort by time if available, otherwise by title
+            const timeA = a.time ? a.time.split(':').map(Number) : [0, 0];
+            const timeB = b.time ? b.time.split(':').map(Number) : [0, 0];
+            if (timeA[0] !== timeB[0]) return timeA[0] - timeB[0];
+            if (timeA[1] !== timeB[1]) return timeA[1] - timeB[1];
+            return a.title.localeCompare(b.title);
+        });
+
+        eventsListForDay.innerHTML = '';
+        if (events.length === 0) {
+            eventsListForDay.innerHTML = '<li class="text-secondary text-center">No events for this day.</li>';
+        } else {
+            events.forEach(event => {
+                const li = document.createElement('li');
+                li.className = `p-3 rounded-lg border list-item-themed hover:list-item-themed cursor-pointer flex items-center gap-2 event-type-${event.type}`;
+                const eventTime = event.time ? `${event.time}` : '';
+                li.innerHTML = `
+                    <span class="calendar-event-marker"></span>
+                    <div>
+                        <p class="font-semibold text-primary">${event.title}</p>
+                        <p class="text-xs text-secondary">${eventTime} ${event.notes ? ` - ${event.notes}` : ''}</p>
+                    </div>
+                `;
+                li.addEventListener('click', () => showAddEditEventModal(event));
+                eventsListForDay.appendChild(li);
+            });
+        }
+    }
+
+    // Calendar Navigation event listeners (New)
+    prevMonthBtn.addEventListener('click', () => {
+        appState.calendar.currentDate.setMonth(appState.calendar.currentDate.getMonth() - 1);
+        renderCalendar();
+    });
+
+    nextMonthBtn.addEventListener('click', () => {
+        appState.calendar.currentDate.setMonth(appState.calendar.currentDate.getMonth() + 1);
+        renderCalendar();
+    });
+
+    addEventBtn.addEventListener('click', () => showAddEditEventModal(null, appState.calendar.selectedDay)); // Pass selected day to pre-fill date
+
+    // Add/Edit Event Modal Logic (New)
+    function showAddEditEventModal(event = null, dateToPreFill = null) {
+        addEditEventModal.classList.remove('hidden');
+        if (event) {
+            appState.calendar.editingEvent = event;
+            eventModalTitle.textContent = 'Edit Event';
+            eventTitleInput.value = event.title;
+            eventDateInput.value = event.date.toISOString().split('T')[0]; // YYYY-MM-DD
+            eventTimeInput.value = event.time || '';
+            eventNotesInput.value = event.notes || '';
+            eventTypeSelect.value = event.type || 'other';
+            deleteEventBtn.classList.remove('hidden');
+        } else {
+            appState.calendar.editingEvent = null;
+            eventModalTitle.textContent = 'Add New Event';
+            eventTitleInput.value = '';
+            eventDateInput.value = dateToPreFill ? dateToPreFill.toISOString().split('T')[0] : '';
+            eventTimeInput.value = '';
+            eventNotesInput.value = '';
+            eventTypeSelect.value = 'assignment'; // Default type
+            deleteEventBtn.classList.add('hidden');
+        }
+    }
+
+    closeEventModalBtn.addEventListener('click', () => {
+        addEditEventModal.classList.add('hidden');
+        appState.calendar.editingEvent = null; // Clear editing state
+    });
+
+    saveEventBtn.addEventListener('click', () => {
+        const title = eventTitleInput.value.trim();
+        const dateString = eventDateInput.value;
+        const time = eventTimeInput.value.trim();
+        const notes = eventNotesInput.value.trim();
+        const type = eventTypeSelect.value;
+
+        if (!title || !dateString) {
+            showNotification('Event title and date are required.', true);
+            return;
+        }
+
+        const eventDate = new Date(dateString);
+        if (isNaN(eventDate.getTime())) {
+            showNotification('Invalid date selected.', true);
+            return;
+        }
+
+        if (appState.calendar.editingEvent) {
+            // Update existing event
+            appState.calendar.editingEvent.title = title;
+            appState.calendar.editingEvent.date = eventDate;
+            appState.calendar.editingEvent.time = time;
+            appState.calendar.editingEvent.notes = notes;
+            appState.calendar.editingEvent.type = type;
+            showNotification('Event updated successfully!');
+        } else {
+            // Add new event
+            const newEvent = {
+                id: mockData.calendarEvents.length > 0 ? Math.max(...mockData.calendarEvents.map(e => e.id)) + 1 : 1,
+                title: title,
+                date: eventDate,
+                time: time,
+                notes: notes,
+                type: type
+            };
+            mockData.calendarEvents.push(newEvent);
+            showNotification('Event added successfully!');
+        }
+        saveUserData();
+        addEditEventModal.classList.add('hidden');
+        render(); // Re-render to update calendar and dashboard counts
+    });
+
+    deleteEventBtn.addEventListener('click', () => {
+        if (appState.calendar.editingEvent && confirm('Are you sure you want to delete this event?')) {
+            mockData.calendarEvents = mockData.calendarEvents.filter(event => event.id !== appState.calendar.editingEvent.id);
+            saveUserData();
+            showNotification('Event deleted successfully!');
+            addEditEventModal.classList.add('hidden');
+            render(); // Re-render to update calendar and dashboard counts
+        }
+    });
 
     /**
      * Renders content for the Library view.
@@ -1191,7 +1488,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const subjectObj = mockData.subjects.find(s => s.id === subjectId);
                         generatedContent.forEach(atomData => {
                             const newAtom = {
-                                id: mockData.learningAtoms.length + 1,
+                                id: mockData.learningAtoms.length > 0 ? Math.max(...mockData.learningAtoms.map(a => a.id)) + 1 : 1, // Ensure unique ID
                                 subjectId: subjectId,
                                 question: atomData.question,
                                 answer: atomData.answer,
@@ -1228,7 +1525,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Save material for all types except notes-flashcards (handled above)
                     if (type !== 'notes-flashcards') {
                         const newMaterial = {
-                            id: mockData.aiMaterials.length + 1,
+                            id: mockData.aiMaterials.length > 0 ? Math.max(...mockData.aiMaterials.map(m => m.id)) + 1 : 1, // Ensure unique ID
                             type: type,
                             title: savedContentTitle,
                             content: generatedContent,
@@ -1351,12 +1648,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Placeholder for real study activity data
         const activityData = Array(7).fill(0); // [Mon, Tue, ..., Sun]
-        const today = new Date().toISOString().split('T')[0];
+        const todayStr = new Date().toISOString().split('T')[0];
         if (mockData.user.dailyStudyLogs) {
             mockData.user.dailyStudyLogs.forEach(log => {
                 // Check if the log date is within the last 7 days from today
                 const logDate = new Date(log.date);
-                const diffTime = Math.abs(today - logDate.getTime());
+                const diffTime = Math.abs(new Date(todayStr) - logDate.getTime());
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
                 if (diffDays <= 7) {
@@ -1487,7 +1784,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Renders content for the Achievements view. (New)
+     * Renders content for the Achievements view.
      */
     function renderAchievements() {
         achievementsList.innerHTML = '';
@@ -1943,8 +2240,8 @@ document.addEventListener('DOMContentLoaded', () => {
         mockData.user.focusedSubjects = subjects.split(',').map(s => s.trim()).filter(s => s);
         mockData.user.dailyStudyLogs = []; // Initialize daily study logs
         mockData.user.monthlyMasteryLogs = []; // Initialize monthly mastery logs
-        mockData.user.lastChallengeClaimDate = null; // New
-        mockData.user.dailyChallengeCount = 0; // New
+        mockData.user.lastChallengeClaimDate = null;
+        mockData.user.dailyChallengeCount = 0;
 
         localStorage.setItem('auralearn_onboardingCompleted', 'true');
         appState.onboardingCompleted = true;
@@ -2076,7 +2373,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const newAtom = {
-            id: mockData.learningAtoms.length + 1,
+            id: mockData.learningAtoms.length > 0 ? Math.max(...mockData.learningAtoms.map(a => a.id)) + 1 : 1, // Ensure unique ID
             subjectId: subjectId,
             question: question,
             answer: answer,
@@ -2124,7 +2421,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const newGoal = {
-            id: `goal-${mockData.user.learningGoals.length + 1}`,
+            id: `goal-${mockData.user.learningGoals.length > 0 ? Math.max(...mockData.user.learningGoals.map(g => parseInt(g.id.split('-')[1]))) + 1 : 1}`, // Ensure unique ID
             name: name,
             targetType: targetType,
             targetValue: targetValue,
@@ -2232,7 +2529,7 @@ document.addEventListener('DOMContentLoaded', () => {
             foundResults = foundResults.concat(learningHubMatches);
         }
 
-        // Search in Glossary (New)
+        // Search in Glossary
         const filteredGlossary = mockData.glossary.filter(g =>
             g.keyword.toLowerCase().includes(query) ||
             g.definition.toLowerCase().includes(query)
@@ -2244,7 +2541,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Search in Mind Maps (New)
+        // Search in Mind Maps
         const filteredMindMaps = mockData.mindMaps.filter(m =>
             m.name.toLowerCase().includes(query) ||
             m.nodes.some(node => node.text.toLowerCase().includes(query))
@@ -2253,6 +2550,19 @@ document.addEventListener('DOMContentLoaded', () => {
             foundResults.push({ type: "heading", content: "Mind Maps" });
             filteredMindMaps.forEach(map => {
                 foundResults.push({ type: "mind-map-item", title: map.name, subtitle: `Nodes: ${map.nodes.length}`, mapData: map });
+            });
+        }
+
+        // Search in Calendar Events (New)
+        const filteredCalendarEvents = mockData.calendarEvents.filter(e =>
+            e.title.toLowerCase().includes(query) ||
+            (e.notes && e.notes.toLowerCase().includes(query)) ||
+            e.type.toLowerCase().includes(query)
+        );
+        if (filteredCalendarEvents.length > 0) {
+            foundResults.push({ type: "heading", content: "Calendar Events" });
+            filteredCalendarEvents.forEach(event => {
+                foundResults.push({ type: "calendar-event", title: event.title, subtitle: `Date: ${event.date.toLocaleDateString()} (${event.type})`, eventData: event });
             });
         }
 
@@ -2293,6 +2603,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             // Load the specific mind map
                             setTimeout(() => loadMindMap(result.mapData.id), 100);
                             unlockAchievement('first-mind-map');
+                        } else if (result.type === "calendar-event") { // New
+                            navigate('calendar');
+                            setTimeout(() => {
+                                appState.calendar.currentDate = new Date(result.eventData.date);
+                                appState.calendar.selectedDay = new Date(result.eventData.date);
+                                renderCalendar();
+                                showAddEditEventModal(result.eventData); // Open event modal for editing
+                            }, 100);
                         }
                     });
                 }
@@ -2450,6 +2768,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (appState.currentView === 'mind-map') {
             drawMindMap();
         }
+        // Re-render calendar on theme change to update colors
+        if (appState.currentView === 'calendar') {
+            renderCalendar();
+        }
     }
 
     // --- Data Export/Import ---
@@ -2495,7 +2817,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Basic validation for imported data structure
                 if (importedData.user && importedData.learningAtoms && importedData.subjects && importedData.aiMaterials) {
-                    // Convert date strings back to Date objects
+                    // Convert date strings back to Date objects for atoms
                     importedData.learningAtoms = importedData.learningAtoms.map(a => ({
                         ...a,
                         lastReviewed: new Date(a.lastReviewed),
@@ -2511,13 +2833,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!importedData.user.srsFactors) importedData.user.srsFactors = initialUserData.srsFactors;
                     if (!importedData.user.dailyStudyLogs) importedData.user.dailyStudyLogs = [];
                     if (!importedData.user.monthlyMasteryLogs) importedData.user.monthlyMasteryLogs = [];
-                    if (!importedData.user.achievements) importedData.user.achievements = []; // New
-                    if (!importedData.user.lastExportDate) importedData.user.lastExportDate = null; // New
-                    if (!importedData.user.dailyChallengeCount) importedData.user.dailyChallengeCount = 0; // New
-                    if (!importedData.user.lastChallengeClaimDate) importedData.user.lastChallengeClaimDate = null; // New
+                    if (!importedData.user.achievements) importedData.user.achievements = [];
+                    if (!importedData.user.lastExportDate) importedData.user.lastExportDate = null;
+                    if (!importedData.user.dailyChallengeCount) importedData.user.dailyChallengeCount = 0;
+                    if (!importedData.user.lastChallengeClaimDate) importedData.user.lastChallengeClaimDate = null;
 
-                    if (!importedData.glossary) importedData.glossary = []; // New
-                    if (!importedData.mindMaps) importedData.mindMaps = []; // New
+                    if (!importedData.glossary) importedData.glossary = [];
+                    if (!importedData.mindMaps) importedData.mindMaps = [];
+                    if (!importedData.calendarEvents) importedData.calendarEvents = []; // New: Initialize if missing
+                    else { // New: Convert calendar event dates back to Date objects
+                        importedData.calendarEvents = importedData.calendarEvents.map(event => ({
+                            ...event,
+                            date: new Date(event.date)
+                        }));
+                    }
 
 
                     mockData = importedData;
@@ -2772,7 +3101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tutorialPrevBtn.addEventListener('click', goToPrevTutorialStep);
     tutorialFinishBtn.addEventListener('click', endTutorial);
 
-    // --- Mind Map Logic (New) ---
+    // --- Mind Map Logic ---
     let mindMapNodes = appState.mindMap.nodes;
     let mindMapConnections = appState.mindMap.connections;
     let selectedNode = null;
@@ -2865,6 +3194,7 @@ document.addEventListener('DOMContentLoaded', () => {
             appState.mindMap.connections = [];
             drawMindMap();
             showNotification('Mind map cleared.');
+            saveUserData(); // Save the cleared state
         }
     });
 
@@ -3012,7 +3342,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Glossary Logic (New) ---
+    // --- Glossary Logic ---
     function renderGlossary() {
         glossaryList.innerHTML = '';
         const searchTerm = glossarySearchInput.value.toLowerCase().trim();
@@ -3041,7 +3371,7 @@ document.addEventListener('DOMContentLoaded', () => {
     glossarySearchInput.addEventListener('input', renderGlossary);
 
 
-    // --- Achievements Logic (New) ---
+    // --- Achievements Logic ---
     function checkAchievements() {
         const masteredAtomsCount = mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length;
         const totalAtomsAdded = mockData.learningAtoms.length;
@@ -3116,8 +3446,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }))));
             localStorage.setItem('auralearn_subjects', JSON.stringify(mockData.subjects));
             localStorage.setItem('auralearn_ai_materials', JSON.stringify(mockData.aiMaterials));
-            localStorage.setItem('auralearn_glossary', JSON.stringify(mockData.glossary)); // New
-            localStorage.setItem('auralearn_mind_maps', JSON.stringify(mockData.mindMaps)); // New
+            localStorage.setItem('auralearn_glossary', JSON.stringify(mockData.glossary));
+            localStorage.setItem('auralearn_mind_maps', JSON.stringify(mockData.mindMaps));
+            localStorage.setItem('auralearn_calendar_events', JSON.stringify(mockData.calendarEvents.map(event => ({ // New
+                ...event,
+                date: event.date.toISOString() // Convert Date to ISO string for storage
+            }))));
             // No need to save mockData.soundscapes or mockData.learningHubContent as they are static
         } catch (e) {
             console.error("Error saving to localStorage:", e);
@@ -3144,29 +3478,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!mockData.user.monthlyMasteryLogs) {
         mockData.user.monthlyMasteryLogs = [];
     }
-    if (!mockData.user.achievements) { // New
+    if (!mockData.user.achievements) {
         mockData.user.achievements = [];
     }
-    if (!mockData.user.lastExportDate) { // New
+    if (!mockData.user.lastExportDate) {
         mockData.user.lastExportDate = null;
     }
-    if (!mockData.user.dailyChallengeCount) { // New
+    if (!mockData.user.dailyChallengeCount) {
         mockData.user.dailyChallengeCount = 0;
     }
-    if (!mockData.user.lastChallengeClaimDate) { // New
+    if (!mockData.user.lastChallengeClaimDate) {
         mockData.user.lastChallengeClaimDate = null;
     }
 
     // Check and update monthly mastery logs
-    const today = new Date();
-    const currentMonthYear = `${today.getFullYear()}-${today.getMonth() + 1}`;
-    const lastMonthLog = mockData.user.monthlyMasteryLogs[mockData.user.monthlyMasteryLogs.length - 1];
+    const todayInit = new Date();
+    const currentMonthYearInit = `${todayInit.getFullYear()}-${todayInit.getMonth() + 1}`;
+    const lastMonthLogInit = mockData.user.monthlyMasteryLogs[mockData.user.monthlyMasteryLogs.length - 1];
 
-    if (!lastMonthLog || lastMonthLog.monthYear !== currentMonthYear) {
+    if (!lastMonthLogInit || lastMonthLogInit.monthYear !== currentMonthYearInit) {
         // If it's a new month or no logs, add a new entry
         mockData.user.monthlyMasteryLogs.push({
-            date: today.toISOString().split('T')[0],
-            monthYear: currentMonthYear,
+            date: todayInit.toISOString().split('T')[0],
+            monthYear: currentMonthYearInit,
             masteredAtoms: mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length
         });
         // Keep only last 7 months (6 prior + current)
@@ -3176,12 +3510,14 @@ document.addEventListener('DOMContentLoaded', () => {
         saveUserData();
     } else {
         // Update current month's log (e.g., if mastered atoms changed during the month)
-        lastMonthLog.masteredAtoms = mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length;
+        lastMonthLogInit.masteredAtoms = mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length;
     }
 
     // Initialize mockData for new sections if they are empty
     if (!mockData.glossary) mockData.glossary = [];
     if (!mockData.mindMaps) mockData.mindMaps = [];
+    if (!mockData.calendarEvents) mockData.calendarEvents = [];
+
 
     if (!appState.onboardingCompleted) {
         // Reset to initial defaults if onboarding hasn't been completed before
@@ -3189,8 +3525,9 @@ document.addEventListener('DOMContentLoaded', () => {
         mockData.learningAtoms = [];
         mockData.subjects = [];
         mockData.aiMaterials = [];
-        mockData.glossary = []; // Ensure new properties are reset too
-        mockData.mindMaps = []; // Ensure new properties are reset too
+        mockData.glossary = [];
+        mockData.mindMaps = [];
+        mockData.calendarEvents = []; // Ensure calendar events are reset too
         saveUserData();
         showOnboarding();
     } else {
