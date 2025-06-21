@@ -361,7 +361,7 @@
             width: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* This is crucial to prevent the main window scrollbar */
+            overflow: visible; /* This is crucial to prevent the main window scrollbar */
         }
 
         #app-container {
