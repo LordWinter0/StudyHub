@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailContentText = document.getElementById('detail-content-text');
     const detailLoading = document.getElementById('detail-loading');
     const subjectDetailModal = document.getElementById('subject-detail-modal');
-    const closeSubjectDetailModalBtn = document = document.getElementById('close-subject-detail-modal');
+    const closeSubjectDetailModalBtn = document.getElementById('close-subject-detail-modal');
     const subjectDetailTitle = document.getElementById('subject-detail-title');
     const subjectFlashcardsList = document.getElementById('subject-atoms-list'); // Renamed
     const reflectionModal = document.getElementById('reflection-modal');
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const quizQuestionContainer = document.getElementById('quiz-question-container');
     const quizQuestionText = document.getElementById('quiz-question-text');
     const quizOptions = document.getElementById('quiz-options');
-    const quizSubmitAnswerBtn = document = document.getElementById('quiz-submit-answer-btn');
+    const quizSubmitAnswerBtn = document.getElementById('quiz-submit-answer-btn'); // Corrected assignment
     const quizFeedback = document.getElementById('quiz-feedback');
     const quizResultsContainer = document.getElementById('quiz-results-container');
     const quizScoreDisplay = document.getElementById('quiz-score-display');
@@ -197,6 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const tutorialPrevBtn = document.getElementById('tutorial-prev-btn');
     const tutorialNextBtn = document.getElementById('tutorial-next-btn');
     const tutorialFinishBtn = document.getElementById('tutorial-finish-btn');
+
+    // Reference to quiz settings container (needed for showing/hiding)
+    const quizSettingsContainer = document.getElementById('quiz-settings-container');
 
 
     // --- Global State & Data ---
@@ -510,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <li><strong>Measurable:</strong> Ensure your goal can be tracked. AuraLearn helps with this by tracking mastered flashcards and study time.</li>
                         <li><strong>Achievable:</strong> Set realistic goals that challenge you but are not impossible.</li>
                         <li><strong>Relevant:</strong> Your goals should align with your broader academic or personal development objectives.</li>
-                        <li><strong>Time-bound:</strong> Give your goal a clear end date. This creates urgency.</li>
+                        <li><strong>Time-bound:</b> Give your goal a clear end date. This creates urgency.</li>
                     </ul>
                     <h3>How to Set Goals in AuraLearn</h3>
                     <ul>
@@ -637,6 +640,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * Helper to format a Date object into 'YYYY-MM-DD' for input[type="date"]
+     * using local date components.
+     * @param {Date} date - The date object.
+     * @returns {string} Formatted date string or empty string if date is null/invalid.
+     */
+    function formatDateForInput(date) {
+        if (!date) return '';
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+
+    /**
      * Saves all mockData to localStorage.
      */
     function saveUserData() {
@@ -656,6 +674,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 mindMaps: mockData.mindMaps,
                 calendarEvents: mockData.calendarEvents.map(event => ({
                     ...event,
+                    // Store date as ISO string (UTC) but ensure it was correctly created as local date.
+                    // The crucial part is that `event.date` itself holds the correct local date values.
                     date: event.date instanceof Date ? event.date.toISOString() : event.date
                 }))
             };
@@ -847,8 +867,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (totalMasteredFlashcards) totalMasteredFlashcards.textContent = `${mockData.user.totalMastered} Flashcard${mockData.user.totalMastered !== 1 ? 's' : ''}`;
         if (upcomingEventsCount) {
             const today = new Date();
+            today.setHours(0,0,0,0); // Normalize today to start of day
             const sevenDaysLater = new Date();
             sevenDaysLater.setDate(today.getDate() + 7);
+            sevenDaysLater.setHours(23,59,59,999); // Normalize to end of day
+
             const upcomingEvents = mockData.calendarEvents.filter(event =>
                 event.date >= today && event.date <= sevenDaysLater
             ).length;
@@ -1001,6 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         appState.studySession.flashcardsReviewedInSession++;
+        updateDailyStudyLog(); // Update daily study log with reviewed flashcards
         saveUserData(); // Save the updated flashcard data immediately
 
         appState.studySession.currentIndex++;
@@ -1044,6 +1068,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadView('dashboard'); // Go back to dashboard if no cards were reviewed
         }
         appState.studySession.flashcardsReviewedInSession = 0; // Reset for next session
+        updateMonthlyMasteryLog(); // Update monthly log at end of session
     }
 
     /**
@@ -1388,6 +1413,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let day = 1; day <= daysInMonth; day++) {
             const cell = document.createElement('div');
             const currentDayDate = new Date(year, month, day);
+            currentDayDate.setHours(0,0,0,0); // Normalize to start of local day for consistent comparison
             cell.className = 'calendar-day-cell relative'; // Added relative for absolute positioning of number
 
             const today = new Date();
@@ -1418,7 +1444,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             eventsOnThisDay.forEach(event => {
                 const eventItem = document.createElement('div');
-                eventItem.className = `calendar-event-item event-type-${event.type} absolute left-0 right-0 bottom-1 flex items-center justify-center pointer-events-none`;
+                // Positioning for event marker: ensure it's not overlapping day number
+                eventItem.className = `calendar-event-item event-type-${event.type} absolute left-1/2 -translate-x-1/2 bottom-1 flex items-center justify-center pointer-events-none`;
                 eventItem.innerHTML = `
                     <span class="calendar-event-marker"></span>
                 `;
@@ -1427,9 +1454,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
             cell.addEventListener('click', () => {
-                appState.calendar.selectedDay = currentDayDate;
+                // When a cell is clicked, set selectedDay to the LOCAL start of that day
+                const clickedDate = new Date(year, month, day);
+                clickedDate.setHours(0,0,0,0); // Ensure local midnight
+                appState.calendar.selectedDay = clickedDate;
                 renderCalendar(appState.calendar.currentDate); // Re-render to update selected day highlight
-                renderEventsForSelectedDay(currentDayDate);
+                renderEventsForSelectedDay(clickedDate);
             });
 
             calendarGrid.appendChild(cell);
@@ -1481,7 +1511,7 @@ document.addEventListener('DOMContentLoaded', () => {
             eventsListForDay.querySelectorAll('.edit-event-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
                     const eventId = e.currentTarget.dataset.id;
-                    editEvent(eventId);
+                    openEventModal(eventId); // Changed to openEventModal
                 });
             });
         }
@@ -1495,7 +1525,8 @@ document.addEventListener('DOMContentLoaded', () => {
         appState.calendar.editingEvent = null; // Clear previous editing state
         eventModalTitle.textContent = "Add New Event";
         eventTitleInput.value = '';
-        eventDateInput.value = appState.calendar.selectedDay ? appState.calendar.selectedDay.toISOString().split('T')[0] : '';
+        // Use formatDateForInput to ensure local date is displayed
+        eventDateInput.value = appState.calendar.selectedDay ? formatDateForInput(appState.calendar.selectedDay) : '';
         eventTimeInput.value = '';
         eventNotesInput.value = '';
         eventTypeSelect.value = 'assignment';
@@ -1507,7 +1538,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 appState.calendar.editingEvent = eventToEdit;
                 eventModalTitle.textContent = "Edit Event";
                 eventTitleInput.value = eventToEdit.title;
-                eventDateInput.value = eventToEdit.date.toISOString().split('T')[0];
+                // Use formatDateForInput for existing event's date
+                eventDateInput.value = eventToEdit.date ? formatDateForInput(eventToEdit.date) : '';
                 eventTimeInput.value = eventToEdit.time || '';
                 eventNotesInput.value = eventToEdit.notes || '';
                 eventTypeSelect.value = eventToEdit.type;
@@ -1522,24 +1554,28 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function saveEvent() {
         const title = eventTitleInput.value.trim();
-        const date = eventDateInput.value;
+        const dateString = eventDateInput.value; // YYYY-MM-DD from input
         const time = eventTimeInput.value;
         const notes = eventNotesInput.value.trim();
         const type = eventTypeSelect.value;
 
-        if (!title || !date) {
+        if (!title || !dateString) {
             showNotification("Please enter event title and date.", true);
             return;
         }
 
-        const eventDate = new Date(date);
-        // If time is provided, set it. Otherwise, event is all-day for scheduling purposes
+        // Construct Date object using local date components to avoid timezone issues
+        const [year, month, day] = dateString.split('-').map(Number);
+        const eventDate = new Date(year, month - 1, day); // month is 0-indexed
+
+        // If time is provided, set it. Otherwise, event is all-day (local midnight)
         if (time) {
             const [hours, minutes] = time.split(':').map(Number);
             eventDate.setHours(hours, minutes);
         } else {
-            eventDate.setHours(0, 0, 0, 0); // Normalize to start of day for consistency if no time
+            eventDate.setHours(0, 0, 0, 0); // Ensure it's at local midnight if no time specified
         }
+
 
         if (appState.calendar.editingEvent) {
             // Update existing event
@@ -1806,7 +1842,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 }))
                             };
                             startQuizSession(appState.currentQuiz);
-                            hideModal(quizModal); // Hide previous modal if any
+                            // No need to hide quiz modal here, startQuizSession will show it
                             aiGeneratedOutput.classList.add('hidden'); // Ensure AI output section is hidden
                             aiGenerationStatus.classList.add('hidden'); // Hide loading status
                             return; // Exit as quiz handled separately
@@ -1900,7 +1936,7 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedAnswer: null,
             answers: [] // Stores user's answer, correct answer, and question for review
         };
-        quizModal.classList.remove('hidden');
+        quizModal.classList.remove('hidden'); // Ensure quiz modal is shown
         quizResultsContainer.classList.add('hidden');
         quizReviewDetailContainer.classList.add('hidden');
         quizQuestionContainer.classList.remove('hidden');
@@ -2104,8 +2140,11 @@ document.addEventListener('DOMContentLoaded', () => {
             li.className = 'list-item-themed p-3 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center';
 
             const now = new Date();
+            now.setHours(0,0,0,0); // Normalize 'now' to local midnight
             const endDate = new Date(goal.endDate);
-            const timeLeft = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24)); // Days left
+            endDate.setHours(0,0,0,0); // Normalize goal end date to local midnight
+
+            const timeLeft = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)); // Days left
 
             let progressText = '';
             let progressRatio = 0;
@@ -2134,7 +2173,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="flex-1">
                     <p class="font-semibold text-primary text-lg">${goal.name}</p>
                     <p class="text-sm text-secondary">${progressText}</p>
-                    <p class="text-xs text-secondary">End Date: ${endDate.toLocaleDateString()}</p>
+                    <p class="text-xs text-secondary">End Date: ${new Date(goal.endDate).toLocaleDateString()}</p>
                 </div>
                 <div class="flex items-center gap-2 mt-2 sm:mt-0">
                     ${statusBadge}
@@ -2343,17 +2382,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function playPomodoroChime() {
         // Use Tone.js for sound generation instead of external files
         try {
-            if (!Tone.context.rawContext) {
-                 Tone.start(); // Start Tone.js context if not already started
+            // Tone.js context needs to be started by a user gesture.
+            // A common pattern is to start it on the first user interaction.
+            // For example, in a button click handler for playing sound, or a general document click.
+            // Since this function is called inside pomodoro, it likely won't have direct user gesture.
+            // If Tone.js isn't already started, the rawContext might be null.
+            if (!Tone.context || Tone.context.state !== 'running') {
+                // Attempt to start context if not running.
+                // This might not work in all environments without a direct user gesture.
+                Tone.start().then(() => {
+                    const synth = new Tone.Synth().toDestination();
+                    synth.triggerAttackRelease("C4", "8n");
+                }).catch(e => console.warn("Tone.js start failed on chime:", e));
+            } else {
+                const synth = new Tone.Synth().toDestination();
+                synth.triggerAttackRelease("C4", "8n");
             }
-            const synth = new Tone.Synth().toDestination();
-            synth.triggerAttackRelease("C4", "8n"); // Simple C4 note for an 8th note duration
         } catch (error) {
             console.error("Error playing sound with Tone.js:", error);
-            // Fallback: If Tone.js fails for some reason, could use a simple Audio object
-            // This fallback is only if Tone.js completely fails, not for general use.
-            // const audio = new Audio('path/to/chime.mp3'); // Requires an actual sound file
-            // audio.play();
         }
     }
 
@@ -3222,7 +3268,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 mockData.flashcards = (importedData.flashcards || []).map(f => ({
                     ...f,
                     lastReviewed: f.lastReviewed ? new Date(f.lastReviewed) : null,
-                    nextReview: f.nextReview ? new Date(f.nextReview) : null
+                    nextReview: f.nextReview ? new Date(f.nextReviewed) : null // Fixed potential typo: nextReviewed instead of nextReview
                 }));
                 mockData.aiMaterials = importedData.aiMaterials || [];
                 mockData.glossary = importedData.glossary || [];
@@ -3416,18 +3462,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateDailyStudyLog() {
         const today = new Date();
         const todayDateString = today.toISOString().split('T')[0];
-        const lastLog = mockData.user.dailyStudyLogs[mockData.user.dailyStudyLogs.length - 1];
+        // Find existing log for today or create new one
+        let currentDayLog = mockData.user.dailyStudyLogs.find(log => log.date === todayDateString);
 
-        if (!lastLog || lastLog.date !== todayDateString) {
-            mockData.user.dailyStudyLogs.push({
-                date: todayDateString,
-                flashcardsReviewed: appState.studySession.flashcardsReviewedInSession || 0
-            });
-        } else {
-            lastLog.flashcardsReviewed = (lastLog.flashcardsReviewed || 0) + (appState.studySession.flashcardsReviewedInSession || 0);
+        if (!currentDayLog) {
+            currentDayLog = { date: todayDateString, flashcardsReviewed: 0 };
+            mockData.user.dailyStudyLogs.push(currentDayLog);
         }
+        currentDayLog.flashcardsReviewed = (currentDayLog.flashcardsReviewed || 0) + (appState.studySession.flashcardsReviewedInSession || 0);
 
-        // Keep only last 7 days of logs
+
+        // Keep only last 7 days of logs (sort by date before slicing to ensure correct 7 days)
+        mockData.user.dailyStudyLogs.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
         if (mockData.user.dailyStudyLogs.length > 7) {
             mockData.user.dailyStudyLogs = mockData.user.dailyStudyLogs.slice(-7);
         }
