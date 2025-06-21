@@ -1,720 +1,831 @@
-/* Base styles using Inter font */
-        body { font-family: 'Inter', sans-serif; }
+/* ===== START: NEW LAYOUT CODE ===== */
 
-        /* Theme Variables - Default Light */
-        .theme-light {
-            --bg-primary: #f8fafc; /* Slate 50 */
-            --bg-secondary: #ffffff; /* White */
-            --text-primary: #0f172a; /* Slate 900 */
-            --text-secondary: #64748b; /* Slate 500 */
-            --border-color: #e2e8f0; /* Slate 200 */
-            --accent-blue: #2563eb; /* Blue 600 */
-            --accent-blue-hover: #1d4ed8; /* Blue 700 */
-            --nav-active-bg: #e2e8f0; /* Slate 200 */
-            --nav-active-text: #0f172a; /* Slate 900 */
-            --card-front-bg: #ffffff;
-            --card-back-bg: #ffffff;
-            --input-bg: #ffffff;
-            --input-text: #0f172a;
-            --placeholder-text: #94a3b8; /* Slate 400 */
-            --notification-bg: #e0f2f7; /* Cyan 50 */
-            --notification-text: #0e7490; /* Cyan 700 */
-            --notification-error-bg: #fee2e2; /* Red 100 */
-            --notification-error-text: #dc2626; /* Red 600 */
-            --button-primary-bg: #2563eb;
-            --button-primary-text: #ffffff;
-            --button-primary-hover-bg: #1d4ed8;
-            --text-green: #22c55e; /* Green 500 */
-            --text-orange: #f97316; /* Orange 500 */
-            --connection-color: #64748b; /* Slate 500 for mind map connections */
-            --node-bg: #cbd5e1; /* Slate 300 for mind map nodes */
-            --node-border: #94a3b8; /* Slate 400 */
-            --node-selected-border: #2563eb; /* Accent blue */
-            --node-text: #0f172a; /* Slate 900 */
-            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
-            --modal-bg: #ffffff;
-            --pomodoro-bg: #dbeafe; /* Light Blue 100 */
-        }
+/* Lock the viewport to prevent the main browser scrollbar */
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
 
-        /* Dark Theme */
-        .theme-dark {
-            --bg-primary: #1e293b; /* Slate 800 */
-            --bg-secondary: #334155; /* Slate 700 */
-            --text-primary: #f8fafc; /* Slate 50 */
-            --text-secondary: #94a3b8; /* Slate 400 */
-            --border-color: #475569; /* Slate 600 */
-            --accent-blue: #60a5fa; /* Blue 400 */
-            --accent-blue-hover: #3b82f6; /* Blue 500 */
-            --nav-active-bg: #475569; /* Slate 600 */
-            --nav-active-text: #f8fafc; /* Slate 50 */
-            --card-front-bg: #334155;
-            --card-back-bg: #334155;
-            --input-bg: #334155;
-            --input-text: #f8fafc;
-            --placeholder-text: #64748b;
-            --notification-bg: #0f172a; /* Slate 900 */
-            --notification-text: #60a5fa; /* Blue 400 */
-            --notification-error-bg: #dc2626; /* Red 600 */
-            --notification-error-text: #f8fafc; /* Slate 50 */
-            --button-primary-bg: #60a5fa;
-            --button-primary-text: #1e293b;
-            --button-primary-hover-bg: #3b82f6;
-            --text-green: #4ade80; /* Green 400 */
-            --text-orange: #fb923c; /* Orange 400 */
-            --connection-color: #94a3b8;
-            --node-bg: #475569;
-            --node-border: #64748b;
-            --node-selected-border: #60a5fa;
-            --node-text: #f8fafc;
-            --modal-overlay-bg: rgba(0, 0, 0, 0.7);
-            --modal-bg: #334155;
-            --pomodoro-bg: #1f2937; /* Gray 800 */
-        }
+/* Make the body a theme-aware background */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
 
-        /* Vibrant Theme */
-        .theme-vibrant {
-            --bg-primary: #ecfeff; /* Cyan 50 */
-            --bg-secondary: #ffffff; /* White */
-            --text-primary: #083344; /* Cyan 950 */
-            --text-secondary: #0e7490; /* Cyan 700 */
-            --border-color: #a5f3fc; /* Cyan 200 */
-            --accent-blue: #06b6d4; /* Cyan 500 */
-            --accent-blue-hover: #0891b2; /* Cyan 600 */
-            --nav-active-bg: #a5f3fc; /* Cyan 200 */
-            --nav-active-text: #083344; /* Cyan 950 */
-            --card-front-bg: #ffffff;
-            --card-back-bg: #ffffff;
-            --input-bg: #ffffff;
-            --input-text: #083344;
-            --placeholder-text: #22d3ee; /* Cyan 400 */
-            --notification-bg: #cffafe; /* Cyan 100 */
-            --notification-text: #0e7490; /* Cyan 700 */
-            --notification-error-bg: #fecaca; /* Red 200 */
-            --notification-error-text: #ef4444; /* Red 500 */
-            --button-primary-bg: #06b6d4;
-            --button-primary-text: #ffffff;
-            --button-primary-hover-bg: #0891b2;
-            --text-green: #10b981; /* Emerald 500 */
-            --text-orange: #f59e0b; /* Amber 500 */
-            --connection-color: #0e7490;
-            --node-bg: #67e8f9; /* Cyan 400 */
-            --node-border: #22d3ee; /* Cyan 500 */
-            --node-selected-border: #06b6d4; /* Accent cyan */
-            --node-text: #083344;
-            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
-            --modal-bg: #ffffff;
-            --pomodoro-bg: #22d3ee; /* Cyan 500 */
-        }
+/* The app container will fill the entire viewport */
+#app-container {
+    display: flex;
+    flex-direction: row; /* Forcing desktop view for this test */
+    height: 100%;
+    width: 100%;
+}
 
-        /* Forest Green Theme */
-        .theme-forest-green {
-            --bg-primary: #f0fdf4; /* Emerald 50 */
-            --bg-secondary: #dcfce7; /* Emerald 100 */
-            --text-primary: #064e3b; /* Emerald 900 */
-            --text-secondary: #047857; /* Emerald 700 */
-            --border-color: #a7f3d0; /* Emerald 200 */
-            --accent-blue: #10b981; /* Emerald 600 */
-            --accent-blue-hover: #059669; /* Emerald 700 */
-            --nav-active-bg: #a7f3d0; /* Emerald 200 */
-            --nav-active-text: #064e3b; /* Emerald 900 */
-            --card-front-bg: #ecfdf5;
-            --card-back-bg: #ecfdf5;
-            --input-bg: #dcfce7;
-            --input-text: #064e3b;
-            --placeholder-text: #34d399; /* Emerald 400 */
-            --notification-bg: #d1fae5; /* Green 100 */
-            --notification-text: #065f46; /* Green 700 */
-            --notification-error-bg: #fecaca; /* Red 200 */
-            --notification-error-text: #ef4444; /* Red 500 */
-            --button-primary-bg: #10b981;
-            --button-primary-text: #ffffff;
-            --button-primary-hover-bg: #059669;
-            --text-green: #22c55e;
-            --text-orange: #f97316;
-            --connection-color: #047857;
-            --node-bg: #34d399;
-            --node-border: #10b981;
-            --node-selected-border: #059669;
-            --node-text: #064e3b;
-            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
-            --modal-bg: #ffffff;
-            --pomodoro-bg: #a7f3d0; /* Emerald 200 */
-        }
+aside {
+    width: 250px;
+    flex-shrink: 0; /* Prevent the sidebar from shrinking */
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    padding: 1.5rem;
+}
 
-        /* Ocean Blue Theme */
-        .theme-ocean-blue {
-            --bg-primary: #eff6ff; /* Blue 50 */
-            --bg-secondary: #dbeafe; /* Blue 100 */
-            --text-primary: #1e3a8a; /* Blue 900 */
-            --text-secondary: #2563eb; /* Blue 600 */
-            --border-color: #bfdbfe; /* Blue 200 */
-            --accent-blue: #3b82f6; /* Blue 500 */
-            --accent-blue-hover: #2563eb; /* Blue 600 */
-            --nav-active-bg: #bfdbfe; /* Blue 200 */
-            --nav-active-text: #1e3a8a; /* Blue 900 */
-            --card-front-bg: #e0f2fe;
-            --card-back-bg: #e0f2fe;
-            --input-bg: #dbeafe;
-            --input-text: #1e3a8a;
-            --placeholder-text: #60a5fa; /* Blue 400 */
-            --notification-bg: #e0f2fe; /* Light Blue 100 */
-            --notification-text: #1d4ed8; /* Blue 700 */
-            --notification-error-bg: #fecaca; /* Red 200 */
-            --notification-error-text: #ef4444; /* Red 500 */
-            --button-primary-bg: #3b82f6;
-            --button-primary-text: #ffffff;
-            --button-primary-hover-bg: #2563eb;
-            --text-green: #22c55e;
-            --text-orange: #f97316;
-            --connection-color: #2563eb;
-            --node-bg: #60a5fa;
-            --node-border: #3b82f6;
-            --node-selected-border: #2563eb;
-            --node-text: #1e3a8a;
-            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
-            --modal-bg: #ffffff;
-            --pomodoro-bg: #bfdbfe; /* Blue 200 */
-        }
+main {
+    flex-grow: 1; /* Allow main to fill the remaining space */
+    overflow-y: auto; /* This makes ONLY the main area scrollable */
+    padding: 1.5rem;
+}
 
-        /* Warm Sunset Theme */
-        .theme-warm-sunset {
-            --bg-primary: #fff7ed; /* Orange 50 */
-            --bg-secondary: #fed7aa; /* Orange 200 */
-            --text-primary: #7c2d12; /* Orange 900 */
-            --text-secondary: #ea580c; /* Orange 600 */
-            --border-color: #fdba74; /* Orange 300 */
-            --accent-blue: #f97316; /* Orange 500 */
-            --accent-blue-hover: #e3a008; /* Yellow 600 */
-            --nav-active-bg: #fdba74; /* Orange 300 */
-            --nav-active-text: #7c2d12; /* Orange 900 */
-            --card-front-bg: #ffedd5;
-            --card-back-bg: #ffedd5;
-            --input-bg: #fed7aa;
-            --input-text: #7c2d12;
-            --placeholder-text: #fdb074; /* Orange 400 */
-            --notification-bg: #fff1e5; /* Orange 100 */
-            --notification-text: #ea580c; /* Orange 600 */
-            --notification-error-bg: #fecaca; /* Red 200 */
-            --notification-error-text: #ef4444; /* Red 500 */
-            --button-primary-bg: #f97316;
-            --button-primary-text: #ffffff;
-            --button-primary-hover-bg: #e3a008;
-            --text-green: #22c55e;
-            --text-orange: #fb923c;
-            --connection-color: #ea580c;
-            --node-bg: #fdb074;
-            --node-border: #f97316;
-            --node-selected-border: #e3a008;
-            --node-text: #7c2d12;
-            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
-            --modal-bg: #fff7ed;
-            --pomodoro-bg: #fdba74; /* Orange 300 */
-        }
+/* ===== END: NEW LAYOUT CODE ===== */
 
-        /* Cool Breeze Theme */
-        .theme-cool-breeze {
-            --bg-primary: #f0f9ff; /* Sky 50 */
-            --bg-secondary: #e0f2fe; /* Sky 100 */
-            --text-primary: #072540; /* Sky 950 */
-            --text-secondary: #0c4a6e; /* Sky 800 */
-            --border-color: #bae6fd; /* Sky 200 */
-            --accent-blue: #0284c7; /* Sky 600 */
-            --accent-blue-hover: #0369a1; /* Sky 700 */
-            --nav-active-bg: #bae6fd; /* Sky 200 */
-            --nav-active-text: #072540; /* Sky 950 */
-            --card-front-bg: #f0f9ff;
-            --card-back-bg: #f0f9ff;
-            --input-bg: #e0f2fe;
-            --input-text: #072540;
-            --placeholder-text: #38bdf8; /* Sky 500 */
-            --notification-bg: #e0f2fe; /* Sky 100 */
-            --notification-text: #0c4a6e; /* Sky 800 */
-            --notification-error-bg: #fecaca; /* Red 200 */
-            --notification-error-text: #ef4444; /* Red 500 */
-            --button-primary-bg: #0284c7;
-            --button-primary-text: #ffffff;
-            --button-primary-hover-bg: #0369a1;
-            --text-green: #22c55e;
-            --text-orange: #f97316;
-            --connection-color: #0c4a6e;
-            --node-bg: #38bdf8;
-            --node-border: #0284c7;
-            --node-selected-border: #0369a1;
-            --node-text: #072540;
-            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
-            --modal-bg: #f0f9ff;
-            --pomodoro-bg: #bae6fd; /* Sky 200 */
-        }
+/* Theme Variables - Default Light */
+.theme-light {
+    --bg-primary: #f8fafc; /* Slate 50 */
+    --bg-secondary: #ffffff; /* White */
+    --text-primary: #0f172a; /* Slate 900 */
+    --text-secondary: #64748b; /* Slate 500 */
+    --border-color: #e2e8f0; /* Slate 200 */
+    --accent-blue: #3b82f6; /* Blue 500 */
+    --accent-blue-hover: #2563eb; /* Blue 600 */
+    --nav-item-hover-bg: #f1f5f9; /* Slate 100 */
+    --nav-active-bg: #eff6ff; /* Blue 50 */
+    --nav-active-text: #2563eb; /* Blue 600 */
+    --text-green: #22c55e; /* Green 500 */
+    --text-red: #ef4444; /* Red 500 */
+    --modal-overlay-bg: rgba(0, 0, 0, 0.5); /* Black with transparency */
 
-        /* Mono Contrast Theme */
-        .theme-mono-contrast {
-            --bg-primary: #0a0a0a; /* Near Black */
-            --bg-secondary: #1a1a1a; /* Dark Gray */
-            --text-primary: #f5f5f5; /* Light Gray */
-            --text-secondary: #a3a3a3; /* Medium Gray */
-            --border-color: #404040; /* Gray 800 */
-            --accent-blue: #00e676; /* Vibrant Green Accent */
-            --accent-blue-hover: #00c853; /* Darker Vibrant Green */
-            --nav-active-bg: #404040; /* Gray 800 */
-            --nav-active-text: #f5f5f5; /* Light Gray */
-            --card-front-bg: #1a1a1a;
-            --card-back-bg: #1a1a1a;
-            --input-bg: #1a1a1a;
-            --input-text: #f5f5f5;
-            --placeholder-text: #525252;
-            --notification-bg: #004d40; /* Dark Teal */
-            --notification-text: #80cbc4; /* Light Teal */
-            --notification-error-bg: #d32f2f; /* Dark Red */
-            --notification-error-text: #ffcdd2; /* Light Red */
-            --button-primary-bg: #00e676;
-            --button-primary-text: #0a0a0a;
-            --button-primary-hover-bg: #00c853;
-            --text-green: #00e676;
-            --text-orange: #ffab40; /* Orange Accent */
-            --connection-color: #a3a3a3;
-            --node-bg: #525252;
-            --node-border: #a3a3a3;
-            --node-selected-border: #00e676;
-            --node-text: #f5f5f5;
-            --modal-overlay-bg: rgba(0, 0, 0, 0.8);
-            --modal-bg: #1a1a1a;
-            --pomodoro-bg: #262626; /* Gray 900 */
-        }
+    /* Calendar specific colors */
+    --calendar-day-bg: #f8fafc; /* Same as bg-primary */
+    --calendar-day-hover-bg: #f1f5f9; /* Same as nav-item-hover-bg */
+    --calendar-day-border: #e2e8f0; /* Same as border-color */
+    --calendar-day-text: #0f172a; /* Same as text-primary */
+    --calendar-today-border: #3b82f6; /* Accent blue for today */
+    --calendar-selected-bg: #eff6ff; /* Accent blue lighter for selected */
+    --calendar-selected-border: #2563eb; /* Accent blue darker for selected */
+    --node-bg: #ffffff; /* White */
+    --node-border: #e2e8f0; /* Slate 200 */
+    --node-selected-border: #3b82f6; /* Accent Blue */
+    --node-text: #0f172a; /* Slate 900 */
+    --connection-color: #64748b; /* Slate 500 */
+}
+
+/* Theme Variables - Dark */
+.theme-dark {
+    --bg-primary: #1e293b; /* Slate 800 */
+    --bg-secondary: #0f172a; /* Slate 900 */
+    --text-primary: #f8fafc; /* Slate 50 */
+    --text-secondary: #94a3b8; /* Slate 400 */
+    --border-color: #334155; /* Slate 700 */
+    --accent-blue: #60a5fa; /* Blue 400 */
+    --accent-blue-hover: #3b82f6; /* Blue 500 */
+    --nav-item-hover-bg: #334155; /* Slate 700 */
+    --nav-active-bg: #1e3a8a; /* Blue 900 */
+    --nav-active-text: #93c5fd; /* Blue 300 */
+    --text-green: #4ade80; /* Green 400 */
+    --text-red: #f87171; /* Red 400 */
+    --modal-overlay-bg: rgba(0, 0, 0, 0.7); /* Black with transparency */
+
+    /* Calendar specific colors */
+    --calendar-day-bg: #1e293b; /* Same as bg-primary */
+    --calendar-day-hover-bg: #334155; /* Same as nav-item-hover-bg */
+    --calendar-day-border: #334155; /* Same as border-color */
+    --calendar-day-text: #f8fafc; /* Same as text-primary */
+    --calendar-today-border: #60a5fa; /* Accent blue for today */
+    --calendar-selected-bg: #1e3a8a; /* Accent blue darker for selected */
+    --calendar-selected-border: #3b82f6; /* Accent blue for selected border */
+    --node-bg: #0f172a; /* Slate 900 */
+    --node-border: #334155; /* Slate 700 */
+    --node-selected-border: #60a5fa; /* Accent Blue */
+    --node-text: #f8fafc; /* Slate 50 */
+    --connection-color: #94a3b8; /* Slate 400 */
+}
+
+/* Theme Variables - Vibrant */
+.theme-vibrant {
+    --bg-primary: #f0f9ff; /* Sky 50 */
+    --bg-secondary: #ffffff; /* White */
+    --text-primary: #083344; /* Cyan 950 */
+    --text-secondary: #0e7490; /* Cyan 600 */
+    --border-color: #bae6fd; /* Sky 200 */
+    --accent-blue: #06b6d4; /* Cyan 500 */
+    --accent-blue-hover: #0891b2; /* Cyan 600 */
+    --nav-item-hover-bg: #e0f2fe; /* Sky 100 */
+    --nav-active-bg: #ecfeff; /* Cyan 50 */
+    --nav-active-text: #0e7490; /* Cyan 600 */
+    --text-green: #10b981; /* Emerald 500 */
+    --text-red: #ef4444; /* Red 500 */
+    --modal-overlay-bg: rgba(0, 0, 0, 0.6); /* Black with transparency */
+
+    /* Calendar specific colors */
+    --calendar-day-bg: #f0f9ff;
+    --calendar-day-hover-bg: #e0f2fe;
+    --calendar-day-border: #bae6fd;
+    --calendar-day-text: #083344;
+    --calendar-today-border: #06b6d4;
+    --calendar-selected-bg: #ecfeff;
+    --calendar-selected-border: #0891b2;
+    --node-bg: #ffffff;
+    --node-border: #bae6fd;
+    --node-selected-border: #06b6d4;
+    --node-text: #083344;
+    --connection-color: #0e7490;
+}
 
 
-        /* Apply variables */
-        body {
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-        }
+/* Theme Variables - Forest Green */
+.theme-forest-green {
+    --bg-primary: #e6ffed; /* Light mint green */
+    --bg-secondary: #d1fae5; /* Slightly darker mint */
+    --text-primary: #065f46; /* Dark green */
+    --text-secondary: #10b981; /* Medium green */
+    --border-color: #a7f3d0; /* Pale green */
+    --accent-blue: #34d399; /* Green 400 */
+    --accent-blue-hover: #059669; /* Green 600 */
+    --nav-item-hover-bg: #bbf7d0; /* Even lighter green */
+    --nav-active-bg: #86efac; /* Green 300 */
+    --nav-active-text: #065f46; /* Dark green */
+    --text-green: #065f46; /* Dark green */
+    --text-red: #f87171; /* Red 400 */
+    --modal-overlay-bg: rgba(0, 0, 0, 0.6);
 
-        .text-primary { color: var(--text-primary); }
-        .text-secondary { color: var(--text-secondary); }
-        .bg-primary { background-color: var(--bg-primary); }
-        .bg-secondary { background-color: var(--bg-secondary); }
-        .border-border-color { border-color: var(--border-color); }
-        .accent-blue { color: var(--accent-blue); }
-        .bg-accent-blue { background-color: var(--accent-blue); }
-        .hover\:bg-accent-blue-hover:hover { background-color: var(--accent-blue-hover); }
-        .nav-item-active {
-            background-color: var(--nav-active-bg);
-            color: var(--nav-active-text);
-        }
-        .flashcard-front, .flashcard-back {
-            background-color: var(--card-front-bg);
-        }
-        .input-themed {
-            background-color: var(--input-bg);
-            color: var(--input-text);
-            border-color: var(--border-color);
-        }
-        .input-themed::placeholder {
-            color: var(--placeholder-text);
-        }
-        .list-item-themed {
-            background-color: var(--bg-secondary);
-            border-color: var(--border-color);
-        }
-        .hover\:list-item-themed:hover {
-            background-color: var(--nav-active-bg);
-        }
-        .notification-toast {
-            position: fixed;
-            bottom: 1.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-            z-index: 1001;
-            font-weight: 500;
-        }
-        .notification-toast.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .notification-toast.notification-success {
-            background-color: var(--notification-bg);
-            color: var(--notification-text);
-        }
-        .notification-toast.notification-error {
-            background-color: var(--notification-error-bg);
-            color: var(--notification-error-text);
-        }
-        .button-primary {
-            background-color: var(--button-primary-bg);
-            color: var(--button-primary-text);
-        }
-        .button-primary:hover {
-            background-color: var(--button-primary-hover-bg);
-        }
-        .text-green-600 { color: var(--text-green); }
-        .text-red-600 { color: var(--notification-error-text); } /* Ensure consistency for red text */
-        .text-orange-500 { color: var(--text-orange); }
+    /* Calendar specific colors */
+    --calendar-day-bg: #e6ffed;
+    --calendar-day-hover-bg: #bbf7d0;
+    --calendar-day-border: #a7f3d0;
+    --calendar-day-text: #065f46;
+    --calendar-today-border: #34d399;
+    --calendar-selected-bg: #86efac;
+    --calendar-selected-border: #059669;
+    --node-bg: #d1fae5;
+    --node-border: #a7f3d0;
+    --node-selected-border: #34d399;
+    --node-text: #065f46;
+    --connection-color: #10b981;
+}
 
-        /* General layout */
-        html, body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: visible; /* This is crucial to prevent the main window scrollbar */
-        }
+/* Theme Variables - Ocean Blue */
+.theme-ocean-blue {
+    --bg-primary: #e0f2fe; /* Light blue */
+    --bg-secondary: #bfdbfe; /* Muted light blue */
+    --text-primary: #1e3a8a; /* Dark blue */
+    --text-secondary: #3b82f6; /* Medium blue */
+    --border-color: #93c5fd; /* Pale blue */
+    --accent-blue: #60a5fa; /* Blue 400 */
+    --accent-blue-hover: #2563eb; /* Blue 600 */
+    --nav-item-hover-bg: #dbeafe; /* Even lighter blue */
+    --nav-active-bg: #a5d7ff; /* Blue 200 */
+    --nav-active-text: #1e3a8a; /* Dark blue */
+    --text-green: #22c55e; /* Green 500 */
+    --text-red: #f87171; /* Red 400 */
+    --modal-overlay-bg: rgba(0, 0, 0, 0.6);
 
-        #app-container {
-            display: flex;
-            min-height: 100vh; /* Keep for robustness against short content */
-            height: 100%; /* Explicitly make it fill the parent body's height */
-            width: 100%;
-            /* Tailwind classes for flex-col lg:flex-row are on the element itself */
-        }
+    /* Calendar specific colors */
+    --calendar-day-bg: #e0f2fe;
+    --calendar-day-hover-bg: #dbeafe;
+    --calendar-day-border: #93c5fd;
+    --calendar-day-text: #1e3a8a;
+    --calendar-today-border: #60a5fa;
+    --calendar-selected-bg: #a5d7ff;
+    --calendar-selected-border: #2563eb;
+    --node-bg: #bfdbfe;
+    --node-border: #93c5fd;
+    --node-selected-border: #60a5fa;
+    --node-text: #1e3a8a;
+    --connection-color: #3b82f6;
+}
 
-        aside {
-            width: 250px;
-            flex-shrink: 0;
-            background-color: var(--bg-secondary);
-            border-right: 1px solid var(--border-color);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column; /* Sidebar content can be column */
-            border-top-left-radius: 1rem;
-            border-bottom-left-radius: 1rem;
-            overflow-y: auto; /* Independent scrolling for sidebar */
-            height: 100%; /* Make sidebar fill height of app-container (when in row) */
-        }
+/* Theme Variables - Warm Sunset */
+.theme-warm-sunset {
+    --bg-primary: #fff7ed; /* Light orange-peach */
+    --bg-secondary: #ffedd5; /* Slightly darker orange-peach */
+    --text-primary: #7c2d12; /* Dark reddish-brown */
+    --text-secondary: #ea580c; /* Orange 600 */
+    --border-color: #fed7aa; /* Pale orange */
+    --accent-blue: #f97316; /* Orange 500 */
+    --accent-blue-hover: #ea580c; /* Orange 600 */
+    --nav-item-hover-bg: #ffead0; /* Even lighter orange */
+    --nav-active-bg: #fed7aa; /* Orange 200 */
+    --nav-active-text: #7c2d12; /* Dark reddish-brown */
+    --text-green: #10b981; /* Emerald 500 */
+    --text-red: #ef4444; /* Red 500 */
+    --modal-overlay-bg: rgba(0, 0, 0, 0.6);
 
-        main {
-            flex-grow: 1;
-            padding: 1.5rem;
-            background-color: var(--bg-primary);
-            overflow-y: auto; /* Independent scrolling for main content */
-            border-top-right-radius: 1rem;
-            border-bottom-right-radius: 1.25rem;
-            height: 100%; /* Make main fill height of app-container */
-        }
+    /* Calendar specific colors */
+    --calendar-day-bg: #fff7ed;
+    --calendar-day-hover-bg: #ffead0;
+    --calendar-day-border: #fed7aa;
+    --calendar-day-text: #7c2d12;
+    --calendar-today-border: #f97316;
+    --calendar-selected-bg: #fed7aa;
+    --calendar-selected-border: #ea580c;
+    --node-bg: #ffedd5;
+    --node-border: #fed7aa;
+    --node-selected-border: #f97316;
+    --node-text: #7c2d12;
+    --connection-color: #ea580c;
+}
 
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: background-color 0.2s, color 0.2s;
-            color: var(--text-secondary);
-        }
+/* Theme Variables - Cool Breeze */
+.theme-cool-breeze {
+    --bg-primary: #f0faff; /* Very light blue-gray */
+    --bg-secondary: #e0f2f7; /* Light cyan-gray */
+    --text-primary: #1a202c; /* Dark blue-gray */
+    --text-secondary: #4a5568; /* Medium blue-gray */
+    --border-color: #a0aec0; /* Gray-blue */
+    --accent-blue: #5a67d8; /* Indigo 500 */
+    --accent-blue-hover: #434190; /* Indigo 600 */
+    --nav-item-hover-bg: #edf2f7; /* Lighter gray-blue */
+    --nav-active-bg: #c3dafe; /* Indigo 200 */
+    --nav-active-text: #1a202c; /* Dark blue-gray */
+    --text-green: #22c55e; /* Green 500 */
+    --text-red: #ef4444; /* Red 500 */
+    --modal-overlay-bg: rgba(0, 0, 0, 0.6);
 
-        .nav-item:hover:not(.nav-item-active) {
-            background-color: var(--border-color);
-            color: var(--text-primary);
-        }
+    /* Calendar specific colors */
+    --calendar-day-bg: #f0faff;
+    --calendar-day-hover-bg: #edf2f7;
+    --calendar-day-border: #a0aec0;
+    --calendar-day-text: #1a202c;
+    --calendar-today-border: #5a67d8;
+    --calendar-selected-bg: #c3dafe;
+    --calendar-selected-border: #434190;
+    --node-bg: #e0f2f7;
+    --node-border: #a0aec0;
+    --node-selected-border: #5a67d8;
+    --node-text: #1a202c;
+    --connection-color: #4a5568;
+}
 
-        .flashcard-container {
-            width: 100%;
-            height: 350px;
-            perspective: 1000px;
-        }
+/* Theme Variables - Mono Contrast */
+.theme-mono-contrast {
+    --bg-primary: #f5f5f5; /* Off-white */
+    --bg-secondary: #ffffff; /* White */
+    --text-primary: #212121; /* Very dark gray */
+    --text-secondary: #757575; /* Medium gray */
+    --border-color: #bdbdbd; /* Light gray */
+    --accent-blue: #424242; /* Dark gray for accent */
+    --accent-blue-hover: #212121; /* Very dark gray for hover */
+    --nav-item-hover-bg: #eeeeee; /* Lighter gray */
+    --nav-active-bg: #e0e0e0; /* Gray 300 */
+    --nav-active-text: #212121; /* Very dark gray */
+    --text-green: #4caf50; /* Green 500 */
+    --text-red: #f44336; /* Red 500 */
+    --modal-overlay-bg: rgba(0, 0, 0, 0.7);
 
-        .flashcard {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-            border-radius: 0.75rem; /* Rounded corners for flashcards */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--border-color);
-        }
+    /* Calendar specific colors */
+    --calendar-day-bg: #f5f5f5;
+    --calendar-day-hover-bg: #eeeeee;
+    --calendar-day-border: #bdbdbd;
+    --calendar-day-text: #212121;
+    --calendar-today-border: #424242;
+    --calendar-selected-bg: #e0e0e0;
+    --calendar-selected-border: #212121;
+    --node-bg: #ffffff;
+    --node-border: #bdbdbd;
+    --node-selected-border: #424242;
+    --node-text: #212121;
+    --connection-color: #757575;
+}
 
-        .flashcard-container.flipped .flashcard {
-            transform: rotateY(180deg);
-        }
 
-        .flashcard-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            text-align: center;
-            overflow-y: auto; /* Ensure content inside card face is scrollable */
-        }
+/* General Styles */
+.card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
 
-        .flashcard-front {
-            background-color: var(--card-front-bg);
-            color: var(--text-primary);
-        }
+.button-primary {
+    background-color: var(--accent-blue);
+    color: white;
+    transition: background-color 0.2s ease-in-out;
+}
 
-        .flashcard-back {
-            background-color: var(--card-back-bg);
-            color: var(--text-primary);
-            transform: rotateY(180deg);
-        }
+.button-primary:hover {
+    background-color: var(--accent-blue-hover);
+}
 
-        .quiz-option-btn, .soundscape-btn {
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-secondary);
-            color: var(--text-primary);
-            transition: background-color 0.2s, border-color 0.2s;
-            border-radius: 0.5rem;
-        }
+.nav-item {
+    color: var(--text-secondary);
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
 
-        .quiz-option-btn:hover, .soundscape-btn:hover {
-            background-color: var(--nav-active-bg);
-            border-color: var(--accent-blue);
-        }
+.nav-item:hover {
+    background-color: var(--nav-item-hover-bg);
+    color: var(--text-primary);
+}
 
-        .quiz-option-btn.selected {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 2px var(--accent-blue);
-        }
+.nav-item-active {
+    background-color: var(--nav-active-bg);
+    color: var(--nav-active-text);
+    font-weight: 600; /* Semi-bold */
+}
 
-        .quiz-option-btn.correct {
-            background-color: #d1fae5; /* Green 100 */
-            border-color: #34d399; /* Green 500 */
-            color: #065f46; /* Green 900 */
-        }
+/* Forms */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+textarea,
+select {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
 
-        .quiz-option-btn.incorrect {
-            background-color: #fee2e2; /* Red 100 */
-            border-color: #ef4444; /* Red 500 */
-            color: #991b1b; /* Red 900 */
-        }
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); /* ring-blue-500/20 */
+}
 
-        /* Modal styling */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--modal-overlay-bg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-        }
-        .modal-overlay.modal-active {
-            opacity: 1;
-            visibility: visible;
-        }
+textarea {
+    min-height: 80px;
+    resize: vertical;
+}
 
-        .modal-content {
-            background-color: var(--modal-bg);
-            padding: 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh; /* This ensures the whole modal is scrollable if content overflows */
-            overflow-y: auto; /* Changed from hidden to auto to allow the modal itself to scroll if content overflows */
-            position: relative;
+/* Modals */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--modal-overlay-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
 
-            display: flex; /* Keeping flex layout for children management */
-            flex-direction: column;
-        }
+.modal-overlay.modal-active {
+    opacity: 1;
+    visibility: visible;
+}
 
-        /* Calendar Styling */
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0.5rem;
-        }
+.modal-content {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    width: 500px; /* Default width */
+    transform: translateY(-20px); /* Start slightly up */
+    transition: transform 0.3s ease-in-out;
+}
 
-        .calendar-day-cell {
-            padding: 0.5rem;
-            aspect-ratio: 1 / 1; /* Make cells square */
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            text-align: left;
-            cursor: pointer;
-            transition: background-color 0.2s, border-color 0.2s;
-            position: relative;
-            overflow: visible;
-        }
+.modal-overlay.modal-active .modal-content {
+    transform: translateY(0); /* Slide down to natural position */
+}
 
-        .calendar-day-cell:hover:not(.inactive) {
-            background-color: var(--nav-active-bg);
-            border-color: var(--accent-blue);
-        }
 
-        .calendar-day-cell.inactive {
-            background-color: var(--bg-primary);
-            color: var(--text-secondary);
-            opacity: 0.6;
-            cursor: not-allowed;
-            border-color: var(--border-color);
-        }
+/* Notification Toast */
+.notification-toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out, transform 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--border-color);
+}
 
-        .calendar-day-cell.today {
-            background-color: var(--accent-blue);
-            color: white;
-            border-color: var(--accent-blue);
-        }
+.notification-toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-10px); /* Lift slightly */
+}
 
-        .calendar-day-cell.today .calendar-day-number {
-            color: white;
-        }
+.notification-toast.notification-success {
+    border-color: var(--text-green);
+    color: var(--text-green);
+}
 
-        .calendar-day-cell.selected-day:not(.today) {
-            border: 2px solid var(--accent-blue);
-            box-shadow: 0 0 0 2px var(--accent-blue);
-        }
+.notification-toast.notification-error {
+    border-color: var(--text-red);
+    color: var(--text-red);
+}
 
-        .calendar-day-number {
-            font-weight: 600;
-            color: var(--text-primary);
-            position: absolute;
-            top: 0.5rem;
-            left: 0.5rem;
-            font-size: 0.875rem; /* text-sm */
-        }
+/* List Item Themed (for consistency) */
+.list-item-themed {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    color: var(--text-primary); /* Default text color for items */
+}
 
-        .calendar-event-item {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            margin-top: 0.25rem;
-            font-size: 0.625rem; /* text-xs */
-            color: var(--text-secondary);
-            line-height: 1;
-            white-space: nowrap;
-            overflow: visible;
-            text-overflow: ellipsis;
-            width: 100%;
-        }
+/* Flashcard Specific */
+.flashcard-container {
+    perspective: 1000px;
+    width: 100%;
+    max-width: 500px;
+    height: 300px;
+    margin: 0 auto;
+}
 
-        .calendar-event-marker {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
+.flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
 
-        .calendar-event-item.event-type-assignment .calendar-event-marker { background-color: #ef4444; /* Red */ }
-        .calendar-event-item.event-type-exam .calendar-event-marker { background-color: #f97316; /* Orange */ }
-        .calendar-event-item.event-type-study .calendar-event-marker { background-color: #22c55e; /* Green */ }
-        .calendar-event-item.event-type-other .calendar-event-marker { background-color: #6366f1; /* Indigo */ }
+.flashcard-container.flipped .flashcard-inner {
+    transform: rotateY(180deg);
+}
 
-        /* Event List for Day */
-        .events-for-day-list li {
-            position: relative;
-        }
-        .events-for-day-list li.event-type-assignment .calendar-event-marker { background-color: #ef4444; }
-        .events-for-day-list li.event-type-exam .calendar-event-marker { background-color: #f97316; }
-        .events-for-day-list li.event-type-study .calendar-event-marker { background-color: #22c55e; }
-        .events-for-day-list li.event-type-other .calendar-event-marker { background-color: #6366f1; }
+.flashcard-front, .flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden; /* Safari */
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+}
 
-        /* Mind Map Canvas */
-        #mind-map-canvas {
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-secondary);
-            border-radius: 0.75rem;
-            width: 100%;
-            height: 500px; /* Or adjust as needed */
-            touch-action: none; /* Prevent browser touch actions like scrolling */
-        }
+.flashcard-front {
+    color: var(--text-primary);
+}
 
-        /* Achievements */
-        .achievement-card {
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .achievement-card .icon {
-            font-size: 3rem;
-            margin-bottom: 0.75rem;
-        }
-        .achievement-card h4 {
-            font-weight: 700;
-            font-size: 1.125rem;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-        }
-        .achievement-card p {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-        }
-        .achievement-card.locked {
-            filter: grayscale(80%);
-            opacity: 0.7;
-        }
+.flashcard-back {
+    color: var(--text-primary);
+    transform: rotateY(180deg);
+}
 
-        /* Responsive adjustments */
-        @media (max-width: 1024px) {
-            aside {
-                display: none; /* Hide sidebar by default on smaller screens */
-            }
-            main {
-                flex-grow: 1;
-                border-radius: 0; /* No rounded corners for main if sidebar is hidden */
-            }
-            .mobile-header {
-                display: flex; /* Show mobile header */
-            }
-            #app-container {
-                border-radius: 0;
-            }
-        }
+.flashcard-subject-tag {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
 
-        @media (min-width: 1025px) {
-            aside {
-                display: flex; /* Show sidebar on larger screens */
-            }
-            .mobile-header {
-                display: none; /* Hide mobile header */
-            }
-        }
+/* Calendar Styles */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
 
-        /* Mobile Sidebar specific styles */
-        #mobile-sidebar-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--modal-overlay-bg);
-            z-index: 1000;
-        }
-        #mobile-sidebar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 250px;
-            height: 100%;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
-            overflow-y: auto;
-        }
+.calendar-day-cell {
+    position: relative; /* Crucial for absolute positioning of number and events */
+    height: 80px; /* Fixed height for consistent cell size */
+    background-color: var(--calendar-day-bg);
+    border: 1px solid var(--calendar-day-border);
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column; /* To stack number and events */
+    align-items: flex-start; /* Align day number to top-left */
+    padding: 0.5rem; /* Padding inside cell */
+    color: var(--calendar-day-text);
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    overflow: hidden; /* Hide anything overflowing */
+}
 
-        /* Custom styles for theme buttons in settings */
-        .theme-btn[data-theme="light"] { background-color: #f8fafc; color: #0f172a; }
-        .theme-btn[data-theme="dark"] { background-color: #1e293b; color: #f8fafc; }
-        .theme-btn[data-theme="vibrant"] { background-color: #06b6d4; color: #ffffff; }
-        .theme-btn[data-theme="forest-green"] { background-color: #10b981; color: #ffffff; }
-        .theme-btn[data-theme="ocean-blue"] { background-color: #3b82f6; color: #ffffff; }
-        .theme-btn[data-theme="warm-sunset"] { background-color: #f97316; color: #ffffff; }
-        .theme-btn[data-theme="cool-breeze"] { background-color: #0284c7; color: #ffffff; }
-        .theme-btn[data-theme="mono-contrast"] { background-color: #0a0a0a; color: #f5f5f5; border-color: #a3a3a3;} /* Added border for contrast */
+.calendar-day-cell:hover {
+    background-color: var(--calendar-day-hover-bg);
+}
+
+.calendar-day-cell.inactive {
+    background-color: var(--border-color); /* Grey out inactive days */
+    color: var(--text-secondary);
+    cursor: default;
+    opacity: 0.6;
+}
+
+.calendar-day-number {
+    position: absolute; /* Position number freely within the cell */
+    top: 0.5rem;
+    left: 0.5rem;
+    font-size: 0.875rem; /* Small text for day number */
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.calendar-day-cell.today {
+    border: 2px solid var(--calendar-today-border);
+}
+
+.calendar-day-cell.selected-day {
+    background-color: var(--calendar-selected-bg);
+    border: 2px solid var(--calendar-selected-border);
+}
+
+/* Calendar Event Item */
+.calendar-event-item {
+    position: absolute;
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Adjust for its own width */
+    bottom: 0.5rem; /* THIS IS THE KEY CHANGE: Raise it from the bottom */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.5rem; /* Small dot size */
+    height: 0.5rem; /* Small dot size */
+    border-radius: 50%; /* Makes it a circle */
+    pointer-events: none; /* Allows clicks to pass through to the day cell */
+    /* background-color set by specific event-type classes below */
+}
+
+/* Calendar Event Marker (the actual dot) */
+.calendar-event-marker {
+    display: block; /* Make it a block element to control its size */
+    width: 6px; /* Example size for the inner dot */
+    height: 6px; /* Example size for the inner dot */
+    border-radius: 50%; /* Make it circular */
+    background-color: currentColor; /* Inherit color from parent .calendar-event-item */
+}
+
+/* Event Type Colors - apply to the .calendar-event-item parent container */
+.event-type-assignment {
+    background-color: var(--accent-blue);
+}
+.event-type-exam {
+    background-color: var(--text-red);
+}
+.event-type-study {
+    background-color: var(--text-green);
+}
+/* You can add more event types here */
+
+
+/* Achievements */
+.achievement-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.achievement-card .icon {
+    font-size: 3rem; /* Larger icons */
+    margin-bottom: 0.5rem;
+}
+
+.achievement-card.locked {
+    opacity: 0.5;
+    filter: grayscale(100%);
+}
+
+/* Pomodoro Timer */
+.pomodoro-timer {
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    transition: color 0.3s ease-in-out;
+}
+
+.pomodoro-controls button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* Soundscapes */
+.soundscape-btn {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.soundscape-btn:hover {
+    background-color: var(--nav-item-hover-bg);
+}
+
+.soundscape-btn.bg-accent-blue { /* This class is added by JS when active */
+    color: white; /* Ensure text is white when active */
+}
+
+
+/* AI Learning Studio */
+.ai-output-area {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    min-height: 150px;
+    max-height: 500px;
+    overflow-y: auto;
+    white-space: pre-wrap; /* Preserve whitespace and wrap text */
+    word-wrap: break-word; /* Break long words */
+}
+
+/* Quiz Styles */
+.quiz-option-btn {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    color: var(--text-primary);
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.quiz-option-btn:hover {
+    background-color: var(--nav-item-hover-bg);
+}
+
+.quiz-option-btn.selected {
+    background-color: var(--nav-active-bg);
+    border-color: var(--accent-blue);
+    color: var(--nav-active-text);
+}
+
+.quiz-option-btn.correct {
+    background-color: #dcfce7; /* Green 100 */
+    border-color: #22c55e; /* Green 500 */
+    color: #166534; /* Green 900 */
+}
+
+.quiz-option-btn.incorrect {
+    background-color: #fee2e2; /* Red 100 */
+    border-color: #ef4444; /* Red 500 */
+    color: #991b1b; /* Red 900 */
+}
+
+/* Mind Map Canvas Styling */
+#mind-map-canvas {
+    background-color: var(--bg-primary); /* Match main background */
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    touch-action: none; /* Disable default touch actions for custom handling */
+}
+
+/* Global Utility Classes (if not using full Tailwind, duplicate these as needed) */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.bg-primary { background-color: var(--bg-primary); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.border-color { border-color: var(--border-color); }
+.accent-blue { color: var(--accent-blue); }
+.accent-blue-bg { background-color: var(--accent-blue); }
+
+/* Custom Markdown styling for prose-like content */
+.prose {
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+.prose h1 { font-size: 2.25rem; }
+.prose h2 { font-size: 1.875rem; }
+.prose h3 { font-size: 1.5rem; }
+.prose h4 { font-size: 1.25rem; }
+
+.prose p {
+    margin-bottom: 1em;
+}
+
+.prose ul, .prose ol {
+    margin-bottom: 1em;
+    padding-left: 1.5em;
+}
+
+.prose ul li {
+    list-style-type: disc;
+    margin-bottom: 0.5em;
+}
+
+.prose ol li {
+    list-style-type: decimal;
+    margin-bottom: 0.5em;
+}
+
+.prose strong {
+    font-weight: 700;
+}
+
+.prose a {
+    color: var(--accent-blue);
+    text-decoration: none;
+}
+
+.prose a:hover {
+    text-decoration: underline;
+}
+
+/* Mobile Responsiveness */
+/* Mobile header for smaller screens */
+.mobile-header {
+    display: none; /* Hidden by default */
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+}
+
+/* Hide sidebar on small screens */
+@media (max-width: 1024px) {
+    aside {
+        display: none;
+    }
+    #app-container {
+        flex-direction: column; /* Stack on mobile */
+    }
+    .mobile-header {
+        display: flex; /* Show mobile header */
+    }
+    #app-container {
+        border-radius: 0;
+    }
+}
+
+@media (min-width: 1025px) {
+    aside {
+        display: flex; /* Show sidebar on larger screens */
+    }
+    .mobile-header {
+        display: none; /* Hide mobile header */
+    }
+}
+
+/* Mobile Sidebar specific styles */
+#mobile-sidebar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--modal-overlay-bg);
+    z-index: 1000;
+}
+#mobile-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    background-color: var(--bg-secondary); /* Ensure sidebar has background */
+    padding: 1.5rem;
+    border-right: 1px solid var(--border-color); /* Add border for separation */
+}
+
+main {
+    overflow-y: auto; /* Allow scrolling within the main content area */
+}
+
+/* Custom styles for theme buttons in settings */
+.theme-btn[data-theme="light"] { background-color: #f8fafc; color: #0f172a; border-color: #e2e8f0;}
+.theme-btn[data-theme="dark"] { background-color: #1e293b; color: #f8fafc; border-color: #334155;}
+.theme-btn[data-theme="vibrant"] { background-color: #06b6d4; color: #ffffff; border-color: #bae6fd;}
+.theme-btn[data-theme="forest-green"] { background-color: #34d399; color: #ffffff; border-color: #a7f3d0;}
+.theme-btn[data-theme="ocean-blue"] { background-color: #60a5fa; color: #ffffff; border-color: #93c5fd;}
+.theme-btn[data-theme="warm-sunset"] { background-color: #f97316; color: #ffffff; border-color: #fed7aa;}
+.theme-btn[data-theme="cool-breeze"] { background-color: #5a67d8; color: #ffffff; border-color: #a0aec0;}
+.theme-btn[data-theme="mono-contrast"] { background-color: #424242; color: #ffffff; border-color: #bdbdbd;}
+
