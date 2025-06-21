@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileSidebar = document.getElementById('mobile-sidebar');
     const views = {
         dashboard: document.getElementById('view-dashboard'),
-        calendar: document.getElementById('view-calendar'), // New
+        calendar: document.getElementById('view-calendar'),
         library: document.getElementById('view-library'),
         'ai-learning': document.getElementById('view-ai-learning'),
         'mind-map': document.getElementById('view-mind-map'),
@@ -23,16 +23,16 @@ document.addEventListener('DOMContentLoaded', () => {
         tutorial: document.getElementById('view-tutorial')
     };
     const startReviewBtn = document.getElementById('start-review-btn');
-    const studyWeakAtomsBtn = document.getElementById('study-weak-atoms-btn');
+    const studyWeakFlashcardsBtn = document.getElementById('study-weak-atoms-btn'); // Renamed
     const showAnswerBtn = document.getElementById('show-answer-btn');
     const flashcardContainer = document.getElementById('flashcard-container');
     const recallButtons = document.querySelectorAll('.recall-btn');
     const dashboardUsername = document.getElementById('dashboard-username');
     const dailyQueueCount = document.getElementById('daily-queue-count');
     const currentStreak = document.getElementById('current-streak');
-    const totalMasteredAtoms = document.getElementById('total-mastered-atoms');
-    const upcomingEventsCount = document.getElementById('upcoming-events-count'); // New
-    const recommendedAtomsList = document.getElementById('recommended-atoms-list');
+    const totalMasteredFlashcards = document.getElementById('total-mastered-atoms'); // Renamed
+    const upcomingEventsCount = document.getElementById('upcoming-events-count');
+    const recommendedFlashcardsList = document.getElementById('recommended-atoms-list'); // Renamed
     const dailyChallengeText = document.getElementById('daily-challenge-text');
     const dailyChallengeProgress = document.getElementById('daily-challenge-progress');
     const dailyChallengeStatus = document.getElementById('daily-challenge-status');
@@ -65,6 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const aiOutputTitle = document.getElementById('ai-output-title');
     const aiOutputContentDisplay = document.getElementById('ai-output-content-display');
 
+    // New Quiz Controls for AI Learning
+    const quizQuestionCountInput = document.getElementById('quiz-question-count-input'); // Assuming this exists or will be added to HTML
+    const quizDifficultySelect = document.getElementById('quiz-difficulty-select'); // Assuming this exists or will be added to HTML
+
     // Mind Map elements
     const mindMapCanvas = document.getElementById('mind-map-canvas');
     const mindMapCtx = mindMapCanvas.getContext('2d');
@@ -83,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const achievementsList = document.getElementById('achievements-list');
     const emptyAchievementsMessage = document.getElementById('empty-achievements-message');
 
-    // Calendar elements (New)
+    // Calendar elements
     const currentMonthYearDisplay = document.getElementById('current-month-year');
     const prevMonthBtn = document.getElementById('prev-month-btn');
     const nextMonthBtn = document.getElementById('next-month-btn');
@@ -92,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedDayDisplay = document.getElementById('selected-day-display');
     const eventsListForDay = document.getElementById('events-list-for-day');
 
-    // Add/Edit Event Modal (New)
+    // Add/Edit Event Modal
     const addEditEventModal = document.getElementById('add-edit-event-modal');
     const eventModalTitle = document.getElementById('event-modal-title');
     const closeEventModalBtn = document.getElementById('close-event-modal');
@@ -109,16 +113,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const backupReminder = document.getElementById('backup-reminder');
 
     const emptyLibraryMessage = document.getElementById('empty-library-message');
-    const quickAddAtomBtnDashboard = document.getElementById('quick-add-atom-btn-dashboard');
-    const quickAddAtomBtnLibrary = document.getElementById('quick-add-atom-btn-library');
-    const quickAddAtomModal = document.getElementById('quick-add-atom-modal');
+    const quickAddFlashcardBtnDashboard = document.getElementById('quick-add-atom-btn-dashboard'); // Renamed
+    const quickAddFlashcardBtnLibrary = document.getElementById('quick-add-atom-btn-library'); // Renamed
+    const quickAddFlashcardModal = document.getElementById('quick-add-atom-modal'); // Renamed
     const closeQuickAddModalBtn = document.getElementById('close-quick-add-modal');
     const quickAddSubjectSelect = document.getElementById('quick-add-subject');
     const newSubjectInput = document.getElementById('new-subject-input');
     const toggleNewSubjectInputBtn = document.getElementById('toggle-new-subject-input');
     const quickAddQuestionInput = document.getElementById('quick-add-question');
     const quickAddAnswerInput = document.getElementById('quick-add-answer');
-    const addAtomBtn = document.getElementById('add-atom-btn');
+    const addFlashcardBtn = document.getElementById('add-atom-btn'); // Renamed
     const addGoalBtn = document.getElementById('add-goal-btn');
     const addGoalModal = document.getElementById('add-goal-modal');
     const closeAddGoalModalBtn = document.getElementById('close-add-goal-modal');
@@ -137,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const subjectDetailModal = document.getElementById('subject-detail-modal');
     const closeSubjectDetailModalBtn = document.getElementById('close-subject-detail-modal');
     const subjectDetailTitle = document.getElementById('subject-detail-title');
-    const subjectAtomsList = document.getElementById('subject-atoms-list');
+    const subjectFlashcardsList = document.getElementById('subject-atoms-list'); // Renamed
     const reflectionModal = document.getElementById('reflection-modal');
     const closeReflectionModalBtn = document.getElementById('close-reflection-modal');
     const reflectionTextarea = document.getElementById('reflection-text');
@@ -208,49 +212,61 @@ document.addEventListener('DOMContentLoaded', () => {
         lastChallengeDate: null,
         srsIntervals: { perfect: 7, good: 3, struggled: 1, forgot: 0.25 }, // 0.25 days = 6 hours
         srsFactors: { perfect: 2.5, good: 2.0, struggled: 1.5, forgot: 1.3 },
-        achievements: [], // New: Store unlocked achievement IDs
-        lastExportDate: null // New: Track last data export for reminders
+        achievements: [],
+        lastExportDate: null,
+        dailyChallengeCount: 0,
+        lastChallengeClaimDate: null,
+        onboardingCompleted: false // Ensure this is explicitly false for new users
     };
 
-    let initialLearningAtoms = [];
-    let initialSubjects = [];
-    let initialAiMaterials = [];
-    let initialGlossary = [];
-    let initialMindMaps = [];
-    let initialCalendarEvents = []; // New
+    // Default subjects for quick add and AI learning, in addition to user-added ones
+    const defaultSubjects = [
+        { id: 'mathematics', name: 'Mathematics', color: 'bg-indigo-100', textColor: 'text-indigo-800' },
+        { id: 'science', name: 'Science', color: 'bg-emerald-100', textColor: 'text-emerald-800' },
+        { id: 'history', name: 'History', color: 'bg-rose-100', textColor: 'text-rose-800' },
+        { id: 'literature', name: 'Literature', color: 'bg-amber-100', textColor: 'text-amber-800' },
+        { id: 'computer-science', name: 'Computer Science', color: 'bg-purple-100', textColor: 'text-purple-800' },
+        { id: 'arts', name: 'Arts', color: 'bg-pink-100', textColor: 'text-pink-800' },
+        { id: 'languages', name: 'Languages', color: 'bg-cyan-100', textColor: 'text-cyan-800' }
+    ];
 
-    // All application data stored in mockData, loaded from localStorage
     let mockData = {
-        user: JSON.parse(localStorage.getItem('auralearn_user')) || JSON.parse(JSON.stringify(initialUserData)),
-        subjects: JSON.parse(localStorage.getItem('auralearn_subjects')) || JSON.parse(JSON.stringify(initialSubjects)),
-        learningAtoms: (JSON.parse(localStorage.getItem('auralearn_atoms')) || initialLearningAtoms).map(a => ({
-            ...a,
-            lastReviewed: a.lastReviewed ? new Date(a.lastReviewed) : new Date(),
-            nextReview: a.nextReview ? new Date(a.nextReview) : new Date(),
-            // Ensure SM-2 properties exist for existing atoms
-            easeFactor: a.easeFactor || 2.5,
-            interval: a.interval || 0, // In days
-            repetitions: a.repetitions || 0
+        user: JSON.parse(localStorage.getItem('auralearn_user')),
+        subjects: JSON.parse(localStorage.getItem('auralearn_subjects')),
+        flashcards: (JSON.parse(localStorage.getItem('auralearn_flashcards')) || []).map(f => ({ // Renamed from learningAtoms
+            ...f,
+            lastReviewed: f.lastReviewed ? new Date(f.lastReviewed) : new Date(),
+            nextReview: f.nextReview ? new Date(f.nextReview) : new Date(),
+            easeFactor: f.easeFactor || 2.5,
+            interval: f.interval || 0,
+            repetitions: f.repetitions || 0
         })),
-        aiMaterials: (JSON.parse(localStorage.getItem('auralearn_ai_materials')) || initialAiMaterials),
-        glossary: (JSON.parse(localStorage.getItem('auralearn_glossary')) || initialGlossary),
-        mindMaps: (JSON.parse(localStorage.getItem('auralearn_mind_maps')) || initialMindMaps),
-        calendarEvents: (JSON.parse(localStorage.getItem('auralearn_calendar_events')) || initialCalendarEvents).map(event => ({ // New
+        aiMaterials: JSON.parse(localStorage.getItem('auralearn_ai_materials')),
+        glossary: JSON.parse(localStorage.getItem('auralearn_glossary')),
+        mindMaps: JSON.parse(localStorage.getItem('auralearn_mind_maps')),
+        calendarEvents: (JSON.parse(localStorage.getItem('auralearn_calendar_events')) || []).map(event => ({
             ...event,
-            date: new Date(event.date) // Convert date strings back to Date objects
+            date: new Date(event.date)
         })),
         soundscapes: [
             { name: 'Rain', icon: '🌧️', file: 'rain.mp3' },
             { name: 'Forest', icon: '🌲', file: 'forest.mp3' },
             { name: 'Cafe', icon: '☕', file: 'cafe.mp3' },
-            { name: 'Waves', icon: '�', file: 'waves.mp3' }
+            { name: 'Waves', icon: '🌊', file: 'waves.mp3' } // Changed '?' to '🌊'
         ],
-        // Learning Hub Content with LLM-expandable details (will be formatted by AI)
-        learningHubContent: {
-            auralearnBasics: [
-                { title: "What are Learning Atoms?", summary: "The building blocks of your knowledge in AuraLearn.", details: "In AuraLearn, a 'Learning Atom' is the smallest, most fundamental piece of information or concept you want to master. Breaking down knowledge into these atomic units allows AuraLearn's intelligent Spaced Repetition System (SRS) to precisely track your mastery of each individual piece and schedule it for optimal review, ensuring you don't waste time on what you already know while reinforcing challenging concepts." },
-                { title: "How Spaced Repetition Works", summary: "A science-backed method for long-term memory.", details: "AuraLearn's core is its Spaced Repetition System (SRS). After you review a 'Learning Atom', you rate how well you recalled it. Based on your rating, AuraLearn's algorithm calculates the optimal time to show you that atom again – just before you're likely to forget it. Easy concepts are reviewed less often, difficult ones more frequently. This adaptive scheduling is scientifically proven to move information from short-term to long-term memory much more efficiently than traditional cramming." },
-                { title: "Your Mastery Score", summary: "Understanding your progress.", details: "Your 'Mastery Score' in AuraLearn reflects how deeply ingrained a 'Learning Atom' is in your long-term memory. It's dynamically updated based on your recall performance during study sessions. The higher your mastery, the less frequently an atom needs to be reviewed. This metric provides a clear, objective view of your knowledge retention over time across all your subjects." }
+        // New Themes data (you'll need to update style.css and index.html to fully support these)
+        themes: [
+            { id: 'light', name: 'Light' },
+            { id: 'dark', name: 'Dark' },
+            { id: 'vibrant', name: 'Vibrant' },
+            { id: 'forest-green', name: 'Forest Green' },
+            { id: 'ocean-blue', name: 'Ocean Blue' }
+        ],
+        learningHubContent: { /* ... (same as before) ... */
+             auralearnBasics: [
+                { title: "What are Flashcards?", summary: "The building blocks of your knowledge in AuraLearn.", details: "In AuraLearn, a 'Flashcard' is the smallest, most fundamental piece of information or concept you want to master, presented as a question-answer pair. Breaking down knowledge into these atomic units allows AuraLearn's intelligent Spaced Repetition System (SRS) to precisely track your mastery of each individual piece and schedule it for optimal review, ensuring you don't waste time on what you already know while reinforcing challenging concepts." }, // Updated 'Learning Atom'
+                { title: "How Spaced Repetition Works", summary: "A science-backed method for long-term memory.", details: "AuraLearn's core is its Spaced Repetition System (SRS). After you review a 'Flashcard', you rate how well you recalled it. Based on your rating, AuraLearn's algorithm calculates the optimal time to show you that card again – just before you're likely to forget it. Easy concepts are reviewed less often, difficult ones more frequently. This adaptive scheduling is scientifically proven to move information from short-term to long-term memory much more efficiently than traditional cramming." }, // Updated 'Learning Atom'
+                { title: "Your Mastery Score", summary: "Understanding your progress.", details: "Your 'Mastery Score' in AuraLearn reflects how deeply ingrained a 'Flashcard' is in your long-term memory. It's dynamically updated based on your recall performance during study sessions. The higher your mastery, the less frequently a card needs to be reviewed. This metric provides a clear, objective view of your knowledge retention over time across all your subjects." } // Updated 'Learning Atom'
             ],
             techniques: [
                 { title: "Spaced Repetition", summary: "Reviewing material at increasing intervals to optimize retention.", details: "" },
@@ -310,39 +326,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 { title: "Pomodoro Technique", summary: "Structured time management for focus.", details: "" }
             ]
         },
-        // Tutorial content data (as previously defined)
-        tutorialContent: {
+        tutorialContent: { /* ... (same as before) ... */
             dashboard: {
                 title: "Dashboard Overview",
                 steps: [
                     {
                         heading: "Your Learning Hub",
-                        content: "The Dashboard is your personalized home for AuraLearn. It gives you a quick snapshot of your daily learning queue, current streak, and overall progress.",
+                        content: "The Dashboard is your personalized home for AuraLearn. It gives you a quick snapshot of your daily flashcard queue, current streak, and overall progress.", // Updated 'flashcard'
                         highlightElementId: "view-dashboard"
                     },
                     {
                         heading: "Daily Review Queue",
-                        content: "This section shows you the 'Learning Atoms' that are due for review today based on our intelligent Spaced Repetition algorithm. Click 'Start Daily Review' to begin!",
+                        content: "This section shows you the 'Flashcards' that are due for review today based on our intelligent Spaced Repetition algorithm. Click 'Start Daily Review' to begin!", // Updated 'Flashcards'
                         highlightElementId: "daily-queue-list"
                     },
                     {
                         heading: "Progress at a Glance",
-                        content: "Track your current study streak and total mastered atoms to see your consistency and knowledge growth.",
+                        content: "Track your current study streak and total mastered flashcards to see your consistency and knowledge growth.", // Updated 'flashcards'
                         highlightElementId: "current-streak"
                     },
                     {
-                        heading: "Upcoming Events", // New
+                        heading: "Upcoming Events",
                         content: "See how many assignments, exams, or study sessions are coming up in the next 7 days from your calendar.",
                         highlightElementId: "upcoming-events-count"
                     },
                     {
                         heading: "Recommended for You",
-                        content: "AuraLearn intelligently suggests atoms you might want to review next, helping you prioritize your learning.",
+                        content: "AuraLearn intelligently suggests flashcards you might want to review next, helping you prioritize your learning.", // Updated 'flashcards'
                         highlightElementId: "recommended-atoms-list"
                     },
                     {
-                        heading: "Study Weak Atoms",
-                        content: "Target your most challenging concepts with a dedicated study session for 'Weak Atoms'. These are cards you've struggled with.",
+                        heading: "Study Weak Flashcards", // Renamed
+                        content: "Target your most challenging concepts with a dedicated study session for 'Weak Flashcards'. These are cards you've struggled with.", // Updated 'Flashcards'
                         highlightElementId: "study-weak-atoms-btn"
                     },
                     {
@@ -357,17 +372,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 steps: [
                     {
                         heading: "Your Knowledge Repository",
-                        content: "The Library is where all your 'Learning Atoms' and AI-generated materials are stored and organized by subject.",
+                        content: "The Library is where all your 'Flashcards' and AI-generated materials are stored and organized by subject.", // Updated 'Flashcards'
                         highlightElementId: "view-library"
                     },
                     {
-                        heading: "Subjects and Atoms",
-                        content: "Your flashcards (Learning Atoms) are grouped into subjects. Click on a subject to see all the atoms within it.",
+                        heading: "Subjects and Flashcards", // Renamed
+                        content: "Your flashcards are grouped into subjects. Click on a subject to see all the flashcards within it.", // Updated 'flashcards'
                         highlightElementId: "subject-grid"
                     },
                     {
-                        heading: "Quick Add Atoms",
-                        content: "Easily add new flashcards (questions and answers) directly to your library via the 'Quick Add Atom' button.",
+                        heading: "Quick Add Flashcards", // Renamed
+                        content: "Easily add new flashcards (questions and answers) directly to your library via the 'Quick Add Flashcard' button.", // Updated 'flashcards'
                         highlightElementId: "quick-add-atom-btn-library"
                     },
                     {
@@ -486,8 +501,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </ul>
                     <h3>Using the SMART Framework for Learning Goals</h3>
                     <ul>
-                        <li><strong>Specific:</strong> Clearly define what you want to achieve. (e.g., "Master 50 new JavaScript atoms" instead of "Learn JavaScript").</li>
-                        <li><strong>Measurable:</strong> Ensure your goal can be tracked. AuraLearn helps with this by tracking mastered atoms and study time.</li>
+                        <li><strong>Specific:</strong> Clearly define what you want to achieve. (e.g., "Master 50 new JavaScript flashcards" instead of "Learn JavaScript").</li>
+                        <li><strong>Measurable:</strong> Ensure your goal can be tracked. AuraLearn helps with this by tracking mastered flashcards and study time.</li>
                         <li><strong>Achievable:</strong> Set realistic goals that challenge you but are not impossible.</li>
                         <li><strong>Relevant:</strong> Your goals should align with your broader academic or personal development objectives.</li>
                         <li><strong>Time-bound:</strong> Give your goal a clear end date. This creates urgency.</li>
@@ -512,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </ul>
                     <h3>How to Export Your Data</h3>
                     <ul>
-                        <li>In the <strong>Settings</strong> view, click the "<strong>Export Data</strong>" button. This will download a JSON file containing all your user profile, learning atoms, subjects, AI materials, glossary, and mind maps.</li>
+                        <li>In the <strong>Settings</strong> view, click the "<strong>Export Data</strong>" button. This will download a JSON file containing all your user profile, flashcards, subjects, AI materials, glossary, and mind maps.</li>
                         <li><em>Recommendation: Store this file in a safe place, like cloud storage (Google Drive, Dropbox) or an external hard drive.</em></li>
                     </ul>
                     <h3>How to Import Your Data</h3>
@@ -528,11 +543,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
+
+    // Initialize mockData with fallback values if localStorage is empty or partial
+    // This ensures that even if a new property is added, existing users don't get 'null'
+    // but rather a default for that specific property.
+    mockData.user = mockData.user || JSON.parse(JSON.stringify(initialUserData));
+    mockData.subjects = mockData.subjects || []; // Ensure subjects array exists
+    mockData.aiMaterials = mockData.aiMaterials || [];
+    mockData.glossary = mockData.glossary || [];
+    mockData.mindMaps = mockData.mindMaps || [];
+    // flashcards are already handled with a default empty array and map over
+    // calendarEvents are already handled with a default empty array and map over
+
+
     let appState = {
         currentView: localStorage.getItem('auralearn_currentView') || 'dashboard',
-        studySession: { isActive: false, queue: [], currentIndex: 0, atomsReviewedInSession: 0 },
+        studySession: { isActive: false, queue: [], currentIndex: 0, flashcardsReviewedInSession: 0 }, // Renamed
         pomodoro: { timerId: null, timeLeft: 25 * 60, isRunning: false, mode: 'work', audio: null },
-        onboardingCompleted: localStorage.getItem('auralearn_onboardingCompleted') === 'true',
+        onboardingCompleted: localStorage.getItem('auralearn_onboardingCompleted') === 'true', // Correctly read bool
         currentTheme: localStorage.getItem('auralearn_theme') || 'light',
         learningHubCategory: 'auralearnBasics',
         aiInputMode: 'text',
@@ -549,19 +577,19 @@ document.addEventListener('DOMContentLoaded', () => {
             isDragging: false,
             dragOffsetX: 0,
             dragOffsetY: 0,
-            scale: 1, // Future: for zoom
-            offsetX: 0, // Future: for pan
-            offsetY: 0  // Future: for pan
+            scale: 1,
+            offsetX: 0,
+            offsetY: 0
         },
-        calendar: { // New calendar state
-            currentDate: new Date(), // Represents the month/year currently displayed
-            selectedDay: null,       // The day clicked on the calendar
-            editingEvent: null       // The event currently being edited (null for new event)
+        calendar: {
+            currentDate: new Date(),
+            selectedDay: null,
+            editingEvent: null
         }
     };
 
     // Gemini API configuration (placeholder - Canvas will provide this at runtime)
-    const apiKey = "AIzaSyBVDc_pdjpvbv4nzcKnxmRPLiKCu7BXF2I";
+    const apiKey = "";
 
     // --- Helper Functions ---
 
@@ -598,17 +626,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function unlockAchievement(achievementId) {
         if (!mockData.user.achievements.includes(achievementId)) {
             mockData.user.achievements.push(achievementId);
-            showNotification(`Achievement Unlocked: ${mockData.achievements.find(a => a.id === achievementId)?.name || achievementId}! 🏅`);
+            // Assuming mockData.achievements is updated elsewhere or can be derived
+            // For now, let's ensure achievements in mockData always reflect the user's unlocked ones
+            // This is just a UI message, the actual check is in checkAchievements()
+            const achievementName = (mockData.achievements || []).find(a => a.id === achievementId)?.name || achievementId;
+            showNotification(`Achievement Unlocked: ${achievementName}! 🏅`);
             saveUserData();
             if (appState.currentView === 'achievements') renderAchievements(); // Re-render if on achievements page
         }
     }
 
     /**
-     * Calculates the next review date for a learning atom using an SM-2 like algorithm.
-     * @param {Date} lastReviewed - The date the atom was last reviewed.
+     * Calculates the next review date for a flashcard using an SM-2 like algorithm.
+     * @param {Date} lastReviewed - The date the flashcard was last reviewed.
      * @param {number} quality - Recall quality (0-3: Forgot, Struggled, Good, Perfect).
-     * @param {number} currentEaseFactor - The current ease factor for the atom.
+     * @param {number} currentEaseFactor - The current ease factor for the flashcard.
      * @param {number} currentInterval - The current interval in days.
      * @param {number} repetitions - Number of consecutive successful recalls (quality >= 2).
      * @returns {{nextReview: Date, newInterval: number, newEaseFactor: number, newRepetitions: number}}
@@ -670,20 +702,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Gets atoms due for review today, sorted by next review date.
-     * @returns {Array<Object>} Filtered and sorted list of learning atoms.
+     * Gets flashcards due for review today, sorted by next review date.
+     * @returns {Array<Object>} Filtered and sorted list of flashcards.
      */
     function getDailyQueue() {
         const now = new Date();
         now.setHours(0, 0, 0, 0); // Normalize 'now' to start of today for comparison
 
-        return mockData.learningAtoms.filter(atom => {
-            const nextReviewDate = atom.nextReview instanceof Date ? atom.nextReview : new Date(atom.nextReview);
-            nextReviewDate.setHours(0, 0, 0, 0); // Normalize atom's next review date
+        return mockData.flashcards.filter(flashcard => { // Renamed
+            const nextReviewDate = flashcard.nextReview instanceof Date ? flashcard.nextReview : new Date(flashcard.nextReview);
+            nextReviewDate.setHours(0, 0, 0, 0); // Normalize flashcard's next review date
 
             // Handle very short intervals (less than a day) correctly
-            if (atom.interval < 1 && atom.repetitions === 0) { // If it's a new/forgotten card with short interval
-                const reviewTime = new Date(atom.lastReviewed.getTime() + atom.interval * 24 * 60 * 60 * 1000);
+            if (flashcard.interval < 1 && flashcard.repetitions === 0) { // If it's a new/forgotten card with short interval
+                const reviewTime = new Date(flashcard.lastReviewed.getTime() + flashcard.interval * 24 * 60 * 60 * 1000);
                 return reviewTime <= new Date(); // Check if actual time has passed
             }
             return nextReviewDate <= now; // For intervals >= 1 day, just compare dates
@@ -695,25 +727,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Gets atoms that the user has struggled with (low repetitions, low ease factor).
-     * @returns {Array<Object>} List of weak learning atoms.
+     * Gets flashcards that the user has struggled with (low repetitions, low ease factor).
+     * @returns {Array<Object>} List of weak flashcards.
      */
-    function getWeakAtoms() {
-        return mockData.learningAtoms
-            .filter(atom => atom.repetitions < 3 && atom.easeFactor < 2.0 && atom.interval > 0) // Struggled, but not brand new
+    function getWeakFlashcards() { // Renamed
+        return mockData.flashcards // Renamed
+            .filter(flashcard => flashcard.repetitions < 3 && flashcard.easeFactor < 2.0 && flashcard.interval > 0) // Struggled, but not brand new
             .sort((a, b) => a.easeFactor - b.easeFactor) // Sort by lowest ease factor first
-            .slice(0, 20); // Limit to 20 weak atoms for a session
+            .slice(0, 20); // Limit to 20 weak flashcards for a session
     }
 
     /**
-     * Gets recommended atoms (e.g., lowest difficulty and not in today's queue).
-     * @returns {Array<Object>} List of recommended learning atoms.
+     * Gets recommended flashcards (e.g., lowest difficulty and not in today's queue).
+     * @returns {Array<Object>} List of recommended flashcards.
      */
-    function getRecommendedAtoms() {
-        const todayQueueIds = new Set(getDailyQueue().map(a => a.id));
-        return mockData.learningAtoms
-            .filter(atom => atom.repetitions === 0 && !todayQueueIds.has(atom.id)) // Only truly new atoms not in today's queue
-            .sort((a, b) => new Date(a.nextReview).getTime() - new Date(b.nextReview).getTime()) // Sort by next review for new atoms
+    function getRecommendedFlashcards() { // Renamed
+        const todayQueueIds = new Set(getDailyQueue().map(f => f.id)); // Renamed
+        return mockData.flashcards // Renamed
+            .filter(flashcard => flashcard.repetitions === 0 && !todayQueueIds.has(flashcard.id)) // Only truly new flashcards not in today's queue
+            .sort((a, b) => new Date(a.nextReview).getTime() - new Date(b.nextReview).getTime()) // Sort by next review for new flashcards
             .slice(0, 3); // Show top 3 recommendations
     }
 
@@ -753,13 +785,13 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarUsername.textContent = mockData.user.name;
         sidebarUsernameMobile.textContent = mockData.user.name;
         currentStreak.textContent = `🔥 ${mockData.user.streak} Days`;
-        totalMasteredAtoms.textContent = mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length; // Define mastered as 3+ reps and good ease
-        dailyQueueCount.textContent = `${getDailyQueue().length} Atoms`;
-        upcomingEventsCount.textContent = getUpcomingEvents().length; // New: Update upcoming events count
+        totalMasteredFlashcards.textContent = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
+        dailyQueueCount.textContent = `${getDailyQueue().length} Flashcards`; // Renamed
+        upcomingEventsCount.textContent = getUpcomingEvents().length;
 
         // Render content specific to the current view
         if (appState.currentView === 'dashboard') renderDashboard();
-        if (appState.currentView === 'calendar') renderCalendar(); // New
+        if (appState.currentView === 'calendar') renderCalendar();
         if (appState.currentView === 'library') renderLibrary();
         if (appState.currentView === 'ai-learning') renderAILearning();
         if (appState.currentView === 'mind-map') renderMindMap();
@@ -777,23 +809,23 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function renderDashboard() {
         const dailyQueue = getDailyQueue();
-        const weakAtoms = getWeakAtoms();
+        const weakFlashcards = getWeakFlashcards(); // Renamed
         const queueList = document.getElementById('daily-queue-list');
         queueList.innerHTML = ''; // Clear previous list items
 
         if (dailyQueue.length === 0) {
-            queueList.innerHTML = '<li class="p-3 text-secondary text-center list-item-themed">No atoms due for review today. Great job!</li>';
+            queueList.innerHTML = '<li class="p-3 text-secondary text-center list-item-themed">No flashcards due for review today. Great job!</li>'; // Renamed
             startReviewBtn.textContent = 'No Reviews Today';
             startReviewBtn.disabled = true;
         } else {
-            dailyQueue.forEach(atom => {
-                const subject = mockData.subjects.find(s => s.id === atom.subjectId);
+            dailyQueue.forEach(flashcard => { // Renamed
+                const subject = mockData.subjects.find(s => s.id === flashcard.subjectId); // Renamed
                 const li = document.createElement('li');
                 li.className = 'flex items-center justify-between p-3 rounded-lg border list-item-themed hover:list-item-themed';
                 const subjectColorClass = subject ? `${subject.color} ${subject.textColor}` : 'bg-gray-200 text-gray-800';
                 li.innerHTML = `
                     <div>
-                        <p class="font-medium text-primary">${atom.question}</p>
+                        <p class="font-medium text-primary">${flashcard.question}</p>
                         <span class="text-xs font-semibold ${subjectColorClass} px-2 py-1 rounded-full">${subject ? subject.name : 'Unknown Subject'}</span>
                     </div>
                     <span class="text-secondary text-lg">›</span>
@@ -804,36 +836,36 @@ document.addEventListener('DOMContentLoaded', () => {
             startReviewBtn.disabled = false;
         }
 
-        // Update Weak Atoms button text
-        studyWeakAtomsBtn.textContent = `Study Weak Atoms (${weakAtoms.length})`;
-        studyWeakAtomsBtn.disabled = weakAtoms.length === 0;
+        // Update Weak Flashcards button text
+        studyWeakFlashcardsBtn.textContent = `Study Weak Flashcards (${weakFlashcards.length})`; // Renamed
+        studyWeakFlashcardsBtn.disabled = weakFlashcards.length === 0; // Renamed
 
-        // Render Recommended Atoms
-        const recommendedAtoms = getRecommendedAtoms();
-        recommendedAtomsList.innerHTML = '';
-        if (recommendedAtoms.length === 0) {
-            recommendedAtomsList.innerHTML = `<p class="text-secondary text-center mt-4">No specific recommendations yet. Start importing content!</p>`;
+        // Render Recommended Flashcards
+        const recommendedFlashcards = getRecommendedFlashcards(); // Renamed
+        recommendedFlashcardsList.innerHTML = ''; // Renamed
+        if (recommendedFlashcards.length === 0) { // Renamed
+            recommendedFlashcardsList.innerHTML = `<p class="text-secondary text-center mt-4">No specific recommendations yet. Start importing content!</p>`; // Renamed
         } else {
-            recommendedAtoms.forEach(atom => {
-                const subject = mockData.subjects.find(s => s.id === atom.subjectId);
+            recommendedFlashcards.forEach(flashcard => { // Renamed
+                const subject = mockData.subjects.find(s => s.id === flashcard.subjectId); // Renamed
                 const li = document.createElement('div');
                 li.className = 'flex items-center justify-between p-3 rounded-lg border list-item-themed hover:list-item-themed';
                 const subjectColorClass = subject ? `${subject.color} ${subject.textColor}` : 'bg-gray-200 text-gray-800';
                 li.innerHTML = `
                     <div>
-                        <p class="font-medium text-primary">${atom.question}</p>
+                        <p class="font-medium text-primary">${flashcard.question}</p>
                         <span class="text-xs font-semibold ${subjectColorClass} px-2 py-1 rounded-full">${subject ? subject.name : 'Unknown Subject'}</span>
                     </div>
-                    <button class="bg-accent-blue text-white text-xs py-1 px-2 rounded-md hover:bg-accent-blue-hover" data-atom-id="${atom.id}" aria-label="Review ${atom.question}">Review</button>
-                `;
-                recommendedAtomsList.appendChild(li);
+                    <button class="bg-accent-blue text-white text-xs py-1 px-2 rounded-md hover:bg-accent-blue-hover" data-flashcard-id="${flashcard.id}" aria-label="Review ${flashcard.question}">Review</button>
+                `; // Renamed data-atom-id
+                recommendedFlashcardsList.appendChild(li); // Renamed
 
                 const reviewBtn = li.querySelector('button');
                 reviewBtn.addEventListener('click', () => {
-                    const atomId = parseInt(reviewBtn.dataset.atomId);
-                    const selectedAtom = mockData.learningAtoms.find(a => a.id === atomId);
-                    if (selectedAtom) {
-                        showDetailModal({ title: selectedAtom.question, details: selectedAtom.answer });
+                    const flashcardId = parseInt(reviewBtn.dataset.flashcardId); // Renamed
+                    const selectedFlashcard = mockData.flashcards.find(f => f.id === flashcardId); // Renamed
+                    if (selectedFlashcard) {
+                        showDetailModal({ title: selectedFlashcard.question, details: selectedFlashcard.answer });
                     }
                 });
             });
@@ -849,9 +881,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 mockData.user.streak = 0;
             }
         }
-        dailyChallengeText.textContent = `Review 5 atoms to complete today's challenge!`;
+        dailyChallengeText.textContent = `Review 5 flashcards to complete today's challenge!`; // Renamed
         dailyChallengeProgress.style.width = `${(mockData.user.dailyChallengeProgress / 5) * 100}%`;
-        dailyChallengeStatus.textContent = `${mockData.user.dailyChallengeProgress}/5 Atoms Reviewed`;
+        dailyChallengeStatus.textContent = `${mockData.user.dailyChallengeProgress}/5 Flashcards Reviewed`; // Renamed
 
         if (mockData.user.dailyChallengeProgress >= 5 && mockData.user.lastChallengeDate === today) {
             claimChallengeBtn.classList.remove('hidden');
@@ -872,7 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Renders the Calendar view for the current month. (New)
+     * Renders the Calendar view for the current month.
      */
     function renderCalendar() {
         const today = new Date();
@@ -888,8 +920,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const daysInMonth = lastDayOfMonth.getDate();
         const startDayOfWeek = firstDayOfMonth.getDay(); // 0 for Sunday, 6 for Saturday
 
-        let dayCounter = 1;
-
         // Add empty cells for days before the 1st of the month
         for (let i = 0; i < startDayOfWeek; i++) {
             const emptyCell = document.createElement('div');
@@ -901,7 +931,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 1; i <= daysInMonth; i++) {
             const dayCell = document.createElement('div');
             dayCell.className = 'calendar-day-cell';
-            dayCell.dataset.date = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`; // YYYY-MM-DD
+            dayCell.dataset.date = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
             dayCell.innerHTML = `<span class="calendar-day-number">${i}</span>`;
 
             const fullDate = new Date(currentYear, currentMonth, i);
@@ -919,7 +949,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (appState.calendar.selectedDay && fullDate.toDateString() === appState.calendar.selectedDay.toDateString()) {
                 dayCell.classList.add('selected-day');
             }
-
 
             // Add event markers
             const eventsForThisDay = mockData.calendarEvents.filter(event => {
@@ -969,7 +998,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Renders events for the currently selected day in the calendar. (New)
+     * Renders events for the currently selected day in the calendar.
      */
     function renderEventsForSelectedDay() {
         if (!appState.calendar.selectedDay) {
@@ -1014,7 +1043,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Calendar Navigation event listeners (New)
+    // Calendar Navigation event listeners
     prevMonthBtn.addEventListener('click', () => {
         appState.calendar.currentDate.setMonth(appState.calendar.currentDate.getMonth() - 1);
         renderCalendar();
@@ -1027,7 +1056,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addEventBtn.addEventListener('click', () => showAddEditEventModal(null, appState.calendar.selectedDay)); // Pass selected day to pre-fill date
 
-    // Add/Edit Event Modal Logic (New)
+    // Add/Edit Event Modal Logic
     function showAddEditEventModal(event = null, dateToPreFill = null) {
         addEditEventModal.classList.remove('hidden');
         if (event) {
@@ -1124,8 +1153,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 div.className = `p-4 rounded-xl shadow-sm border border-border-color ${subject.color} cursor-pointer hover:shadow-md transition-shadow`;
                 div.innerHTML = `
                     <h4 class="font-bold ${subject.textColor}">${subject.name}</h4>
-                    <p class="text-sm ${subject.textColor.replace('-800', '-600')}">${mockData.learningAtoms.filter(a => a.subjectId === subject.id).length} Atoms</p>
-                `;
+                    <p class="text-sm ${subject.textColor.replace('-800', '-600')}">${mockData.flashcards.filter(f => f.subjectId === subject.id).length} Flashcards</p>
+                `; // Renamed
                 div.addEventListener('click', () => showSubjectDetails(subject.id));
                 subjectGrid.appendChild(div);
             });
@@ -1176,36 +1205,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Shows the subject details modal with its associated learning atoms.
+     * Shows the subject details modal with its associated flashcards.
      * @param {string} subjectId - The ID of the subject.
      */
     function showSubjectDetails(subjectId) {
         const subject = mockData.subjects.find(s => s.id === subjectId);
         if (!subject) return;
 
-        subjectDetailTitle.textContent = `${subject.name} Atoms`;
-        subjectAtomsList.innerHTML = ''; // Clear previous list
+        subjectDetailTitle.textContent = `${subject.name} Flashcards`; // Renamed
+        subjectFlashcardsList.innerHTML = ''; // Renamed // Clear previous list
 
-        const atomsInSubject = mockData.learningAtoms.filter(atom => atom.subjectId === subjectId);
+        const flashcardsInSubject = mockData.flashcards.filter(flashcard => flashcard.subjectId === subjectId); // Renamed
 
-        if (atomsInSubject.length === 0) {
-            subjectAtomsList.innerHTML = '<p class="text-secondary text-center list-item-themed">No learning atoms in this subject yet.</p>';
+        if (flashcardsInSubject.length === 0) {
+            subjectFlashcardsList.innerHTML = '<p class="text-secondary text-center list-item-themed">No flashcards in this subject yet.</p>'; // Renamed
         } else {
-            atomsInSubject.forEach(atom => {
-                const atomDiv = document.createElement('div');
-                atomDiv.className = 'p-3 rounded-lg border list-item-themed hover:list-item-themed cursor-pointer transition-colors';
-                atomDiv.innerHTML = `
-                    <p class="font-semibold text-primary">${atom.question}</p>
+            flashcardsInSubject.forEach(flashcard => { // Renamed
+                const flashcardDiv = document.createElement('div'); // Renamed
+                flashcardDiv.className = 'p-3 rounded-lg border list-item-themed hover:list-item-themed cursor-pointer transition-colors';
+                flashcardDiv.innerHTML = `
+                    <p class="font-semibold text-primary">${flashcard.question}</p>
                     <p class="text-xs text-secondary mt-1">
-                        Recall: ${atom.repetitions}x, Interval: ${atom.interval.toFixed(2)} days, Ease: ${atom.easeFactor.toFixed(2)}
+                        Recall: ${flashcard.repetitions}x, Interval: ${flashcard.interval.toFixed(2)} days, Ease: ${flashcard.easeFactor.toFixed(2)}
                     </p>
-                    <p class="text-xs text-secondary">Next Review: ${new Date(atom.nextReview).toLocaleDateString()}</p>
+                    <p class="text-xs text-secondary">Next Review: ${new Date(flashcard.nextReview).toLocaleDateString()}</p>
                 `;
-                atomDiv.addEventListener('click', (e) => {
+                flashcardDiv.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    showDetailModal({ title: atom.question, details: atom.answer });
+                    showDetailModal({ title: flashcard.question, details: flashcard.answer });
                 });
-                subjectAtomsList.appendChild(atomDiv);
+                subjectFlashcardsList.appendChild(flashcardDiv); // Renamed
             });
         }
         subjectDetailModal.classList.remove('hidden');
@@ -1257,14 +1286,29 @@ document.addEventListener('DOMContentLoaded', () => {
         aiGenerationStatus.classList.add('hidden');
         populateAILearningSubjectSelect();
         updateAiInputUI();
+        // Initialize quiz controls visibility (assuming they are there)
+        const quizControls = document.getElementById('quiz-controls'); // You'll need to add this div in HTML
+        if (quizControls) {
+            quizControls.classList.add('hidden');
+        }
     }
 
     /**
-     * Populates the subject dropdown for the AI Learning section.
+     * Populates the subject dropdown for the AI Learning section, including default subjects.
      */
     function populateAILearningSubjectSelect() {
         aiContentSubjectSelect.innerHTML = '<option value="">Select or Add New Subject</option>';
-        mockData.subjects.forEach(subject => {
+
+        // Add default subjects first
+        defaultSubjects.forEach(subject => {
+            const option = document.createElement('option');
+            option.value = subject.id;
+            option.textContent = subject.name;
+            aiContentSubjectSelect.appendChild(option);
+        });
+
+        // Add user-added subjects, avoiding duplicates if they have the same ID as a default
+        mockData.subjects.filter(s => !defaultSubjects.some(ds => ds.id === s.id)).forEach(subject => {
             const option = document.createElement('option');
             option.value = subject.id;
             option.textContent = subject.name;
@@ -1283,6 +1327,21 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             aiInputContentLabel.textContent = 'Provide text, a topic, or questions for the AI to process:';
             aiInputContent.placeholder = "Enter text, a topic, or specific questions here... e.g., 'Explain blockchain technology', 'Summarize World War 2 causes', or 'Quiz me on React hooks'.";
+        }
+    }
+
+    /**
+     * Toggles visibility of quiz settings based on active AI generation type.
+     * @param {string} type - The type of content to generate.
+     */
+    function toggleQuizSettingsVisibility(type) {
+        const quizSettings = document.getElementById('quiz-settings-container'); // Assuming you'll add this container in HTML
+        if (quizSettings) {
+            if (type === 'quiz') {
+                quizSettings.classList.remove('hidden');
+            } else {
+                quizSettings.classList.add('hidden');
+            }
         }
     }
 
@@ -1318,21 +1377,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let subjectId;
         let subjectName;
+        // First check if a new subject is being added via the input field
         if (!aiContentNewSubjectInput.classList.contains('hidden') && aiContentNewSubjectInput.value.trim()) {
             subjectName = aiContentNewSubjectInput.value.trim();
             subjectId = subjectName.toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9-]/g, '');
-            if (!mockData.subjects.find(s => s.id === subjectId)) {
-                mockData.subjects.push({ id: subjectId, name: subjectName, color: "bg-blue-100", textColor: "text-blue-800", atoms: 0, lastReviewed: null });
+            // Check if this new subject already exists (either default or user-added)
+            if (!mockData.subjects.find(s => s.id === subjectId) && !defaultSubjects.find(ds => ds.id === subjectId)) {
+                // Add to user-specific subjects if it's genuinely new
+                mockData.subjects.push({ id: subjectId, name: subjectName, color: "bg-blue-100", textColor: "text-blue-800", flashcards: 0, lastReviewed: null }); // Renamed 'atoms'
             }
         } else {
+            // If not adding a new subject, use the selected subject
             subjectId = aiContentSubjectSelect.value;
             if (type === 'notes-flashcards' && !subjectId) {
-                showNotification('Please select an existing subject or add a new one for Flashcards.', true);
+                showNotification('Please select an existing subject or add a new one for Flashcards.', true); // Renamed
                 aiGenerationStatus.classList.add('hidden');
                 if (currentButton) currentButton.disabled = false;
                 return;
             }
-            subjectName = mockData.subjects.find(s => s.id === subjectId)?.name || 'General AI Content';
+            subjectName = (mockData.subjects.find(s => s.id === subjectId) || defaultSubjects.find(s => s.id === subjectId))?.name || 'General AI Content';
         }
 
         let prompt = '';
@@ -1340,7 +1403,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let outputTitle = '';
         let savedContentTitle = '';
 
-        // Added specific formatting instructions for notes and summaries
         const commonNoteFormatInstructions = `Format the content into clear sections:
         <h3>Main Info</h3>
         <ul>
@@ -1368,12 +1430,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 outputTitle = 'AI Notes';
                 savedContentTitle = `AI Notes on: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
                 prompt = `Generate concise, organized notes on the topic or from the text: "${content}". ${commonNoteFormatInstructions}`;
-                responseSchema = { type: "STRING" }; // For direct HTML string output
+                responseSchema = { type: "STRING" };
                 break;
             case 'notes-flashcards':
                 outputTitle = 'Generated Flashcards';
                 savedContentTitle = `Flashcards for: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
-                prompt = `Extract key concepts and their explanations, structured as concise question-answer pairs (Learning Atoms). Provide at least 5 pairs if possible. For each pair, the question should be concise and the answer should be informative but brief enough for a flashcard. Ensure no markdown formatting like asterisks or bullet points are used within the question or answer text. Content: "${content}"`;
+                prompt = `Extract key concepts and their explanations, structured as concise question-answer pairs (Flashcards). Provide at least 5 pairs if possible. For each pair, the question should be concise and the answer should be informative but brief enough for a flashcard. Ensure no markdown formatting like asterisks or bullet points are used within the question or answer text. Content: "${content}"`; // Renamed
                 responseSchema = {
                     type: "ARRAY",
                     items: {
@@ -1389,7 +1451,9 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'quiz':
                 outputTitle = 'Generated Quiz';
                 savedContentTitle = `Quiz on: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
-                prompt = `Generate a 5-question multiple-choice quiz based on the following content: "${content}". For each question, provide 4 options (A, B, C, D) and indicate the correct answer. Format as JSON, ensuring no markdown characters like asterisks or bullet points are used within the question or option text: [{"question": "...", "options": ["A", "B", "C", "D"], "correct_answer": "A"}, ...]`;
+                const numQuestions = quizQuestionCountInput ? parseInt(quizQuestionCountInput.value) : 5; // Default to 5
+                const difficulty = quizDifficultySelect ? quizDifficultySelect.value : 'medium'; // Default to medium
+                prompt = `Generate a ${numQuestions}-question multiple-choice quiz based on the following content: "${content}". The questions should be of ${difficulty} difficulty. For each question, provide 4 options (A, B, C, D) and indicate the correct answer. Format as JSON, ensuring no markdown characters like asterisks or bullet points are used within the question or option text: [{"question": "...", "options": ["A", "B", "C", "D"], "correct_answer": "A"}, ...]`;
                 responseSchema = {
                     type: "ARRAY",
                     items: {
@@ -1434,7 +1498,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 outputTitle = 'AI Summary';
                 savedContentTitle = `Summary for: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
                 prompt = `Provide a concise, key-point summary of the following text/topic: "${content}". ${commonNoteFormatInstructions}`;
-                responseSchema = { type: "STRING" }; // For direct HTML string output
+                responseSchema = { type: "STRING" };
                 break;
             default:
                 showNotification('Invalid AI generation type.', true);
@@ -1454,7 +1518,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
 
-            // Special handling for 'note' and 'summary' types which return plain string, not JSON
             if (type === 'note' || type === 'summary') {
                 delete payload.generationConfig.responseMimeType;
                 delete payload.generationConfig.responseSchema;
@@ -1485,56 +1548,55 @@ document.addEventListener('DOMContentLoaded', () => {
                     aiGeneratedOutput.classList.remove('hidden');
 
                     if (type === 'notes-flashcards') {
-                        const subjectObj = mockData.subjects.find(s => s.id === subjectId);
-                        generatedContent.forEach(atomData => {
-                            const newAtom = {
-                                id: mockData.learningAtoms.length > 0 ? Math.max(...mockData.learningAtoms.map(a => a.id)) + 1 : 1, // Ensure unique ID
+                        // Merge default subjects with user-added ones for a complete list
+                        const allSubjects = [...defaultSubjects, ...mockData.subjects];
+                        const subjectObj = allSubjects.find(s => s.id === subjectId);
+
+                        generatedContent.forEach(flashcardData => { // Renamed
+                            const newFlashcard = { // Renamed
+                                id: mockData.flashcards.length > 0 ? Math.max(...mockData.flashcards.map(f => f.id)) + 1 : 1, // Renamed
                                 subjectId: subjectId,
-                                question: atomData.question,
-                                answer: atomData.answer,
+                                question: flashcardData.question,
+                                answer: flashcardData.answer,
                                 lastReviewed: new Date(),
-                                // Initialize for SM-2
                                 easeFactor: 2.5,
                                 interval: 0,
                                 repetitions: 0,
-                                nextReview: new Date() // Will be updated on first review
+                                nextReview: new Date()
                             };
-                            mockData.learningAtoms.push(newAtom);
+                            mockData.flashcards.push(newFlashcard); // Renamed
                         });
-                        showNotification(`Generated flashcards added to your '${subjectName}' subject!`);
-                        unlockAchievement('first-flashcards-generated'); // Unlock achievement
+                        showNotification(`Generated flashcards added to your '${subjectName}' subject!`); // Renamed
+                        unlockAchievement('first-flashcards-generated');
                     } else if (type === 'keywords') {
                         generatedContent.forEach(item => {
                             if (!mockData.glossary.find(g => g.keyword.toLowerCase() === item.keyword.toLowerCase())) {
-                                mockData.glossary.push(item); // Add to global glossary
+                                mockData.glossary.push(item);
                             }
                         });
                         showNotification(`Keywords extracted and added to your Glossary!`);
-                        unlockAchievement('first-keywords-extracted'); // Unlock achievement
+                        unlockAchievement('first-keywords-extracted');
                     } else if (type === 'quiz') {
                          showNotification(`Quiz generated and saved!`);
-                         unlockAchievement('first-quiz-generated'); // Unlock achievement
+                         unlockAchievement('first-quiz-generated');
                     } else if (type === 'note') {
                          showNotification(`Notes generated and saved!`);
-                         unlockAchievement('first-ai-note'); // Unlock achievement
+                         unlockAchievement('first-ai-note');
                     } else if (type === 'summary') {
                         showNotification(`Summary generated and saved!`);
                     }
 
-
-                    // Save material for all types except notes-flashcards (handled above)
                     if (type !== 'notes-flashcards') {
                         const newMaterial = {
-                            id: mockData.aiMaterials.length > 0 ? Math.max(...mockData.aiMaterials.map(m => m.id)) + 1 : 1, // Ensure unique ID
+                            id: mockData.aiMaterials.length > 0 ? Math.max(...mockData.aiMaterials.map(m => m.id)) + 1 : 1,
                             type: type,
                             title: savedContentTitle,
                             content: generatedContent,
                             timestamp: new Date().toISOString(),
-                            subjectId: subjectId // Can be empty string if no subject selected
+                            subjectId: subjectId
                         };
                         mockData.aiMaterials.push(newMaterial);
                     }
-
 
                     // Display generated content in the output area regardless of where it's saved
                     if (type === 'note' || type === 'summary') {
@@ -1611,9 +1673,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const textGreenColor = getComputedStyle(document.body).getPropertyValue('--text-green');
         const textOrangeColor = getComputedStyle(document.body).getPropertyValue('--text-orange');
 
-        const masteredCount = mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length;
-        const learningCount = mockData.learningAtoms.filter(atom => atom.repetitions > 0 && !(atom.repetitions >= 3 && atom.easeFactor >= 2.0)).length;
-        const newCount = mockData.learningAtoms.filter(atom => atom.repetitions === 0).length;
+        const masteredCount = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
+        const learningCount = mockData.flashcards.filter(f => f.repetitions > 0 && !(f.repetitions >= 3 && f.easeFactor >= 2.0)).length; // Renamed
+        const newCount = mockData.flashcards.filter(f => f.repetitions === 0).length; // Renamed
 
         const masteryCtx = document.getElementById('masteryChart').getContext('2d');
         charts.mastery = new Chart(masteryCtx, {
@@ -1637,7 +1699,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             label: (context) => {
                                 let label = context.label || '';
                                 if (label) { label += ': '; }
-                                label += Math.round(context.parsed) + ' atoms';
+                                label += Math.round(context.parsed) + ' flashcards'; // Renamed
                                 return label;
                             }
                         }
@@ -1702,7 +1764,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Calculate month difference to place data correctly in the last 6 months + current
                 const monthDiff = (currentMonth - logDate.getMonth() + 12) % 12;
                 if (monthDiff < 7) { // 0 for current month, 1 for last month, ..., 6 for 6 months ago
-                    growthData[6 - monthDiff] = log.masteredAtoms;
+                    growthData[6 - monthDiff] = log.masteredFlashcards; // Renamed
                 }
             });
         }
@@ -1714,7 +1776,7 @@ document.addEventListener('DOMContentLoaded', () => {
             data: {
                 labels: ['6M Ago', '5M Ago', '4M Ago', '3M Ago', '2M Ago', 'Last Month', 'Current'],
                 datasets: [{
-                    label: 'Total Atoms Mastered',
+                    label: 'Total Flashcards Mastered', // Renamed
                     data: growthData,
                     fill: true,
                     borderColor: accentBlueColor,
@@ -1732,7 +1794,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             label: (context) => {
                                 let label = context.dataset.label || '';
                                 if (label) { label += ': '; }
-                                label += context.parsed.y + ' atoms';
+                                label += context.parsed.y + ' flashcards'; // Renamed
                                 return label;
                             }
                         }
@@ -1753,9 +1815,9 @@ document.addEventListener('DOMContentLoaded', () => {
             emptyGoalsMessage.classList.add('hidden');
             mockData.user.learningGoals.forEach(goal => {
                 let currentProgressValue = 0;
-                const masteredCount = mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length;
+                const masteredCount = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
 
-                if (goal.targetType === 'atoms') {
+                if (goal.targetType === 'flashcards') { // Renamed
                     currentProgressValue = masteredCount;
                 } else if (goal.targetType === 'time') {
                     const now = new Date();
@@ -1788,19 +1850,19 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function renderAchievements() {
         achievementsList.innerHTML = '';
+        // Defined here for clarity, but could be loaded from an external config
         const allAchievements = [
-            { id: 'first-atom', name: 'First Atom Added', description: 'Add your very first learning atom.', icon: '✨' },
-            { id: 'mastery-beginner', name: 'Beginner Master', description: 'Master 10 learning atoms.', icon: '⭐' },
-            { id: 'mastery-intermediate', name: 'Intermediate Master', description: 'Master 50 learning atoms.', icon: '🌟' },
+            { id: 'first-flashcard', name: 'First Flashcard Added', description: 'Add your very first flashcard.', icon: '✨' }, // Renamed
+            { id: 'mastery-beginner', name: 'Beginner Master', description: 'Master 10 flashcards.', icon: '⭐' }, // Renamed
+            { id: 'mastery-intermediate', name: 'Intermediate Master', description: 'Master 50 flashcards.', icon: '🌟' }, // Renamed
             { id: 'streak-7-days', name: '7-Day Streak', description: 'Achieve a 7-day study streak.', icon: '🗓️' },
             { id: 'streak-30-days', name: '30-Day Streak', description: 'Achieve a 30-day study streak.', icon: '🏆' },
-            { id: 'daily-challenge-master', name: 'Daily Challenger', description: 'Complete 10 daily challenges.', icon: '🎯' }, // Note: check for 10 daily challenges, not just one completion
+            { id: 'daily-challenge-master', name: 'Daily Challenger', description: 'Complete 10 daily challenges.', icon: '🎯' },
             { id: 'first-ai-note', name: 'AI Note Creator', description: 'Generate your first AI Note.', icon: '📝' },
             { id: 'first-flashcards-generated', name: 'Flashcard Progenitor', description: 'Generate flashcards using AI.', icon: '💡' },
             { id: 'first-quiz-generated', name: 'Quiz Whiz', description: 'Generate your first AI quiz.', icon: '🧠' },
             { id: 'first-keywords-extracted', name: 'Keyword Explorer', description: 'Extract keywords using AI.', icon: '🔑' },
             { id: 'first-mind-map', name: 'Mind Mapper', description: 'Create your first Mind Map.', icon: '🗺️' }
-            // Add more achievements here
         ];
         mockData.achievements = mockData.user.achievements; // Ensure mockData.achievements always reflects user's unlocked ones
 
@@ -1879,6 +1941,28 @@ document.addEventListener('DOMContentLoaded', () => {
         intervalGoodInput.value = mockData.user.srsIntervals.good;
         intervalStruggledInput.value = mockData.user.srsIntervals.struggled;
         intervalForgotInput.value = mockData.user.srsIntervals.forgot;
+
+        // Render theme buttons
+        const themeButtonContainer = document.querySelector('#view-settings .flex.gap-4'); // Target the theme buttons container
+        if (themeButtonContainer) {
+            themeButtonContainer.innerHTML = ''; // Clear existing buttons
+            mockData.themes.forEach(theme => {
+                const button = document.createElement('button');
+                button.dataset.theme = theme.id;
+                button.className = `theme-btn border-2 p-3 rounded-lg text-primary font-semibold hover:opacity-80 transition-opacity`;
+                button.textContent = theme.name;
+                button.addEventListener('click', (e) => applyTheme(e.target.dataset.theme));
+
+                if (theme.id === appState.currentTheme) {
+                    button.classList.add('border-accent-blue');
+                    button.classList.remove('border-border-color');
+                } else {
+                    button.classList.remove('border-accent-blue');
+                    button.classList.add('border-border-color');
+                }
+                themeButtonContainer.appendChild(button);
+            });
+        }
     }
 
     /**
@@ -1953,16 +2037,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Study Session (Flashcards) Logic ---
     /**
      * Starts a new study session.
-     * @param {string} queueType - 'daily' for daily queue, 'weak' for weak atoms.
+     * @param {string} queueType - 'daily' for daily queue, 'weak' for weak flashcards.
      */
     function startStudySession(queueType = 'daily') {
         appState.studySession.isActive = true;
-        appState.studySession.queue = queueType === 'weak' ? getWeakAtoms() : getDailyQueue();
+        appState.studySession.queue = queueType === 'weak' ? getWeakFlashcards() : getDailyQueue(); // Renamed
         appState.studySession.currentIndex = 0;
-        appState.studySession.atomsReviewedInSession = 0;
+        appState.studySession.flashcardsReviewedInSession = 0; // Renamed
 
         if (appState.studySession.queue.length === 0) {
-            showNotification(`Your ${queueType} review queue is empty! Import some content or review more to create weak atoms.`, true);
+            showNotification(`Your ${queueType} review queue is empty! Import some content or review more to create weak flashcards.`, true); // Renamed
             navigate('library');
             return;
         }
@@ -1980,18 +2064,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         flashcardContainer.classList.remove('flipped');
 
-        const currentAtom = appState.studySession.queue[appState.studySession.currentIndex];
-        const subject = mockData.subjects.find(s => s.id === currentAtom.subjectId);
+        const currentFlashcard = appState.studySession.queue[appState.studySession.currentIndex]; // Renamed
+        const subject = mockData.subjects.find(s => s.id === currentFlashcard.subjectId); // Renamed
 
         document.getElementById('card-subject-front').textContent = subject ? subject.name : 'Unknown';
         document.getElementById('card-subject-back').textContent = subject ? subject.name : 'Unknown';
-        document.getElementById('card-question').textContent = currentAtom.question;
-        document.getElementById('card-answer').textContent = currentAtom.answer;
+        document.getElementById('card-question').textContent = currentFlashcard.question; // Renamed
+        document.getElementById('card-answer').textContent = currentFlashcard.answer; // Renamed
 
         const totalItems = appState.studySession.queue.length;
         const progress = ((appState.studySession.currentIndex + 1) / totalItems) * 100;
         document.getElementById('study-progress-bar').style.width = `${progress}%`;
-        document.getElementById('study-progress-text').textContent = `Atom ${appState.studySession.currentIndex + 1} of ${totalItems}`;
+        document.getElementById('study-progress-text').textContent = `Flashcard ${appState.studySession.currentIndex + 1} of ${totalItems}`; // Renamed
     }
 
     /**
@@ -2014,10 +2098,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         mockData.user.lastChallengeDate = today;
-        mockData.user.dailyChallengeProgress += appState.studySession.atomsReviewedInSession;
+        mockData.user.dailyChallengeProgress += appState.studySession.flashcardsReviewedInSession; // Renamed
 
         // Log daily study time (placeholder, actual tracking would be more robust)
-        const minutesStudiedThisSession = appState.studySession.atomsReviewedInSession * 2; // Rough estimate: 2 mins per atom
+        const minutesStudiedThisSession = appState.studySession.flashcardsReviewedInSession * 2; // Rough estimate: 2 mins per flashcard // Renamed
         if (!mockData.user.dailyStudyLogs) {
             mockData.user.dailyStudyLogs = [];
         }
@@ -2034,40 +2118,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Study session button event listeners
-    startReviewBtn.addEventListener('click', () => startStudySession('daily')); // Start daily queue
-    studyWeakAtomsBtn.addEventListener('click', () => startStudySession('weak')); // Start weak atoms queue
+    startReviewBtn.addEventListener('click', () => startStudySession('daily'));
+    studyWeakFlashcardsBtn.addEventListener('click', () => startStudySession('weak')); // Renamed
     showAnswerBtn.addEventListener('click', () => { flashcardContainer.classList.add('flipped'); });
 
     recallButtons.forEach(button => {
         button.addEventListener('click', (e) => {
             const quality = parseInt(e.currentTarget.dataset.rating);
-            const currentAtom = appState.studySession.queue[appState.studySession.currentIndex];
+            const currentFlashcard = appState.studySession.queue[appState.studySession.currentIndex]; // Renamed
 
-            const wasMasteredBefore = currentAtom.repetitions >= 3 && currentAtom.easeFactor >= 2.0;
+            const wasMasteredBefore = currentFlashcard.repetitions >= 3 && currentFlashcard.easeFactor >= 2.0; // Renamed
 
-            // Update SM-2 properties for the current atom
+            // Update SM-2 properties for the current flashcard
             const { nextReview, newInterval, newEaseFactor, newRepetitions } = calculateNextReviewDateSM2(
-                currentAtom.lastReviewed, quality, currentAtom.easeFactor, currentAtom.interval, currentAtom.repetitions
+                currentFlashcard.lastReviewed, quality, currentFlashcard.easeFactor, currentFlashcard.interval, currentFlashcard.repetitions // Renamed
             );
 
-            currentAtom.lastReviewed = new Date();
-            currentAtom.nextReview = nextReview;
-            currentAtom.interval = newInterval;
-            currentAtom.easeFactor = newEaseFactor;
-            currentAtom.repetitions = newRepetitions;
+            currentFlashcard.lastReviewed = new Date(); // Renamed
+            currentFlashcard.nextReview = nextReview; // Renamed
+            currentFlashcard.interval = newInterval; // Renamed
+            currentFlashcard.easeFactor = newEaseFactor; // Renamed
+            currentFlashcard.repetitions = newRepetitions; // Renamed
 
             const isNowMastered = newRepetitions >= 3 && newEaseFactor >= 2.0;
             if (!wasMasteredBefore && isNowMastered) {
-                // Atom just became mastered
-                unlockAchievement('first-atom'); // Placeholder, actual mastery achievements would be based on count
+                // Flashcard just became mastered
+                unlockAchievement('first-flashcard'); // Renamed
             }
 
             saveUserData();
-            console.log(`Rated card ${currentAtom.id} with rating: ${quality}. Next review: ${currentAtom.nextReview.toLocaleDateString()}`);
+            console.log(`Rated card ${currentFlashcard.id} with rating: ${quality}. Next review: ${currentFlashcard.nextReview.toLocaleDateString()}`); // Renamed
 
             flashcardContainer.classList.remove('flipped');
             appState.studySession.currentIndex++;
-            appState.studySession.atomsReviewedInSession++;
+            appState.studySession.flashcardsReviewedInSession++; // Renamed
             setTimeout(renderCurrentCard, 300);
         });
     });
@@ -2238,15 +2322,16 @@ document.addEventListener('DOMContentLoaded', () => {
         mockData.user.learningGoals = goal ? [{ id: 'initial-goal', name: goal, targetType: 'general', targetValue: 0, currentProgress: 0, endDate: new Date().toISOString() }] : [];
         mockData.user.weeklyStudyTime = parseInt(time) || 0;
         mockData.user.focusedSubjects = subjects.split(',').map(s => s.trim()).filter(s => s);
-        mockData.user.dailyStudyLogs = []; // Initialize daily study logs
-        mockData.user.monthlyMasteryLogs = []; // Initialize monthly mastery logs
-        mockData.user.lastChallengeClaimDate = null;
-        mockData.user.dailyChallengeCount = 0;
+        // Initialize these if they are null/undefined from localStorage
+        mockData.user.dailyStudyLogs = mockData.user.dailyStudyLogs || [];
+        mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs || [];
+        mockData.user.lastChallengeClaimDate = mockData.user.lastChallengeClaimDate || null;
+        mockData.user.dailyChallengeCount = mockData.user.dailyChallengeCount || 0;
 
-        localStorage.setItem('auralearn_onboardingCompleted', 'true');
-        appState.onboardingCompleted = true;
+        appState.onboardingCompleted = true; // Set appState directly
+        localStorage.setItem('auralearn_onboardingCompleted', 'true'); // Persist to localStorage
         onboardingModal.classList.add('hidden');
-        saveUserData();
+        saveUserData(); // Save mockData.user which now contains new initial values
         showNotification('Onboarding complete! Your personalized journey begins now.');
         navigate('dashboard');
     }
@@ -2256,14 +2341,14 @@ document.addEventListener('DOMContentLoaded', () => {
         updateOnboardingStep();
     });
     onboardingSkipBtn.addEventListener('click', () => {
-        localStorage.setItem('auralearn_onboardingCompleted', 'true');
-        appState.onboardingCompleted = true;
+        appState.onboardingCompleted = true; // Set appState directly
+        localStorage.setItem('auralearn_onboardingCompleted', 'true'); // Persist to localStorage
         onboardingModal.classList.add('hidden');
-        // Ensure initial user data is saved even on skip
-        mockData.user.dailyStudyLogs = [];
-        mockData.user.monthlyMasteryLogs = [];
-        mockData.user.lastChallengeClaimDate = null;
-        mockData.user.dailyChallengeCount = 0;
+        // Ensure initial user data is saved even on skip, without resetting what was already loaded
+        mockData.user.dailyStudyLogs = mockData.user.dailyStudyLogs || [];
+        mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs || [];
+        mockData.user.lastChallengeClaimDate = mockData.user.lastChallengeClaimDate || null;
+        mockData.user.dailyChallengeCount = mockData.user.dailyChallengeCount || 0;
         saveUserData();
         navigate('dashboard');
     });
@@ -2279,6 +2364,8 @@ document.addEventListener('DOMContentLoaded', () => {
             aiContentSubjectSelect.classList.remove('hidden');
             toggleAIContentNewSubjectInput.textContent = 'Add New Subject';
         }
+        // Re-populate subjects to ensure new custom subjects appear after toggling
+        populateAILearningSubjectSelect();
     });
 
     // Listen for changes on aiContentSubjectSelect to ensure new subject input is correctly hidden/shown
@@ -2297,20 +2384,38 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // AI Learning buttons event listeners
-    generateAiNotesBtn.addEventListener('click', () => generateAIContent('note'));
-    generateNotesFlashcardsBtn.addEventListener('click', () => generateAIContent('notes-flashcards'));
-    generateQuizBtn.addEventListener('click', () => generateAIContent('quiz'));
-    extractKeywordsBtn.addEventListener('click', () => generateAIContent('keywords'));
-    predictExamQuestionsBtn.addEventListener('click', () => generateAIContent('exam-questions'));
-    summarizeContentBtn.addEventListener('click', () => generateAIContent('summary'));
+    generateAiNotesBtn.addEventListener('click', () => {
+        toggleQuizSettingsVisibility('note');
+        generateAIContent('note');
+    });
+    generateNotesFlashcardsBtn.addEventListener('click', () => {
+        toggleQuizSettingsVisibility('notes-flashcards');
+        generateAIContent('notes-flashcards');
+    });
+    generateQuizBtn.addEventListener('click', () => {
+        toggleQuizSettingsVisibility('quiz');
+        generateAIContent('quiz');
+    });
+    extractKeywordsBtn.addEventListener('click', () => {
+        toggleQuizSettingsVisibility('keywords');
+        generateAIContent('keywords');
+    });
+    predictExamQuestionsBtn.addEventListener('click', () => {
+        toggleQuizSettingsVisibility('exam-questions');
+        generateAIContent('exam-questions');
+    });
+    summarizeContentBtn.addEventListener('click', () => {
+        toggleQuizSettingsVisibility('summary');
+        generateAIContent('summary');
+    });
 
 
-    // --- Quick Add Atom Modal Handlers ---
-    quickAddAtomBtnDashboard.addEventListener('click', showQuickAddAtomModal);
-    quickAddAtomBtnLibrary.addEventListener('click', showQuickAddAtomModal);
+    // --- Quick Add Flashcard Modal Handlers ---
+    quickAddFlashcardBtnDashboard.addEventListener('click', showQuickAddFlashcardModal); // Renamed
+    quickAddFlashcardBtnLibrary.addEventListener('click', showQuickAddFlashcardModal); // Renamed
 
-    function showQuickAddAtomModal() {
-        quickAddAtomModal.classList.remove('hidden');
+    function showQuickAddFlashcardModal() { // Renamed
+        quickAddFlashcardModal.classList.remove('hidden'); // Renamed
         quickAddQuestionInput.value = '';
         quickAddAnswerInput.value = '';
         newSubjectInput.value = '';
@@ -2321,7 +2426,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     closeQuickAddModalBtn.addEventListener('click', () => {
-        quickAddAtomModal.classList.add('hidden');
+        quickAddFlashcardModal.classList.add('hidden'); // Renamed
     });
 
     toggleNewSubjectInputBtn.addEventListener('click', () => {
@@ -2336,6 +2441,7 @@ document.addEventListener('DOMContentLoaded', () => {
             quickAddSubjectSelect.classList.remove('hidden');
             toggleNewSubjectInputBtn.textContent = 'Add New Subject';
         }
+        populateQuickAddSubjectSelect(); // Re-populate subjects to ensure new custom subjects appear after toggling
     });
 
     quickAddSubjectSelect.addEventListener('change', () => {
@@ -2346,22 +2452,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    addAtomBtn.addEventListener('click', () => {
+    /**
+     * Populates the subject dropdown for the Quick Add Flashcard modal, including default subjects.
+     */
+    function populateQuickAddSubjectSelect() {
+        quickAddSubjectSelect.innerHTML = '<option value="">Select or Add New Subject</option>';
+
+        // Add default subjects first
+        defaultSubjects.forEach(subject => {
+            const option = document.createElement('option');
+            option.value = subject.id;
+            option.textContent = subject.name;
+            quickAddSubjectSelect.appendChild(option);
+        });
+
+        // Add user-added subjects, avoiding duplicates if they have the same ID as a default
+        mockData.subjects.filter(s => !defaultSubjects.some(ds => ds.id === s.id)).forEach(subject => {
+            const option = document.createElement('option');
+            option.value = subject.id;
+            option.textContent = subject.name;
+            quickAddSubjectSelect.appendChild(option);
+        });
+        quickAddSubjectSelect.value = "";
+    }
+
+
+    addFlashcardBtn.addEventListener('click', () => { // Renamed
         let subjectId;
         let subjectName;
+        // Check if a new subject is being added via the input field
         if (!newSubjectInput.classList.contains('hidden') && newSubjectInput.value.trim()) {
             subjectName = newSubjectInput.value.trim();
             subjectId = subjectName.toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9-]/g, '');
-            if (!mockData.subjects.find(s => s.id === subjectId)) {
-                mockData.subjects.push({ id: subjectId, name: subjectName, color: "bg-blue-100", textColor: "text-blue-800", atoms: 0, lastReviewed: null });
+            // Check if this new subject already exists (either default or user-added)
+            if (!mockData.subjects.find(s => s.id === subjectId) && !defaultSubjects.find(ds => ds.id === subjectId)) {
+                // Add to user-specific subjects if it's genuinely new
+                mockData.subjects.push({ id: subjectId, name: subjectName, color: "bg-blue-100", textColor: "text-blue-800", flashcards: 0, lastReviewed: null }); // Renamed 'atoms'
             }
         } else {
+            // If not adding a new subject, use the selected subject
             subjectId = quickAddSubjectSelect.value;
             if (!subjectId) {
                 showNotification('Please select an existing subject or add a new one.', true);
                 return;
             }
-            subjectName = mockData.subjects.find(s => s.id === subjectId).name;
+            subjectName = (mockData.subjects.find(s => s.id === subjectId) || defaultSubjects.find(s => s.id === subjectId))?.name;
         }
 
         const question = quickAddQuestionInput.value.trim();
@@ -2372,8 +2507,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const newAtom = {
-            id: mockData.learningAtoms.length > 0 ? Math.max(...mockData.learningAtoms.map(a => a.id)) + 1 : 1, // Ensure unique ID
+        const newFlashcard = { // Renamed
+            id: mockData.flashcards.length > 0 ? Math.max(...mockData.flashcards.map(f => f.id)) + 1 : 1, // Renamed
             subjectId: subjectId,
             question: question,
             answer: answer,
@@ -2381,14 +2516,14 @@ document.addEventListener('DOMContentLoaded', () => {
             easeFactor: 2.5,
             interval: 0,
             repetitions: 0,
-            nextReview: new Date() // Will be set on first review
+            nextReview: new Date()
         };
-        mockData.learningAtoms.push(newAtom);
+        mockData.flashcards.push(newFlashcard); // Renamed
 
         saveUserData();
-        showNotification('Learning Atom added successfully!');
-        quickAddAtomModal.classList.add('hidden');
-        unlockAchievement('first-atom'); // Check if first atom added unlocks achievement
+        showNotification('Flashcard added successfully!'); // Renamed
+        quickAddFlashcardModal.classList.add('hidden'); // Renamed
+        unlockAchievement('first-flashcard'); // Renamed // Check if first flashcard added unlocks achievement
         checkAchievements(); // Recalculate other achievements potentially
         render();
     });
@@ -2421,7 +2556,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const newGoal = {
-            id: `goal-${mockData.user.learningGoals.length > 0 ? Math.max(...mockData.user.learningGoals.map(g => parseInt(g.id.split('-')[1]))) + 1 : 1}`, // Ensure unique ID
+            id: `goal-${mockData.user.learningGoals.length > 0 ? Math.max(...mockData.user.learningGoals.map(g => parseInt(g.id.split('-')[1]))) + 1 : 1}`,
             name: name,
             targetType: targetType,
             targetValue: targetValue,
@@ -2483,17 +2618,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let foundResults = [];
 
-        // Search in Learning Atoms
-        const filteredAtoms = mockData.learningAtoms.filter(a =>
-            a.question.toLowerCase().includes(query) ||
-            a.answer.toLowerCase().includes(query) ||
-            mockData.subjects.find(s => s.id === a.subjectId)?.name.toLowerCase().includes(query)
+        // Search in Flashcards
+        const filteredFlashcards = mockData.flashcards.filter(f => // Renamed
+            f.question.toLowerCase().includes(query) ||
+            f.answer.toLowerCase().includes(query) ||
+            mockData.subjects.find(s => s.id === f.subjectId)?.name.toLowerCase().includes(query) ||
+            defaultSubjects.find(s => s.id === f.subjectId)?.name.toLowerCase().includes(query)
         );
-        if (filteredAtoms.length > 0) {
-            foundResults.push({ type: "heading", content: "Learning Atoms" });
-            filteredAtoms.forEach(atom => {
-                const subjectName = mockData.subjects.find(s => s.id === atom.subjectId)?.name || 'Unknown';
-                foundResults.push({ type: "atom", title: atom.question, subtitle: `Subject: ${subjectName}`, details: atom.answer });
+        if (filteredFlashcards.length > 0) {
+            foundResults.push({ type: "heading", content: "Flashcards" }); // Renamed
+            filteredFlashcards.forEach(flashcard => { // Renamed
+                const subjectName = (mockData.subjects.find(s => s.id === flashcard.subjectId) || defaultSubjects.find(s => s.id === flashcard.subjectId))?.name || 'Unknown'; // Renamed
+                foundResults.push({ type: "flashcard", title: flashcard.question, subtitle: `Subject: ${subjectName}`, details: flashcard.answer }); // Renamed
             });
         }
 
@@ -2519,7 +2655,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let learningHubMatches = [];
         for (const category in mockData.learningHubContent) {
             mockData.learningHubContent[category].forEach(item => {
-                if (item.title.toLowerCase().includes(query) || item.summary.toLowerCase().includes(query) || item.details.toLowerCase().includes(query)) {
+                if (item.title.toLowerCase().includes(query) || item.summary.toLowerCase().includes(query) || (item.details && item.details.toLowerCase().includes(query))) {
                     learningHubMatches.push({ type: "learning-hub", title: item.title, subtitle: `Category: ${category.replace(/\b\w/g, l => l.toUpperCase())}`, itemData: item });
                 }
             });
@@ -2553,7 +2689,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Search in Calendar Events (New)
+        // Search in Calendar Events
         const filteredCalendarEvents = mockData.calendarEvents.filter(e =>
             e.title.toLowerCase().includes(query) ||
             (e.notes && e.notes.toLowerCase().includes(query)) ||
@@ -2585,31 +2721,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     resultDiv.addEventListener('click', () => {
                         searchResultsModal.classList.add('hidden'); // Close search modal
-                        if (result.type === "atom") {
+                        if (result.type === "flashcard") { // Renamed
                             showDetailModal({ title: result.title, details: result.details });
                         } else if (result.type === "ai-material") {
-                            showAIGeneratedMaterial(result.materialData); // Use existing AI material display function
+                            showAIGeneratedMaterial(result.materialData);
                         } else if (result.type === "learning-hub") {
-                            showDetailModal(result.itemData); // Use existing Learning Hub display function
+                            showDetailModal(result.itemData);
                         } else if (result.type === "glossary-item") {
-                            // For glossary, simply navigate to glossary view and filter/scroll to item
                             navigate('glossary');
                             setTimeout(() => {
                                 glossarySearchInput.value = result.title;
                                 renderGlossary();
-                            }, 100); // Small delay for view transition
+                            }, 100);
                         } else if (result.type === "mind-map-item") {
                             navigate('mind-map');
-                            // Load the specific mind map
                             setTimeout(() => loadMindMap(result.mapData.id), 100);
                             unlockAchievement('first-mind-map');
-                        } else if (result.type === "calendar-event") { // New
+                        } else if (result.type === "calendar-event") {
                             navigate('calendar');
                             setTimeout(() => {
                                 appState.calendar.currentDate = new Date(result.eventData.date);
                                 appState.calendar.selectedDay = new Date(result.eventData.date);
                                 renderCalendar();
-                                showAddEditEventModal(result.eventData); // Open event modal for editing
+                                showAddEditEventModal(result.eventData);
                             }, 100);
                         }
                     });
@@ -2736,21 +2870,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Theme Switching ---
-    themeButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            applyTheme(e.target.dataset.theme);
-        });
-    });
+    // Event listeners are dynamically attached in renderSettings() now
+    // themeButtons.forEach(button => {
+    //     button.addEventListener('click', (e) => {
+    //         applyTheme(e.target.dataset.theme);
+    //     });
+    // });
 
     /**
      * Applies the selected theme to the application.
-     * @param {string} theme - The name of the theme ('light', 'dark', 'vibrant').
+     * @param {string} theme - The name of the theme ('light', 'dark', 'vibrant', 'forest-green', 'ocean-blue').
      */
     function applyTheme(theme) {
         if (appContainer) {
-            appContainer.className = `flex h-screen theme-${theme}`;
+            // Remove all existing theme classes and add the new one
+            appContainer.classList.forEach(cls => {
+                if (cls.startsWith('theme-')) {
+                    appContainer.classList.remove(cls);
+                }
+            });
+            appContainer.classList.add(`theme-${theme}`);
         }
-        themeButtons.forEach(btn => {
+        // Update button states in settings view
+        const themeBtnsInSettings = document.querySelectorAll('#view-settings .theme-btn');
+        themeBtnsInSettings.forEach(btn => {
             if (btn.dataset.theme === theme) {
                 btn.classList.add('border-accent-blue');
                 btn.classList.remove('border-border-color');
@@ -2759,7 +2902,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.classList.add('border-border-color');
             }
         });
+
         localStorage.setItem('auralearn_theme', theme);
+        appState.currentTheme = theme; // Update appState theme
         // Re-render charts on theme change to update colors
         if (appState.currentView === 'analytics') {
             renderAnalytics();
@@ -2816,40 +2961,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 const importedData = JSON.parse(e.target.result);
 
                 // Basic validation for imported data structure
-                if (importedData.user && importedData.learningAtoms && importedData.subjects && importedData.aiMaterials) {
-                    // Convert date strings back to Date objects for atoms
-                    importedData.learningAtoms = importedData.learningAtoms.map(a => ({
-                        ...a,
-                        lastReviewed: new Date(a.lastReviewed),
-                        nextReview: new Date(a.nextReview)
+                if (importedData.user && importedData.flashcards && importedData.subjects && importedData.aiMaterials) { // Renamed
+                    // Convert date strings back to Date objects for flashcards
+                    importedData.flashcards = importedData.flashcards.map(f => ({ // Renamed
+                        ...f,
+                        lastReviewed: new Date(f.lastReviewed),
+                        nextReview: new Date(f.nextReview)
                     }));
                     // Ensure new SM-2 properties are set if missing in old imported data
-                    importedData.learningAtoms.forEach(atom => {
-                        atom.easeFactor = atom.easeFactor !== undefined ? atom.easeFactor : 2.5;
-                        atom.interval = atom.interval !== undefined ? atom.interval : 0;
-                        atom.repetitions = atom.repetitions !== undefined ? atom.repetitions : 0;
+                    importedData.flashcards.forEach(flashcard => { // Renamed
+                        flashcard.easeFactor = flashcard.easeFactor !== undefined ? flashcard.easeFactor : 2.5; // Renamed
+                        flashcard.interval = flashcard.interval !== undefined ? flashcard.interval : 0; // Renamed
+                        flashcard.repetitions = flashcard.repetitions !== undefined ? flashcard.repetitions : 0; // Renamed
                     });
-                    if (!importedData.user.srsIntervals) importedData.user.srsIntervals = initialUserData.srsIntervals;
-                    if (!importedData.user.srsFactors) importedData.user.srsFactors = initialUserData.srsFactors;
-                    if (!importedData.user.dailyStudyLogs) importedData.user.dailyStudyLogs = [];
-                    if (!importedData.user.monthlyMasteryLogs) importedData.user.monthlyMasteryLogs = [];
-                    if (!importedData.user.achievements) importedData.user.achievements = [];
-                    if (!importedData.user.lastExportDate) importedData.user.lastExportDate = null;
-                    if (!importedData.user.dailyChallengeCount) importedData.user.dailyChallengeCount = 0;
-                    if (!importedData.user.lastChallengeClaimDate) importedData.user.lastChallengeClaimDate = null;
 
-                    if (!importedData.glossary) importedData.glossary = [];
-                    if (!importedData.mindMaps) importedData.mindMaps = [];
-                    if (!importedData.calendarEvents) importedData.calendarEvents = []; // New: Initialize if missing
-                    else { // New: Convert calendar event dates back to Date objects
-                        importedData.calendarEvents = importedData.calendarEvents.map(event => ({
-                            ...event,
-                            date: new Date(event.date)
-                        }));
-                    }
+                    // Safely merge or set user properties from imported data
+                    mockData.user = { ...initialUserData, ...importedData.user };
+                    mockData.user.srsIntervals = mockData.user.srsIntervals || initialUserData.srsIntervals;
+                    mockData.user.srsFactors = mockData.user.srsFactors || initialUserData.srsFactors;
+                    mockData.user.dailyStudyLogs = mockData.user.dailyStudyLogs || [];
+                    mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs || [];
+                    mockData.user.achievements = mockData.user.achievements || [];
+                    mockData.user.lastExportDate = mockData.user.lastExportDate || null;
+                    mockData.user.dailyChallengeCount = mockData.user.dailyChallengeCount || 0;
+                    mockData.user.lastChallengeClaimDate = mockData.user.lastChallengeClaimDate || null;
+                    mockData.user.onboardingCompleted = mockData.user.onboardingCompleted || false;
 
 
-                    mockData = importedData;
+                    // Overwrite main data arrays
+                    mockData.subjects = importedData.subjects;
+                    mockData.flashcards = importedData.flashcards; // Renamed
+                    mockData.aiMaterials = importedData.aiMaterials;
+                    mockData.glossary = importedData.glossary || [];
+                    mockData.mindMaps = importedData.mindMaps || [];
+                    mockData.calendarEvents = (importedData.calendarEvents || []).map(event => ({
+                        ...event,
+                        date: new Date(event.date)
+                    }));
+
+
                     saveUserData(); // Save the imported data to local storage
                     showNotification('Data imported successfully! App will reload.');
                     location.reload(); // Reload to ensure all data is correctly loaded and UI refreshed
@@ -3373,22 +3523,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Achievements Logic ---
     function checkAchievements() {
-        const masteredAtomsCount = mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length;
-        const totalAtomsAdded = mockData.learningAtoms.length;
+        const masteredFlashcardsCount = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
+        const totalFlashcardsAdded = mockData.flashcards.length; // Renamed
         const totalAiNotes = mockData.aiMaterials.filter(m => m.type === 'note').length;
         const totalAiFlashcardsGenerated = mockData.aiMaterials.filter(m => m.type === 'notes-flashcards').length;
         const totalAiQuizzesGenerated = mockData.aiMaterials.filter(m => m.type === 'quiz').length;
         const totalAiKeywordsExtracted = mockData.aiMaterials.filter(m => m.type === 'keywords').length;
         const totalMindMapsCreated = mockData.mindMaps.length;
 
-        // Mastered Atoms
-        if (totalAtomsAdded >= 1 && !mockData.user.achievements.includes('first-atom')) {
-            unlockAchievement('first-atom');
+        // Mastered Flashcards
+        if (totalFlashcardsAdded >= 1 && !mockData.user.achievements.includes('first-flashcard')) { // Renamed
+            unlockAchievement('first-flashcard'); // Renamed
         }
-        if (masteredAtomsCount >= 10) {
+        if (masteredFlashcardsCount >= 10) { // Renamed
             unlockAchievement('mastery-beginner');
         }
-        if (masteredAtomsCount >= 50) {
+        if (masteredFlashcardsCount >= 50) { // Renamed
             unlockAchievement('mastery-intermediate');
         }
 
@@ -3400,13 +3550,10 @@ document.addEventListener('DOMContentLoaded', () => {
             unlockAchievement('streak-30-days');
         }
 
-        // Daily Challenge Achievement (assuming 'daily-challenge-master' means completing the challenge N times, e.g., 10 times)
-        // Note: The achievement description for 'daily-challenge-master' states "Complete 10 daily challenges."
-        // We'll increment mockData.user.dailyChallengeCount when they successfully claim the challenge reward.
+        // Daily Challenge Achievement
         if (mockData.user.dailyChallengeCount >= 10) {
              unlockAchievement('daily-challenge-master');
         }
-
 
         // AI Usage Achievements
         if (totalAiNotes >= 1) {
@@ -3439,20 +3586,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function saveUserData() {
         try {
             localStorage.setItem('auralearn_user', JSON.stringify(mockData.user));
-            localStorage.setItem('auralearn_atoms', JSON.stringify(mockData.learningAtoms.map(a => ({
-                ...a,
-                lastReviewed: a.lastReviewed.toISOString(),
-                nextReview: a.nextReview.toISOString()
+            localStorage.setItem('auralearn_flashcards', JSON.stringify(mockData.flashcards.map(f => ({ // Renamed
+                ...f,
+                lastReviewed: f.lastReviewed.toISOString(),
+                nextReview: f.nextReview.toISOString()
             }))));
             localStorage.setItem('auralearn_subjects', JSON.stringify(mockData.subjects));
             localStorage.setItem('auralearn_ai_materials', JSON.stringify(mockData.aiMaterials));
             localStorage.setItem('auralearn_glossary', JSON.stringify(mockData.glossary));
             localStorage.setItem('auralearn_mind_maps', JSON.stringify(mockData.mindMaps));
-            localStorage.setItem('auralearn_calendar_events', JSON.stringify(mockData.calendarEvents.map(event => ({ // New
+            localStorage.setItem('auralearn_calendar_events', JSON.stringify(mockData.calendarEvents.map(event => ({
                 ...event,
-                date: event.date.toISOString() // Convert Date to ISO string for storage
+                date: event.date.toISOString()
             }))));
-            // No need to save mockData.soundscapes or mockData.learningHubContent as they are static
         } catch (e) {
             console.error("Error saving to localStorage:", e);
             if (e.name === 'QuotaExceededError') {
@@ -3471,25 +3617,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     applyTheme(appState.currentTheme);
 
-    // Initialize new user properties if they don't exist in existing localStorage data
-    if (!mockData.user.dailyStudyLogs) {
-        mockData.user.dailyStudyLogs = [];
-    }
-    if (!mockData.user.monthlyMasteryLogs) {
-        mockData.user.monthlyMasteryLogs = [];
-    }
-    if (!mockData.user.achievements) {
-        mockData.user.achievements = [];
-    }
-    if (!mockData.user.lastExportDate) {
-        mockData.user.lastExportDate = null;
-    }
-    if (!mockData.user.dailyChallengeCount) {
-        mockData.user.dailyChallengeCount = 0;
-    }
-    if (!mockData.user.lastChallengeClaimDate) {
-        mockData.user.lastChallengeClaimDate = null;
-    }
+    // Initialize/ensure user properties for existing users in localStorage
+    // If a property doesn't exist in localStorage.user, use the initialUserData default
+    mockData.user.dailyStudyLogs = mockData.user.dailyStudyLogs || initialUserData.dailyStudyLogs;
+    mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs || initialUserData.monthlyMasteryLogs;
+    mockData.user.achievements = mockData.user.achievements || initialUserData.achievements;
+    mockData.user.lastExportDate = mockData.user.lastExportDate || initialUserData.lastExportDate;
+    mockData.user.dailyChallengeCount = mockData.user.dailyChallengeCount || initialUserData.dailyChallengeCount;
+    mockData.user.lastChallengeClaimDate = mockData.user.lastChallengeClaimDate || initialUserData.lastChallengeClaimDate;
+    mockData.user.srsIntervals = mockData.user.srsIntervals || initialUserData.srsIntervals;
+    mockData.user.srsFactors = mockData.user.srsFactors || initialUserData.srsFactors;
+    mockData.user.onboardingCompleted = typeof mockData.user.onboardingCompleted === 'boolean' ? mockData.user.onboardingCompleted : false;
+
 
     // Check and update monthly mastery logs
     const todayInit = new Date();
@@ -3497,40 +3636,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const lastMonthLogInit = mockData.user.monthlyMasteryLogs[mockData.user.monthlyMasteryLogs.length - 1];
 
     if (!lastMonthLogInit || lastMonthLogInit.monthYear !== currentMonthYearInit) {
-        // If it's a new month or no logs, add a new entry
         mockData.user.monthlyMasteryLogs.push({
             date: todayInit.toISOString().split('T')[0],
             monthYear: currentMonthYearInit,
-            masteredAtoms: mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length
+            masteredFlashcards: mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length // Renamed
         });
-        // Keep only last 7 months (6 prior + current)
         if (mockData.user.monthlyMasteryLogs.length > 7) {
             mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs.slice(-7);
         }
         saveUserData();
     } else {
-        // Update current month's log (e.g., if mastered atoms changed during the month)
-        lastMonthLogInit.masteredAtoms = mockData.learningAtoms.filter(atom => atom.repetitions >= 3 && atom.easeFactor >= 2.0).length;
+        lastMonthLogInit.masteredFlashcards = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
     }
 
-    // Initialize mockData for new sections if they are empty
-    if (!mockData.glossary) mockData.glossary = [];
-    if (!mockData.mindMaps) mockData.mindMaps = [];
-    if (!mockData.calendarEvents) mockData.calendarEvents = [];
-
-
+    // Now, determine if onboarding should be shown based on the loaded state
     if (!appState.onboardingCompleted) {
-        // Reset to initial defaults if onboarding hasn't been completed before
-        mockData.user = JSON.parse(JSON.stringify(initialUserData));
-        mockData.learningAtoms = [];
-        mockData.subjects = [];
-        mockData.aiMaterials = [];
-        mockData.glossary = [];
-        mockData.mindMaps = [];
-        mockData.calendarEvents = []; // Ensure calendar events are reset too
-        saveUserData();
+        // If onboarding explicitly not completed in localStorage or new user
+        // Ensure that mockData is initialized with default empty arrays/objects if it came back as null
+        // (This is covered by the `|| []` or `|| {}` in mockData object initialization)
         showOnboarding();
     } else {
+        // If onboarding completed, just render the app
         usernameInput.value = mockData.user.name;
         checkAchievements(); // Check achievements on load to update initial state
         render();
