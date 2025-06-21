@@ -483,9 +483,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h3>Tips for Getting the Best Results from AI Learning Studio</h3>
                     <ul>
                         <li><strong>Be Specific::</strong> The more precise your prompt or input text, the better the AI can understand your needs.</li>
-                        <li><strong>Topic Mode vs. Text Mode:</strong>
+                        <li><strong>Topic Mode vs. Text Mode:</b>
                             <ul>
-                                <li><strong>Topic Mode:</strong> Use for broad subjects (e.g., "Quantum Physics", "French Revolution"). The AI will generate general knowledge.</li>
+                                <li><strong>Topic Mode:</strong> Use for broad subjects (e.g., "Quantum Physics", "History of Ancient Rome"). The AI will generate general knowledge.</li>
                                 <li><strong>Text Mode:</strong> Use when you have specific content (e.g., lecture notes, an article snippet) you want the AI to process directly.</li>
                             </ul>
                         </li>
@@ -513,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <li><strong>Measurable:</strong> Ensure your goal can be tracked. AuraLearn helps with this by tracking mastered flashcards and study time.</li>
                         <li><strong>Achievable:</strong> Set realistic goals that challenge you but are not impossible.</li>
                         <li><strong>Relevant:</strong> Your goals should align with your broader academic or personal development objectives.</li>
-                        <li><strong>Time-bound:</b> Give your goal a clear end date. This creates urgency.</li>
+                        <li><strong>Time-bound:</strong> Give your goal a clear end date. This creates urgency.</li>
                     </ul>
                     <h3>How to Set Goals in AuraLearn</h3>
                     <ul>
@@ -1437,21 +1437,41 @@ document.addEventListener('DOMContentLoaded', () => {
             dayNumberSpan.textContent = day;
             cell.appendChild(dayNumberSpan);
 
-            // Add event markers
+            // Container for event indicators (dots and text)
+            const eventIndicatorsContainer = document.createElement('div');
+            eventIndicatorsContainer.className = 'event-indicators-container'; // New container
+
             const eventsOnThisDay = mockData.calendarEvents.filter(event =>
                 event.date.toDateString() === currentDayDate.toDateString()
             );
 
-            eventsOnThisDay.forEach(event => {
-                const eventItem = document.createElement('div');
-                // Positioning for event marker: ensure it's not overlapping day number
-                eventItem.className = `calendar-event-item event-type-${event.type} absolute left-1/2 -translate-x-1/2 bottom-1 flex items-center justify-center pointer-events-none`;
-                eventItem.innerHTML = `
-                    <span class="calendar-event-marker"></span>
-                `;
-                cell.appendChild(eventItem);
+            // Sort events by time to display them in order
+            eventsOnThisDay.sort((a, b) => {
+                const timeA = a.time ? a.time.split(':').map(Number) : [0, 0];
+                const timeB = b.time ? b.time.split(':').map(Number) : [0, 0];
+                if (timeA[0] !== timeB[0]) return timeA[0] - timeB[0];
+                return timeA[1] - timeB[1];
             });
 
+            eventsOnThisDay.forEach(event => {
+                // Event text element
+                const eventTextItem = document.createElement('div');
+                eventTextItem.className = `calendar-event-text-item event-type-${event.type}`;
+                eventTextItem.textContent = event.title; // Display event title
+
+                // Add an event listener to the event text item to open the event modal
+                eventTextItem.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent the day cell click listener from firing
+                    openEventModal(event.id);
+                });
+                eventIndicatorsContainer.appendChild(eventTextItem);
+
+                // Optionally, if you still want a small dot, you can add it here as well
+                // const eventDot = document.createElement('div');
+                // eventDot.className = `calendar-event-dot event-type-${event.type}`;
+                // eventIndicatorsContainer.appendChild(eventDot);
+            });
+            cell.appendChild(eventIndicatorsContainer); // Append the new container
 
             cell.addEventListener('click', () => {
                 // When a cell is clicked, set selectedDay to the LOCAL start of that day
@@ -3499,7 +3519,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (mockData.user.monthlyMasteryLogs.length > 7) {
                 mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs.slice(-7);
             }
-            saveUserData();
         } else {
             lastMonthLogInit.masteredFlashcards = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
         }
@@ -3750,12 +3769,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Update monthly mastery log for current month if needed
-    let lastMonthlyLogInit = mockData.user.monthlyMasteryLogs[mockData.user.monthlyMasteryLogs.length - 1];
+    let lastMonthlyLogInit = (mockData.user.monthlyMasteryLogs && mockData.user.monthlyMasteryLogs.length > 0) ?
+            mockData.user.monthlyMasteryLogs[mockData.user.monthlyMasteryLogs.length - 1] : null;
+
     if (!lastMonthlyLogInit || lastMonthlyLogInit.monthYear !== currentMonthYearInit) {
         mockData.user.monthlyMasteryLogs.push({
             date: todayInit.toISOString().split('T')[0],
             monthYear: currentMonthYearInit,
-            masteredFlashcards: mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length
+            masteredFlashcards: mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length // Renamed
         });
         if (mockData.user.monthlyMasteryLogs.length > 7) {
             mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs.slice(-7);
