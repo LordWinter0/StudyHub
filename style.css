@@ -1,254 +1,206 @@
-/* Base styles */
-html, body {
-    height: 100%; /* Ensure html and body take full viewport height */
-    margin: 0;
-    padding: 0;
-    overflow: hidden; /* Prevent body scroll, let app-container manage */
-}
+/* Base styles using Inter font */
 body { font-family: 'Inter', sans-serif; }
 
-/* Theme Variables - Light */
+/* Theme Variables - Default Light */
 .theme-light {
-    --bg-primary: #f8fafc;
-    --bg-secondary: #ffffff;
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --border-color: #e2e8f0;
-    --accent-blue: #2563eb;
-    --accent-blue-hover: #1d4ed8;
-    --nav-active-bg: #e2e8f0;
-    --nav-active-text: #0f172a;
+    --bg-primary: #f8fafc; /* Slate 50 */
+    --bg-secondary: #ffffff; /* White */
+    --text-primary: #0f172a; /* Slate 900 */
+    --text-secondary: #64748b; /* Slate 500 */
+    --border-color: #e2e8f0; /* Slate 200 */
+    --accent-blue: #2563eb; /* Blue 600 */
+    --accent-blue-hover: #1d4ed8; /* Blue 700 */
+    --nav-active-bg: #e2e8f0; /* Slate 200 */
+    --nav-active-text: #0f172a; /* Slate 900 */
     --card-front-bg: #ffffff;
     --card-back-bg: #ffffff;
     --input-bg: #ffffff;
     --input-text: #0f172a;
-    --placeholder-text: #94a3b8;
+    --placeholder-text: #94a3b8; /* Slate 400 */
+    --notification-bg: #e0f2f7; /* Cyan 50 */
+    --notification-text: #0e7490; /* Cyan 700 */
+    --notification-error-bg: #fee2e2; /* Red 100 */
+    --notification-error-text: #dc2626; /* Red 600 */
     --button-primary-bg: #2563eb;
     --button-primary-text: #ffffff;
-    --button-secondary-bg: #e2e8f0;
-    --button-secondary-text: #0f172a;
-    --notification-success-bg: #d1fae5;
-    --notification-success-text: #065f46;
-    --notification-error-bg: #fee2e2;
-    --notification-error-text: #991b1b;
-    --text-green: #10b981;
-    --text-orange: #f97316;
-    --sidebar-bg: #ffffff;
-    --sidebar-text: #475569;
-    --sidebar-active-bg: #e2e8f0;
-    --sidebar-active-text: #0f172a;
+    --button-primary-hover-bg: #1d4ed8;
+    --text-green: #22c55e; /* Green 500 */
+    --text-orange: #f97316; /* Orange 500 */
+    --connection-color: #64748b; /* Slate 500 for mind map connections */
+    --node-bg: #cbd5e1; /* Slate 300 for mind map nodes */
+    --node-border: #94a3b8; /* Slate 400 */
+    --node-selected-border: #2563eb; /* Accent blue */
+    --node-text: #0f172a; /* Slate 900 */
+    --modal-overlay-bg: rgba(0, 0, 0, 0.5);
     --modal-bg: #ffffff;
-    --modal-overlay: rgba(0, 0, 0, 0.4);
-    --connection-color: #64748b; /* Mind map connection color */
-    --node-bg: #ffffff;
-    --node-border: #94a3b8;
-    --node-text: #0f172a;
-    --node-selected-border: #2563eb;
 }
 
-/* Theme Variables - Dark */
+/* Dark Theme */
 .theme-dark {
-    --bg-primary: #1e293b;
-    --bg-secondary: #334155;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --border-color: #475569;
-    --accent-blue: #60a5fa;
-    --accent-blue-hover: #3b82f6;
-    --nav-active-bg: #475569;
-    --nav-active-text: #f8fafc;
+    --bg-primary: #1e293b; /* Slate 800 */
+    --bg-secondary: #334155; /* Slate 700 */
+    --text-primary: #f8fafc; /* Slate 50 */
+    --text-secondary: #94a3b8; /* Slate 400 */
+    --border-color: #475569; /* Slate 600 */
+    --accent-blue: #60a5fa; /* Blue 400 */
+    --accent-blue-hover: #3b82f6; /* Blue 500 */
+    --nav-active-bg: #475569; /* Slate 600 */
+    --nav-active-text: #f8fafc; /* Slate 50 */
     --card-front-bg: #334155;
     --card-back-bg: #334155;
-    --input-bg: #475569;
+    --input-bg: #334155;
     --input-text: #f8fafc;
     --placeholder-text: #64748b;
+    --notification-bg: #0f172a; /* Slate 900 */
+    --notification-text: #60a5fa; /* Blue 400 */
+    --notification-error-bg: #dc2626; /* Red 600 */
+    --notification-error-text: #f8fafc; /* Slate 50 */
     --button-primary-bg: #60a5fa;
     --button-primary-text: #1e293b;
-    --button-secondary-bg: #475569;
-    --button-secondary-text: #f8fafc;
-    --notification-success-bg: #15803d;
-    --notification-success-text: #d1fae5;
-    --notification-error-bg: #b91c1c;
-    --notification-error-text: #fee2e2;
-    --text-green: #34d399;
-    --text-orange: #fb923c;
-    --sidebar-bg: #1e293b;
-    --sidebar-text: #94a3b8;
-    --sidebar-active-bg: #475569;
-    --sidebar-active-text: #f8fafc;
-    --modal-bg: #334155;
-    --modal-overlay: rgba(0, 0, 0, 0.6);
+    --button-primary-hover-bg: #3b82f6;
+    --text-green: #4ade80; /* Green 400 */
+    --text-orange: #fb923c; /* Orange 400 */
     --connection-color: #94a3b8;
-    --node-bg: #334155;
+    --node-bg: #475569;
     --node-border: #64748b;
-    --node-text: #f8fafc;
     --node-selected-border: #60a5fa;
+    --node-text: #f8fafc;
+    --modal-overlay-bg: rgba(0, 0, 0, 0.7);
+    --modal-bg: #334155;
 }
 
-/* Theme Variables - Vibrant */
+/* Vibrant Theme */
 .theme-vibrant {
-    --bg-primary: #fef2f2;
-    --bg-secondary: #ffffff;
-    --text-primary: #831843;
-    --text-secondary: #be185d;
-    --border-color: #fda4af;
-    --accent-blue: #f43f5e;
-    --accent-blue-hover: #e11d48;
-    --nav-active-bg: #ffe4e6;
-    --nav-active-text: #831843;
+    --bg-primary: #ecfeff; /* Cyan 50 */
+    --bg-secondary: #ffffff; /* White */
+    --text-primary: #083344; /* Cyan 950 */
+    --text-secondary: #0e7490; /* Cyan 700 */
+    --border-color: #a5f3fc; /* Cyan 200 */
+    --accent-blue: #06b6d4; /* Cyan 500 */
+    --accent-blue-hover: #0891b2; /* Cyan 600 */
+    --nav-active-bg: #a5f3fc; /* Cyan 200 */
+    --nav-active-text: #083344; /* Cyan 950 */
     --card-front-bg: #ffffff;
     --card-back-bg: #ffffff;
     --input-bg: #ffffff;
-    --input-text: #831843;
-    --placeholder-text: #fbcfe8;
-    --button-primary-bg: #f43f5e;
+    --input-text: #083344;
+    --placeholder-text: #22d3ee; /* Cyan 400 */
+    --notification-bg: #cffafe; /* Cyan 100 */
+    --notification-text: #0e7490; /* Cyan 700 */
+    --notification-error-bg: #fecaca; /* Red 200 */
+    --notification-error-text: #ef4444; /* Red 500 */
+    --button-primary-bg: #06b6d4;
     --button-primary-text: #ffffff;
-    --button-secondary-bg: #ffe4e6;
-    --button-secondary-text: #831843;
-    --notification-success-bg: #d1fae5;
-    --notification-success-text: #065f46;
-    --notification-error-bg: #fee2e2;
-    --notification-error-text: #991b1b;
-    --text-green: #10b981;
-    --text-orange: #f97316;
-    --sidebar-bg: #ffffff;
-    --sidebar-text: #be185d;
-    --sidebar-active-bg: #ffe4e6;
-    --sidebar-active-text: #831843;
+    --button-primary-hover-bg: #0891b2;
+    --text-green: #10b981; /* Emerald 500 */
+    --text-orange: #f59e0b; /* Amber 500 */
+    --connection-color: #0e7490;
+    --node-bg: #67e8f9; /* Cyan 400 */
+    --node-border: #22d3ee; /* Cyan 500 */
+    --node-selected-border: #06b6d4; /* Accent cyan */
+    --node-text: #083344;
+    --modal-overlay-bg: rgba(0, 0, 0, 0.5);
     --modal-bg: #ffffff;
-    --modal-overlay: rgba(0, 0, 0, 0.4);
-    --connection-color: #fda4af;
-    --node-bg: #ffffff;
-    --node-border: #f43f5e;
-    --node-text: #831843;
-    --node-selected-border: #f43f5e;
 }
 
-/* Theme Variables - Forest Green */
+/* Forest Green Theme */
 .theme-forest-green {
-    --bg-primary: #ecfdf5;
-    --bg-secondary: #f0fdf4;
-    --text-primary: #064e3b;
-    --text-secondary: #047857;
-    --border-color: #a7f3d0;
-    --accent-blue: #10b981;
-    --accent-blue-hover: #059669;
-    --nav-active-bg: #ccfbf1;
-    --nav-active-text: #064e3b;
-    --card-front-bg: #f0fdf4;
-    --card-back-bg: #f0fdf4;
-    --input-bg: #ffffff;
+    --bg-primary: #f0fdf4; /* Emerald 50 */
+    --bg-secondary: #dcfce7; /* Emerald 100 */
+    --text-primary: #064e3b; /* Emerald 900 */
+    --text-secondary: #047857; /* Emerald 700 */
+    --border-color: #a7f3d0; /* Emerald 200 */
+    --accent-blue: #10b981; /* Emerald 600 */
+    --accent-blue-hover: #059669; /* Emerald 700 */
+    --nav-active-bg: #a7f3d0; /* Emerald 200 */
+    --nav-active-text: #064e3b; /* Emerald 900 */
+    --card-front-bg: #ecfdf5;
+    --card-back-bg: #ecfdf5;
+    --input-bg: #dcfce7;
     --input-text: #064e3b;
-    --placeholder-text: #34d399;
+    --placeholder-text: #34d399; /* Emerald 400 */
+    --notification-bg: #d1fae5; /* Green 100 */
+    --notification-text: #065f46; /* Green 700 */
+    --notification-error-bg: #fecaca; /* Red 200 */
+    --notification-error-text: #ef4444; /* Red 500 */
     --button-primary-bg: #10b981;
     --button-primary-text: #ffffff;
-    --button-secondary-bg: #ccfbf1;
-    --button-secondary-text: #064e3b;
-    --notification-success-bg: #065f46;
-    --notification-success-text: #d1fae5;
-    --notification-error-bg: #b91c1c;
-    --notification-error-text: #fee2e2;
-    --text-green: #34d399;
+    --button-primary-hover-bg: #059669;
+    --text-green: #22c55e;
     --text-orange: #f97316;
-    --sidebar-bg: #ffffff;
-    --sidebar-text: #047857;
-    --sidebar-active-bg: #ccfbf1;
-    --sidebar-active-text: #064e3b;
-    --modal-bg: #f0fdf4;
-    --modal-overlay: rgba(0, 0, 0, 0.4);
     --connection-color: #047857;
-    --node-bg: #f0fdf4;
-    --node-border: #34d399;
+    --node-bg: #34d399;
+    --node-border: #10b981;
+    --node-selected-border: #059669;
     --node-text: #064e3b;
-    --node-selected-border: #10b981;
+    --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+    --modal-bg: #ffffff;
 }
 
-/* Theme Variables - Ocean Blue */
+/* Ocean Blue Theme */
 .theme-ocean-blue {
-    --bg-primary: #eff6ff;
-    --bg-secondary: #e0f2fe;
-    --text-primary: #1e3a8a;
-    --text-secondary: #2563eb;
-    --border-color: #93c5fd;
-    --accent-blue: #3b82f6;
-    --accent-blue-hover: #2563eb;
-    --nav-active-bg: #bfdbfe;
-    --nav-active-text: #1e3a8a;
+    --bg-primary: #eff6ff; /* Blue 50 */
+    --bg-secondary: #dbeafe; /* Blue 100 */
+    --text-primary: #1e3a8a; /* Blue 900 */
+    --text-secondary: #2563eb; /* Blue 600 */
+    --border-color: #bfdbfe; /* Blue 200 */
+    --accent-blue: #3b82f6; /* Blue 500 */
+    --accent-blue-hover: #2563eb; /* Blue 600 */
+    --nav-active-bg: #bfdbfe; /* Blue 200 */
+    --nav-active-text: #1e3a8a; /* Blue 900 */
     --card-front-bg: #e0f2fe;
     --card-back-bg: #e0f2fe;
-    --input-bg: #ffffff;
+    --input-bg: #dbeafe;
     --input-text: #1e3a8a;
-    --placeholder-text: #60a5fa;
+    --placeholder-text: #60a5fa; /* Blue 400 */
+    --notification-bg: #e0f2fe; /* Light Blue 100 */
+    --notification-text: #1d4ed8; /* Blue 700 */
+    --notification-error-bg: #fecaca; /* Red 200 */
+    --notification-error-text: #ef4444; /* Red 500 */
     --button-primary-bg: #3b82f6;
     --button-primary-text: #ffffff;
-    --button-secondary-bg: #bfdbfe;
-    --button-secondary-text: #1e3a8a;
-    --notification-success-bg: #d1fae5;
-    --notification-success-text: #065f46;
-    --notification-error-bg: #fee2e2;
-    --notification-error-text: #991b1b;
-    --text-green: #10b981;
+    --button-primary-hover-bg: #2563eb;
+    --text-green: #22c55e;
     --text-orange: #f97316;
-    --sidebar-bg: #ffffff;
-    --sidebar-text: #2563eb;
-    --sidebar-active-bg: #bfdbfe;
-    --sidebar-active-text: #1e3a8a;
-    --modal-bg: #e0f2fe;
-    --modal-overlay: rgba(0, 0, 0, 0.4);
     --connection-color: #2563eb;
-    --node-bg: #e0f2fe;
-    --node-border: #60a5fa;
+    --node-bg: #60a5fa;
+    --node-border: #3b82f6;
+    --node-selected-border: #2563eb;
     --node-text: #1e3a8a;
-    --node-selected-border: #3b82f6;
+    --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+    --modal-bg: #ffffff;
 }
 
-/* Global Themed Styles */
-.bg-primary { background-color: var(--bg-primary); }
-.bg-secondary { background-color: var(--bg-secondary); }
+
+/* Apply variables */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
 .text-primary { color: var(--text-primary); }
 .text-secondary { color: var(--text-secondary); }
-.border-color { border-color: var(--border-color); }
-.accent-blue { background-color: var(--accent-blue); }
+.bg-primary { background-color: var(--bg-primary); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.border-border-color { border-color: var(--border-color); }
+.accent-blue { color: var(--accent-blue); }
+.bg-accent-blue { background-color: var(--accent-blue); }
 .hover\:bg-accent-blue-hover:hover { background-color: var(--accent-blue-hover); }
-.nav-item-active { background-color: var(--nav-active-bg); color: var(--nav-active-text); }
-.card-front, .card-back { background-color: var(--card-front-bg); }
-input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="date"], input[type="time"], textarea, select {
+.nav-item-active {
+    background-color: var(--nav-active-bg);
+    color: var(--nav-active-text);
+}
+.flashcard-front, .flashcard-back {
+    background-color: var(--card-front-bg);
+}
+.input-themed {
     background-color: var(--input-bg);
     color: var(--input-text);
     border-color: var(--border-color);
 }
-input::placeholder, textarea::placeholder { color: var(--placeholder-text); }
-.btn-primary { background-color: var(--button-primary-bg); color: var(--button-primary-text); }
-.btn-secondary { background-color: var(--button-secondary-bg); color: var(--button-secondary-text); }
-.notification-toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-size: 1rem;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out, bottom 0.3s ease-in-out;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.input-themed::placeholder {
+    color: var(--placeholder-text);
 }
-.notification-toast.show {
-    opacity: 1;
-    bottom: 30px;
-}
-.notification-toast {
-    background-color: var(--notification-success-bg);
-    color: var(--notification-success-text);
-}
-.notification-toast.error {
-    background-color: var(--notification-error-bg);
-    color: var(--notification-error-text);
-}
-.text-green-600 { color: var(--text-green); } /* Custom var for Charts/Quiz feedback */
-.text-red-600 { color: #dc2626; } /* Always red for error */
-.text-orange-500 { color: var(--text-orange); } /* Custom var for Charts */
-
 .list-item-themed {
     background-color: var(--bg-secondary);
     border-color: var(--border-color);
@@ -256,192 +208,386 @@ input::placeholder, textarea::placeholder { color: var(--placeholder-text); }
 .hover\:list-item-themed:hover {
     background-color: var(--nav-active-bg);
 }
+.notification-toast {
+    background-color: var(--notification-bg);
+    color: var(--notification-text);
+}
+.notification-toast.error {
+    background-color: var(--notification-error-bg);
+    color: var(--notification-error-text);
+}
+.button-primary {
+    background-color: var(--button-primary-bg);
+    color: var(--button-primary-text);
+}
+.button-primary:hover {
+    background-color: var(--button-primary-hover-bg);
+}
+.text-green-600 { color: var(--text-green); }
+.text-orange-500 { color: var(--text-orange); }
 
-/* Sidebar specific */
-#sidebar { background-color: var(--sidebar-bg); color: var(--sidebar-text); border-right: 1px solid var(--border-color); }
-.nav-item { color: var(--sidebar-text); }
-.nav-item:hover:not(.nav-item-active) { background-color: var(--nav-active-bg); color: var(--nav-active-text); }
-
-/* Modal specific */
-.modal-content { background-color: var(--modal-bg); }
-.modal-overlay { background-color: var(--modal-overlay); }
-
-/* Ensure all text within prose blocks inherits primary text color */
-body .prose * { /* Added body to make it more specific and force override */
-    color: var(--text-primary) !important;
+/* General layout */
+#app-container {
+    display: flex;
+    min-height: 100vh;
+    border-radius: 1rem; /* Rounded corners for the whole app */
+    overflow: hidden;
 }
 
-/* Flashcard flip effect */
-.flashcard-inner {
-    transform-style: preserve-3d;
-    transition: transform 0.6s;
-    position: relative;
+aside {
+    width: 250px;
+    flex-shrink: 0;
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    border-top-left-radius: 1rem;
+    border-bottom-left-radius: 1rem;
+}
+
+main {
+    flex-grow: 1;
+    padding: 1.5rem;
+    background-color: var(--bg-primary);
+    overflow-y: auto;
+    border-top-right-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    color: var(--text-secondary);
+}
+
+.nav-item:hover:not(.nav-item-active) {
+    background-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.flashcard-container {
+    width: 100%;
+    height: 350px;
+    perspective: 1000px;
+}
+
+.flashcard {
     width: 100%;
     height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+    border-radius: 0.75rem; /* Rounded corners for flashcards */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
 }
-.flashcard-container.flipped .flashcard-inner {
+
+.flashcard-container.flipped .flashcard {
     transform: rotateY(180deg);
 }
-.card-front, .card-back {
+
+.flashcard-face {
     position: absolute;
     width: 100%;
     height: 100%;
-    -webkit-backface-visibility: hidden; /* Safari */
     backface-visibility: hidden;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 1.5rem;
-    border-radius: 0.75rem; /* rounded-xl */
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+    border-radius: 0.75rem;
+    text-align: center;
+    overflow-y: auto;
 }
-.card-back {
+
+.flashcard-front {
+    background-color: var(--card-front-bg);
+    color: var(--text-primary);
+}
+
+.flashcard-back {
+    background-color: var(--card-back-bg);
+    color: var(--text-primary);
     transform: rotateY(180deg);
 }
 
-/* Calendar styles */
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.5rem;
-}
-.calendar-day-cell {
-    padding: 0.75rem;
-    border-radius: 0.5rem;
+.quiz-option-btn, .soundscape-btn {
     border: 1px solid var(--border-color);
     background-color: var(--bg-secondary);
-    text-align: center;
-    position: relative;
-    cursor: pointer;
-    min-height: 80px; /* Ensure a decent height for day cells */
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
+    color: var(--text-primary);
     transition: background-color 0.2s, border-color 0.2s;
+    border-radius: 0.5rem;
 }
-.calendar-day-cell.inactive {
-    background-color: var(--bg-primary);
-    color: var(--text-secondary);
-    opacity: 0.7;
-    cursor: not-allowed;
-    border-color: var(--border-color);
-}
-.calendar-day-cell.today {
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 2px var(--accent-blue-hover);
-}
-.calendar-day-cell.selected-day {
+
+.quiz-option-btn:hover, .soundscape-btn:hover {
     background-color: var(--nav-active-bg);
     border-color: var(--accent-blue);
-    box-shadow: 0 0 0 2px var(--accent-blue-hover);
 }
-.calendar-day-number {
-    font-weight: 600; /* semibold */
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-}
-.calendar-event-item {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.75rem; /* text-xs */
-    line-height: 1;
-    margin-top: 0.25rem;
-    color: var(--text-primary);
-}
-.calendar-event-marker {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-/* Event types for calendar markers */
-.event-type-assignment .calendar-event-marker { background-color: #f59e0b; } /* amber-500 */
-.event-type-exam .calendar-event-marker { background-color: #ef4444; } /* red-500 */
-.event-type-study .calendar-event-marker { background-color: #3b82f6; } /* blue-500 */
-.event-type-other .calendar-event-marker { background-color: #6b7280; } /* gray-500 */
 
-/* Quiz specific */
-.quiz-option-btn {
-    @apply w-full p-3 rounded-lg border border-border-color text-primary bg-secondary hover:bg-nav-active-bg transition-colors text-left;
-}
 .quiz-option-btn.selected {
-    @apply border-accent-blue bg-nav-active-bg;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px var(--accent-blue);
 }
+
 .quiz-option-btn.correct {
-    @apply bg-green-100 border-green-600 text-green-800;
+    background-color: #d1fae5; /* Green 100 */
+    border-color: #34d399; /* Green 500 */
+    color: #065f46; /* Green 900 */
 }
+
 .quiz-option-btn.incorrect {
-    @apply bg-red-100 border-red-600 text-red-800;
+    background-color: #fee2e2; /* Red 100 */
+    border-color: #ef4444; /* Red 500 */
+    color: #991b1b; /* Red 900 */
 }
 
-/* Achievements specific */
-.achievement-card {
-    @apply p-4 rounded-lg border list-item-themed flex flex-col items-center justify-center text-center gap-2;
-}
-.achievement-card .icon {
-    @apply text-5xl mb-2;
-}
-.achievement-card h4 {
-    @apply font-semibold text-primary;
-}
-.achievement-card p {
-    @apply text-sm text-secondary;
-}
-.achievement-card.locked {
-    @apply opacity-50 grayscale;
+/* Modal styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--modal-overlay-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
-/* Glossary specific */
-.glossary-item {
-    @apply p-3 rounded-lg border list-item-themed mb-2;
-}
-.glossary-item h4 {
-    @apply font-semibold text-primary;
-}
-.glossary-item p {
-    @apply text-sm text-secondary;
-}
-
-/* Mind Map Canvas Styling */
-#mind-map-canvas {
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-secondary);
-    cursor: grab;
-    touch-action: none; /* Disable default touch actions to prevent unintended scrolling/zooming */
-}
-#mind-map-canvas.grabbing {
-    cursor: grabbing;
+.modal-content {
+    background-color: var(--modal-bg);
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
 }
 
 /* Notification Toast */
 .notification-toast {
     position: fixed;
-    bottom: 20px;
+    bottom: 1.5rem;
     left: 50%;
     transform: translateX(-50%);
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     opacity: 0;
-    transition: opacity 0.3s ease-in-out, bottom 0.3s ease-in-out;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    z-index: 1001;
+    font-weight: 500;
 }
 .notification-toast.show {
     opacity: 1;
-    bottom: 30px;
+    visibility: visible;
 }
 
-/* Utility classes for themed background/text colors */
-.bg-indigo-100 { background-color: #e0e7ff; } .text-indigo-800 { color: #3730a3; }
-.bg-emerald-100 { background-color: #d1fae5; } .text-emerald-800 { color: #065f46; }
-.bg-rose-100 { background-color: #ffe4e6; } .text-rose-800 { color: #9f1239; }
-.bg-amber-100 { background-color: #fffbeb; } .text-amber-800 { color: #92400e; }
-.bg-purple-100 { background-color: #f3e8ff; } .text-purple-800 { color: #6b21a8; }
-.bg-pink-100 { background-color: #fce7f3; } .text-pink-800 { color: #9d174d; }
-.bg-cyan-100 { background-color: #ecfeff; } .text-cyan-800 { color: #0e7490; }
-.bg-blue-100 { background-color: #dbeafe; } .text-blue-800 { color: #1e40af; }
+/* Calendar Styling */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+}
+
+.calendar-day-cell {
+    padding: 0.5rem;
+    aspect-ratio: 1 / 1; /* Make cells square */
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.calendar-day-cell:hover:not(.inactive) {
+    background-color: var(--nav-active-bg);
+    border-color: var(--accent-blue);
+}
+
+.calendar-day-cell.inactive {
+    background-color: var(--bg-primary);
+    color: var(--text-secondary);
+    opacity: 0.6;
+    cursor: not-allowed;
+    border-color: var(--border-color);
+}
+
+.calendar-day-cell.today {
+    background-color: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
+.calendar-day-cell.today .calendar-day-number {
+    color: white;
+}
+
+.calendar-day-cell.selected-day:not(.today) {
+    border: 2px solid var(--accent-blue);
+    box-shadow: 0 0 0 2px var(--accent-blue);
+}
+
+.calendar-day-number {
+    font-weight: 600;
+    color: var(--text-primary);
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    font-size: 0.875rem; /* text-sm */
+}
+
+.calendar-event-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+    font-size: 0.625rem; /* text-xs */
+    color: var(--text-secondary);
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.calendar-event-marker {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.calendar-event-item.event-type-assignment .calendar-event-marker { background-color: #ef4444; /* Red */ }
+.calendar-event-item.event-type-exam .calendar-event-marker { background-color: #f97316; /* Orange */ }
+.calendar-event-item.event-type-study .calendar-event-marker { background-color: #22c55e; /* Green */ }
+.calendar-event-item.event-type-other .calendar-event-marker { background-color: #6366f1; /* Indigo */ }
+
+/* Event List for Day */
+.events-for-day-list li {
+    position: relative;
+}
+.events-for-day-list li.event-type-assignment .calendar-event-marker { background-color: #ef4444; }
+.events-for-day-list li.event-type-exam .calendar-event-marker { background-color: #f97316; }
+.events-for-day-list li.event-type-study .calendar-event-marker { background-color: #22c55e; }
+.events-for-day-list li.event-type-other .calendar-event-marker { background-color: #6366f1; }
+
+/* Mind Map Canvas */
+#mind-map-canvas {
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    border-radius: 0.75rem;
+    width: 100%;
+    height: 500px; /* Or adjust as needed */
+    touch-action: none; /* Prevent browser touch actions like scrolling */
+}
+
+/* Achievements */
+.achievement-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.achievement-card .icon {
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
+}
+.achievement-card h4 {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+.achievement-card p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+.achievement-card.locked {
+    filter: grayscale(80%);
+    opacity: 0.7;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    aside {
+        display: none; /* Hide sidebar by default on smaller screens */
+    }
+    main {
+        flex-grow: 1;
+        border-radius: 0; /* No rounded corners for main if sidebar is hidden */
+    }
+    .mobile-header {
+        display: flex; /* Show mobile header */
+    }
+    #app-container {
+        border-radius: 0;
+    }
+}
+
+@media (min-width: 1025px) {
+    aside {
+        display: flex; /* Show sidebar on larger screens */
+    }
+    .mobile-header {
+        display: none; /* Hide mobile header */
+    }
+}
+
+/* Mobile Sidebar specific styles */
+#mobile-sidebar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--modal-overlay-bg);
+    z-index: 1000;
+}
+#mobile-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Hide scrollbar for entire app, but allow content to scroll if needed */
+body {
+    overflow: hidden; /* Hide main body scrollbar */
+}
+main {
+    overflow-y: auto; /* Allow scrolling within the main content area */
+}
+
+/* Custom styles for theme buttons in settings */
+.theme-btn[data-theme="light"] { background-color: #f8fafc; color: #0f172a; }
+.theme-btn[data-theme="dark"] { background-color: #1e293b; color: #f8fafc; }
+.theme-btn[data-theme="vibrant"] { background-color: #06b6d4; color: #ffffff; }
+.theme-btn[data-theme="forest-green"] { background-color: #10b981; color: #ffffff; }
+.theme-btn[data-theme="ocean-blue"] { background-color: #3b82f6; color: #ffffff; }
