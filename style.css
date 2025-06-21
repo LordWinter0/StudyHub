@@ -4,7 +4,10 @@ html, body {
     margin: 0;
     padding: 0;
 }
-body { font-family: 'Inter', sans-serif; overflow: hidden; /* Body overflow hidden as main handles it */ }
+body { 
+    font-family: 'Inter', 
+    sans-serif;  /* Body overflow hidden as main handles it */ 
+     }
 
 
 /* Theme Variables - Default Light */
@@ -347,8 +350,6 @@ body {
 #app-container {
     display: flex;
     min-height: 100vh;
-    border-radius: 1rem; /* Rounded corners for the whole app */
-    overflow: hidden;
 }
 
 aside {
