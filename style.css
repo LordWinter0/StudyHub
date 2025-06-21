@@ -1,5 +1,11 @@
 /* Base styles using Inter font */
-body { font-family: 'Inter', sans-serif; }
+html, body {
+    height: 100%; /* Ensure html and body take full height */
+    margin: 0;
+    padding: 0;
+}
+body { font-family: 'Inter', sans-serif; overflow: hidden; /* Body overflow hidden as main handles it */ }
+
 
 /* Theme Variables - Default Light */
 .theme-light {
@@ -487,9 +493,12 @@ main {
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
     width: 90%;
     max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: 90vh; /* Keep this max-height for the modal itself */
+    overflow-y: hidden; /* Prevent modal content itself from scrolling, its children should */
     position: relative;
+
+    display: flex; /* Make it a flex container */
+    flex-direction: column; /* Stack children vertically */
 }
 
 /* Notification Toast */
