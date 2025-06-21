@@ -729,7 +729,7 @@ main {
 
 /* Hide scrollbar for entire app, but allow content to scroll if needed */
 body {
-    overflow: hidden; /* Hide main body scrollbar */
+    
 }
 main {
     overflow-y: auto; /* Allow scrolling within the main content area */
