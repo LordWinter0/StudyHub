@@ -494,11 +494,11 @@ main {
     width: 90%;
     max-width: 600px;
     max-height: 90vh; /* Keep this max-height for the modal itself */
-    overflow-y: hidden; /* Prevent modal content itself from scrolling, its children should */
+    overflow-y: auto; /* Changed from hidden to auto to allow the modal itself to scroll if content overflows */
     position: relative;
 
-    display: flex; /* Make it a flex container */
-    flex-direction: column; /* Stack children vertically */
+    display: flex; /* Keeping flex layout for children management */
+    flex-direction: column;
 }
 
 /* Notification Toast */
