@@ -562,43 +562,56 @@ textarea {
     border: 2px solid var(--calendar-selected-border);
 }
 
-/* Calendar Event Item */
-.calendar-event-item {
+/* New: Container for all event indicators (dots and text) */
+.event-indicators-container {
     position: absolute;
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%); /* Adjust for its own width */
-    bottom: 0.3rem; /* Adjusted to lift it slightly higher */
+    bottom: 0.2rem; /* Position from bottom */
+    left: 0.5rem; /* Start from left with padding */
+    right: 0.5rem; /* End on right with padding */
     display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 0.6rem; /* Slightly larger dot */
-    height: 0.6rem; /* Slightly larger dot */
-    border-radius: 50%; /* Makes it a circle */
-    pointer-events: none; /* Allows clicks to pass through to the day cell */
-    z-index: 1; /* Ensure event dot is below day number but above cell background */
-    /* background-color set by specific event-type classes below */
+    flex-direction: column; /* Stack event items vertically */
+    gap: 0.1rem; /* Small gap between event items */
+    width: calc(100% - 1rem); /* Full width minus padding */
+    max-height: calc(100% - 2rem); /* Prevent taking up too much vertical space */
+    overflow: hidden; /* Hide if too many events to fit */
+    align-items: flex-start; /* Align text to the left */
+    z-index: 1; /* Below day number */
 }
 
-/* Calendar Event Marker (the actual dot) */
-.calendar-event-marker {
-    display: block; /* Make it a block element to control its size */
-    width: 8px; /* Example size for the inner dot, increased */
-    height: 8px; /* Example size for the inner dot, increased */
-    border-radius: 50%; /* Make it circular */
-    background-color: currentColor; /* Inherit color from parent .calendar-event-item */
+/* New: Individual Event Text Item */
+.calendar-event-text-item {
+    font-size: 0.65rem; /* Very small font for event text */
+    font-weight: 500;
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Add ellipsis for hidden text */
+    padding: 0.05rem 0.2rem; /* Minimal padding */
+    border-radius: 0.2rem;
+    line-height: 1; /* Compact line height */
+    max-width: 100%; /* Constrain to container width */
+    cursor: pointer; /* Indicate clickability */
+    transition: background-color 0.1s ease;
 }
 
-/* Event Type Colors - apply to the .calendar-event-item parent container */
-.event-type-assignment {
+.calendar-event-text-item:hover {
+    filter: brightness(1.1); /* Slightly brighten on hover */
+}
+
+
+/* Event Type Colors - apply to the .calendar-event-text-item */
+.calendar-event-text-item.event-type-assignment {
     background-color: var(--accent-blue);
+    color: white; /* Ensure text is readable on colored background */
 }
-.event-type-exam {
+.calendar-event-text-item.event-type-exam {
     background-color: var(--text-red);
+    color: white;
 }
-.event-type-study {
+.calendar-event-text-item.event-type-study {
     background-color: var(--text-green);
+    color: white;
 }
-/* You can add more event types here */
+/* You can add more event types here with their specific background and text colors */
 
 
 /* Achievements */
