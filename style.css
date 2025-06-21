@@ -43,6 +43,19 @@ body {
     --achievement-unlocked-text: #166534; /* Dark green for unlocked */
     --achievement-locked-bg: #f1f5f9; /* Light gray for locked */
     --achievement-locked-text: #64748b; /* Gray for locked */
+    /* Calendar Colors */
+    --calendar-day-bg: #ffffff;
+    --calendar-day-hover-bg: #f1f5f9;
+    --calendar-day-border: #e2e8f0;
+    --calendar-day-text: #0f172a;
+    --calendar-day-inactive-text: #cbd5e1; /* Gray-300 */
+    --calendar-today-border: #2563eb; /* Accent blue */
+    --calendar-selected-day-bg: #e0f2f7; /* Light blue */
+    --event-assignment-color: #ef4444; /* Red-500 */
+    --event-exam-color: #f97316; /* Orange-500 */
+    --event-study-color: #22c54a; /* Green-500 */
+    --event-other-color: #8b5cf6; /* Violet-500 */
+    --calendar-event-dot: #94a3b8; /* Slate-400 */
 }
 
 /* Theme Variables - Dark Theme */
@@ -83,6 +96,19 @@ body {
     --achievement-unlocked-text: #f8fafc; /* White for unlocked */
     --achievement-locked-bg: #475569; /* Darker gray for locked */
     --achievement-locked-text: #94a3b8; /* Lighter gray for locked */
+    /* Calendar Colors */
+    --calendar-day-bg: #334155;
+    --calendar-day-hover-bg: #475569;
+    --calendar-day-border: #475569;
+    --calendar-day-text: #f8fafc;
+    --calendar-day-inactive-text: #64748b; /* Slate-500 */
+    --calendar-today-border: #60a5fa; /* Accent blue */
+    --calendar-selected-day-bg: #2d3a4b; /* Darker secondary */
+    --event-assignment-color: #dc2626; /* Red-600 */
+    --event-exam-color: #f59e0b; /* Amber-500 */
+    --event-study-color: #16a34a; /* Green-600 */
+    --event-other-color: #7c3aed; /* Violet-600 */
+    --calendar-event-dot: #94a3b8; /* Slate-400 */
 }
 
 /* Theme Variables - Vibrant Theme */
@@ -123,6 +149,19 @@ body {
     --achievement-unlocked-text: #0e7490; /* Dark Cyan for unlocked */
     --achievement-locked-bg: #a5f3fc; /* Lighter Cyan for locked */
     --achievement-locked-text: #22d3ee; /* Cyan for locked */
+    /* Calendar Colors */
+    --calendar-day-bg: #e0f2f7;
+    --calendar-day-hover-bg: #d1f4ff;
+    --calendar-day-border: #a5f3fc;
+    --calendar-day-text: #083344;
+    --calendar-day-inactive-text: #67e8f9; /* Cyan-400 */
+    --calendar-today-border: #0ea5e9; /* Accent blue */
+    --calendar-selected-day-bg: #bae6fd; /* Lightest blue */
+    --event-assignment-color: #ef4444; /* Red-500 */
+    --event-exam-color: #fb923c; /* Orange-500 */
+    --event-study-color: #4ade80; /* Green-500 */
+    --event-other-color: #a78bfa; /* Violet-400 */
+    --calendar-event-dot: #22d3ee; /* Cyan-500 */
 }
 
 /* General element styling using theme variables */
@@ -173,6 +212,7 @@ header,
 input[type="text"],
 input[type="number"],
 input[type="date"],
+input[type="time"], /* Added for calendar */
 textarea,
 select {
     background-color: var(--input-bg);
@@ -464,3 +504,79 @@ input[type="checkbox"] {
     color: var(--text-secondary);
 }
 
+/* Calendar Specific Styles */
+.calendar-grid-container {
+    border-top: 1px solid var(--calendar-day-border);
+    border-left: 1px solid var(--calendar-day-border);
+}
+
+.calendar-day-cell {
+    position: relative;
+    padding: 10px;
+    min-height: 100px; /* Adjust as needed */
+    background-color: var(--calendar-day-bg);
+    border-right: 1px solid var(--calendar-day-border);
+    border-bottom: 1px solid var(--calendar-day-border);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    overflow: hidden;
+}
+
+.calendar-day-cell:hover {
+    background-color: var(--calendar-day-hover-bg);
+}
+
+.calendar-day-number {
+    font-weight: 600;
+    font-size: 1.125rem; /* text-lg */
+    color: var(--calendar-day-text);
+    margin-bottom: 5px;
+}
+
+.calendar-day-cell.inactive .calendar-day-number {
+    color: var(--calendar-day-inactive-text);
+}
+
+.calendar-day-cell.today {
+    border: 2px solid var(--calendar-today-border);
+    box-shadow: 0 0 0 1px var(--calendar-today-border);
+}
+
+.calendar-day-cell.selected-day {
+    background-color: var(--calendar-selected-day-bg);
+}
+
+.calendar-event-marker {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--calendar-event-dot);
+    margin-right: 4px;
+    flex-shrink: 0; /* Prevent dot from shrinking */
+}
+
+/* Specific colors for event types */
+.event-type-assignment .calendar-event-marker { background-color: var(--event-assignment-color); }
+.event-type-exam .calendar-event-marker { background-color: var(--event-exam-color); }
+.event-type-study .calendar-event-marker { background-color: var(--event-study-color); }
+.event-type-other .calendar-event-marker { background-color: var(--event-other-color); }
+
+
+.calendar-event-title {
+    font-size: 0.75rem; /* text-xs */
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1;
+}
+
+.calendar-event-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-top: 2px;
+}
