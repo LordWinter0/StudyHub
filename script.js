@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const quizQuestionContainer = document.getElementById('quiz-question-container');
     const quizQuestionText = document.getElementById('quiz-question-text');
     const quizOptions = document.getElementById('quiz-options');
-    const quizSubmitAnswerBtn = document.getElementById('quiz-submit-answer-btn');
+    const quizSubmitAnswerBtn = document = document.getElementById('quiz-submit-answer-btn');
     const quizFeedback = document.getElementById('quiz-feedback');
     const quizResultsContainer = document.getElementById('quiz-results-container');
     const quizScoreDisplay = document.getElementById('quiz-score-display');
@@ -216,7 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
         lastExportDate: null,
         dailyChallengeCount: 0,
         lastChallengeClaimDate: null,
-        onboardingCompleted: false // Ensure this is explicitly false for new users
+        onboardingCompleted: false, // Ensure this is explicitly false for new users
+        dailyStudyLogs: [], // Initialize as empty array
+        monthlyMasteryLogs: [] // Initialize as empty array to prevent TypeError
     };
 
     // Default subjects for quick add and AI learning, in addition to user-added ones
@@ -268,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         learningHubContent: { /* ... (same as before) ... */
              auralearnBasics: [
                 { title: "What are Flashcards?", summary: "The building blocks of your knowledge in AuraLearn.", details: "In AuraLearn, a 'Flashcard' is the smallest, most fundamental piece of information or concept you want to master, presented as a question-answer pair. Breaking down knowledge into these atomic units allows AuraLearn's intelligent Spaced Repetition System (SRS) to precisely track your mastery of each individual piece and schedule it for optimal review, ensuring you don't waste time on what you already know while reinforcing challenging concepts." }, // Updated 'Learning Atom'
-                { title: "How Spaced Repetition Works", summary: "A science-backed method for long-term memory.", details: "AuraLearn's core is its Spaced Repetition System (SRS). After you review a 'Flashcard', you rate how well you recalled it. Based on your rating, AuraLearn's algorithm calculates the optimal time to show you that card again – just before you're likely to forget it. Easy concepts are reviewed less often, difficult ones more frequently. This adaptive scheduling is scientifically proven to move information from short-term to long-term memory much more efficiently than traditional cramming." }, // Updated 'Learning Atom'
+                { title: "How Spaced Repetition Works", summary: "A science-backed method for long-term memory.", details: "AuraLearn's core is its Spaced Repetition System (SRS). After you review a 'Flashcard', you rate how well you recalled it. Based on your rating, AuraLearn's algorithm calculates the optimal time to show you that card again - just before you're likely to forget it. Easy concepts are reviewed less often, difficult ones more frequently. This adaptive scheduling is scientifically proven to move information from short-term to long-term memory much more efficiently than traditional cramming." }, // Updated 'Learning Atom'
                 { title: "Your Mastery Score", summary: "Understanding your progress.", details: "Your 'Mastery Score' in AuraLearn reflects how deeply ingrained a 'Flashcard' is in your long-term memory. It's dynamically updated based on your recall performance during study sessions. The higher your mastery, the less frequently a card needs to be reviewed. This metric provides a clear, objective view of your knowledge retention over time across all your subjects." } // Updated 'Learning Atom'
             ],
             techniques: [
@@ -537,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <ul>
                         <li>To restore your data, go to <strong>Settings</strong> and click "<strong>Import Data</strong>". Select the JSON file you previously exported.</li>
                         <li><strong>Warning:</strong> Importing data will replace your current AuraLearn data. Only import data you trust and intend to use.</li>
+                        <li><em>This method does not merge data; it overwrites.</em></li>
                     </ul>
                     <h3>Conclusion</h3>
                     <ul>
@@ -548,15 +551,27 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Initialize mockData with fallback values if localStorage is empty or partial
-    // This ensures that even if a new property is added, existing users don't get 'null'
-    // but rather a default for that specific property.
-    mockData.user = mockData.user || JSON.parse(JSON.stringify(initialUserData));
+    let storedUser = JSON.parse(localStorage.getItem('auralearn_user'));
+    mockData.user = storedUser || JSON.parse(JSON.stringify(initialUserData)); // Use initialUserData if no stored data
+
+    // Contingency: Ensure all properties from initialUserData exist on mockData.user
+    // This handles cases where old user data from localStorage might be missing new properties
+    for (const key in initialUserData) {
+        if (mockData.user[key] === undefined) {
+            // For nested objects/arrays, ensure a deep copy if initialUserData[key] is not primitive
+            if (typeof initialUserData[key] === 'object' && initialUserData[key] !== null) {
+                mockData.user[key] = JSON.parse(JSON.stringify(initialUserData[key]));
+            } else {
+                mockData.user[key] = initialUserData[key];
+            }
+        }
+    }
+
     mockData.subjects = mockData.subjects || []; // Ensure subjects array exists
     mockData.aiMaterials = mockData.aiMaterials || [];
     mockData.glossary = mockData.glossary || [];
     mockData.mindMaps = mockData.mindMaps || [];
-    // flashcards are already handled with a default empty array and map over
-    // calendarEvents are already handled with a default empty array and map over
+    // flashcards and calendarEvents are already handled with a default empty array and map over
 
 
     let appState = {
@@ -603,328 +618,255 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function showNotification(message, isError = false) {
         if (!notificationToast) {
-            console.error("Notification toast element not found!");
+            console.error('Notification toast element not found.');
             return;
         }
         notificationToast.textContent = message;
-        notificationToast.classList.remove('hidden', 'error');
+        notificationToast.classList.remove('hidden', 'notification-success', 'notification-error');
         if (isError) {
-            notificationToast.classList.add('error');
+            notificationToast.classList.add('notification-error');
+        } else {
+            notificationToast.classList.add('notification-success');
         }
         notificationToast.classList.add('show');
-        notificationToast.setAttribute('aria-live', isError ? 'assertive' : 'polite'); // Accessibility
 
         setTimeout(() => {
             notificationToast.classList.remove('show');
-            setTimeout(() => {
-                notificationToast.classList.add('hidden');
-            }, 300); // Allow fade out before hiding
-        }, 4000); // Display for 4 seconds
+            notificationToast.classList.add('hidden');
+        }, 3000); // Hide after 3 seconds
     }
 
     /**
-     * Populates the subject dropdown for the Quick Add Flashcard modal, including default subjects.
+     * Saves all mockData to localStorage.
      */
-    function populateQuickAddSubjectSelect() {
-        quickAddSubjectSelect.innerHTML = '<option value="">Select or Add New Subject</option>';
+    function saveUserData() {
+        try {
+            // Ensure data structures are clean before saving (e.g., no recursive references)
+            // Dates should be converted to ISO strings for JSON serialization
+            const dataToSave = {
+                user: mockData.user,
+                subjects: mockData.subjects,
+                flashcards: mockData.flashcards.map(f => ({
+                    ...f,
+                    lastReviewed: f.lastReviewed instanceof Date ? f.lastReviewed.toISOString() : f.lastReviewed,
+                    nextReview: f.nextReview instanceof Date ? f.nextReview.toISOString() : f.nextReview
+                })),
+                aiMaterials: mockData.aiMaterials,
+                glossary: mockData.glossary,
+                mindMaps: mockData.mindMaps,
+                calendarEvents: mockData.calendarEvents.map(event => ({
+                    ...event,
+                    date: event.date instanceof Date ? event.date.toISOString() : event.date
+                }))
+            };
 
-        // Add default subjects first
-        defaultSubjects.forEach(subject => {
-            const option = document.createElement('option');
-            option.value = subject.id;
-            option.textContent = subject.name;
-            quickAddSubjectSelect.appendChild(option);
-        });
-
-        // Add user-added subjects, avoiding duplicates if they have the same ID as a default
-        mockData.subjects.filter(s => !defaultSubjects.some(ds => ds.id === s.id)).forEach(subject => {
-            const option = document.createElement('option');
-            option.value = subject.id;
-            option.textContent = subject.name;
-            quickAddSubjectSelect.appendChild(option);
-        });
-        quickAddSubjectSelect.value = "";
-    }
-
-
-    /**
-     * Checks if a new achievement has been unlocked.
-     * @param {string} achievementId - The ID of the achievement to check.
-     */
-    function unlockAchievement(achievementId) {
-        if (!mockData.user.achievements.includes(achievementId)) {
-            mockData.user.achievements.push(achievementId);
-            // Assuming mockData.achievements is updated elsewhere or can be derived
-            // For now, let's ensure achievements in mockData always reflect the user's unlocked ones
-            // This is just a UI message, the actual check is in checkAchievements()
-            const achievementName = (mockData.achievements || []).find(a => a.id === achievementId)?.name || achievementId;
-            showNotification(`Achievement Unlocked: ${achievementName}! 🏅`);
-            saveUserData();
-            if (appState.currentView === 'achievements') renderAchievements(); // Re-render if on achievements page
+            localStorage.setItem('auralearn_user', JSON.stringify(dataToSave.user));
+            localStorage.setItem('auralearn_subjects', JSON.stringify(dataToSave.subjects));
+            localStorage.setItem('auralearn_flashcards', JSON.stringify(dataToSave.flashcards));
+            localStorage.setItem('auralearn_ai_materials', JSON.stringify(dataToSave.aiMaterials));
+            localStorage.setItem('auralearn_glossary', JSON.stringify(dataToSave.glossary));
+            localStorage.setItem('auralearn_mind_maps', JSON.stringify(dataToSave.mindMaps));
+            localStorage.setItem('auralearn_calendar_events', JSON.stringify(dataToSave.calendarEvents));
+            localStorage.setItem('auralearn_onboardingCompleted', appState.onboardingCompleted);
+            localStorage.setItem('auralearn_currentView', appState.currentView);
+            localStorage.setItem('auralearn_theme', appState.currentTheme);
+            // console.log("User data saved successfully!");
+        } catch (error) {
+            console.error("Error saving user data:", error);
+            showNotification("Error saving data. Please try again or export manually.", true);
         }
     }
 
     /**
-     * Calculates the next review date for a flashcard using an SM-2 like algorithm.
-     * @param {Date} lastReviewed - The date the flashcard was last reviewed.
-     * @param {number} quality - Recall quality (0-3: Forgot, Struggled, Good, Perfect).
-     * @param {number} currentEaseFactor - The current ease factor for the flashcard.
-     * @param {number} currentInterval - The current interval in days.
-     * @param {number} repetitions - Number of consecutive successful recalls (quality >= 2).
-     * @returns {{nextReview: Date, newInterval: number, newEaseFactor: number, newRepetitions: number}}
+     * Loads the specified view and updates active navigation link.
+     * @param {string} viewName
      */
-    function calculateNextReviewDateSM2(lastReviewed, quality, currentEaseFactor, currentInterval, repetitions) {
-        let newEaseFactor = currentEaseFactor;
-        let newInterval = currentInterval;
-        let newRepetitions = repetitions;
-
-        // Adjust ease factor based on quality
-        if (quality === 3) { // Perfect
-            newEaseFactor += (0.1 - (5 - mockData.user.srsFactors.perfect) * (0.08 + (5 - mockData.user.srsFactors.perfect) * 0.02));
-            newRepetitions++;
-        } else if (quality === 2) { // Good
-            // No change to ease factor
-            newRepetitions++;
-        } else if (quality === 1) { // Struggled
-            newEaseFactor -= 0.2;
-            newRepetitions = 0; // Reset repetitions
-        } else { // Forgot (quality === 0)
-            newEaseFactor -= 0.2;
-            newRepetitions = 0; // Reset repetitions
-        }
-
-        // Clamp ease factor between 1.3 and 2.5 (or higher if intervals allow, but 2.5 is common max)
-        newEaseFactor = Math.max(1.3, newEaseFactor);
-
-        // Calculate new interval
-        if (quality < 2) { // Forgot or Struggled
-            newInterval = quality === 0 ? mockData.user.srsIntervals.forgot : mockData.user.srsIntervals.struggled;
-            // If the interval is in hours (e.g., 0.25 days = 6 hours), keep it that way for the first review
-            if (newInterval < 1) {
-                 // For very short intervals, use minutes/hours for more precise timing.
-                 // Storing in days, so 0.25 means 6 hours.
-            }
-        } else { // Good or Perfect
-            if (newRepetitions === 1) { // First successful recall after learning/reset
-                newInterval = mockData.user.srsIntervals.good; // Use good interval for initial successful pass
-            } else if (newRepetitions === 2) { // Second consecutive successful recall
-                newInterval = mockData.user.srsIntervals.perfect; // Use perfect interval for second pass
-            } else { // Further successful recalls
-                newInterval = newInterval * newEaseFactor;
-            }
-        }
-
-        // Ensure interval is at least 1 day if repetitions > 0 and interval was previously short
-        if (newRepetitions > 0 && newInterval < 1 && quality >= 2) {
-            newInterval = 1; // Minimum 1 day for proper spaced repetition if mastery is good/perfect
-        }
-
-        const nextDate = new Date(lastReviewed.getTime() + newInterval * 24 * 60 * 60 * 1000); // Convert days to milliseconds
-
-        return {
-            nextReview: nextDate,
-            newInterval: newInterval,
-            newEaseFactor: newEaseFactor,
-            newRepetitions: newRepetitions
-        };
-    }
-
-    /**
-     * Gets flashcards due for review today, sorted by next review date.
-     * @returns {Array<Object>} Filtered and sorted list of flashcards.
-     */
-    function getDailyQueue() {
-        const now = new Date();
-        now.setHours(0, 0, 0, 0); // Normalize 'now' to start of today for comparison
-
-        return mockData.flashcards.filter(flashcard => { // Renamed
-            const nextReviewDate = flashcard.nextReview instanceof Date ? flashcard.nextReview : new Date(flashcard.nextReview);
-            nextReviewDate.setHours(0, 0, 0, 0); // Normalize flashcard's next review date
-
-            // Handle very short intervals (less than a day) correctly
-            if (flashcard.interval < 1 && flashcard.repetitions === 0) { // If it's a new/forgotten card with short interval
-                const reviewTime = new Date(flashcard.lastReviewed.getTime() + flashcard.interval * 24 * 60 * 60 * 1000);
-                return reviewTime <= new Date(); // Check if actual time has passed
-            }
-            return nextReviewDate <= now; // For intervals >= 1 day, just compare dates
-        }).sort((a, b) => {
-            const dateA = a.nextReview instanceof Date ? a.nextReview : new Date(a.nextReview);
-            const dateB = b.nextReview instanceof Date ? b.nextReview : new Date(b.nextReview);
-            return dateA.getTime() - dateB.getTime();
-        }).slice(0, 15); // Limit to 15 for a manageable daily session
-    }
-
-    /**
-     * Gets flashcards that the user has struggled with (low repetitions, low ease factor).
-     * @returns {Array<Object>} List of weak flashcards.
-     */
-    function getWeakFlashcards() { // Renamed
-        return mockData.flashcards // Renamed
-            .filter(flashcard => flashcard.repetitions < 3 && flashcard.easeFactor < 2.0 && flashcard.interval > 0) // Struggled, but not brand new
-            .sort((a, b) => a.easeFactor - b.easeFactor) // Sort by lowest ease factor first
-            .slice(0, 20); // Limit to 20 weak flashcards for a session
-    }
-
-    /**
-     * Gets recommended flashcards (e.g., lowest difficulty and not in today's queue).
-     * @returns {Array<Object>} List of recommended flashcards.
-     */
-    function getRecommendedFlashcards() { // Renamed
-        const todayQueueIds = new Set(getDailyQueue().map(f => f.id)); // Renamed
-        return mockData.flashcards // Renamed
-            .filter(flashcard => flashcard.repetitions === 0 && !todayQueueIds.has(flashcard.id)) // Only truly new flashcards not in today's queue
-            .sort((a, b) => new Date(a.nextReview).getTime() - new Date(b.nextReview).getTime()) // Sort by next review for new flashcards
-            .slice(0, 3); // Show top 3 recommendations
-    }
-
-    /**
-     * Gets upcoming calendar events for the next 7 days.
-     * @returns {Array<Object>} List of upcoming events.
-     */
-    function getUpcomingEvents() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const sevenDaysLater = new Date(today);
-        sevenDaysLater.setDate(today.getDate() + 7);
-
-        return mockData.calendarEvents.filter(event => {
-            const eventDate = new Date(event.date);
-            eventDate.setHours(0, 0, 0, 0);
-            return eventDate >= today && eventDate <= sevenDaysLater;
-        }).sort((a, b) => a.date.getTime() - b.date.getTime());
-    }
-
-
-    /**
-     * Main render function to switch views and update common UI elements.
-     */
-    function render() {
-        // Hide all views first
+    function loadView(viewName) {
+        // Hide all views
         Object.values(views).forEach(view => view.classList.add('hidden'));
-        // Show current view
-        if (views[appState.currentView]) {
-            views[appState.currentView].classList.remove('hidden');
+
+        // Show the requested view
+        const targetView = views[viewName];
+        if (targetView) {
+            targetView.classList.remove('hidden');
+            appState.currentView = viewName;
+            saveUserData(); // Save current view state
+
+            // Update active nav link
+            navLinks.forEach(link => {
+                if (link.dataset.view === viewName) {
+                    link.classList.add('nav-item-active');
+                } else {
+                    link.classList.remove('nav-item-active');
+                }
+            });
+
+            // Close mobile sidebar if open
+            mobileSidebarContainer.classList.add('hidden');
+            mobileSidebar.classList.remove('translate-x-0');
+
+            // Perform view-specific updates
+            if (viewName === 'dashboard') {
+                updateDashboard();
+            } else if (viewName === 'library') {
+                renderSubjects();
+                renderAiMaterials();
+            } else if (viewName === 'calendar') {
+                renderCalendar(appState.calendar.currentDate);
+                renderEventsForSelectedDay(appState.calendar.selectedDay || new Date());
+            } else if (viewName === 'analytics') {
+                renderAnalyticsCharts();
+                renderLearningGoals();
+            } else if (viewName === 'glossary') {
+                renderGlossary();
+            } else if (viewName === 'achievements') {
+                renderAchievements();
+            } else if (viewName === 'focus') {
+                updatePomodoroDisplay();
+            } else if (viewName === 'learning-hub') {
+                renderLearningHubContent(appState.learningHubCategory);
+            } else if (viewName === 'settings') {
+                loadSettings();
+            }
+        } else {
+            console.error('View not found:', viewName);
         }
-        updateActiveNav();
-        localStorage.setItem('auralearn_currentView', appState.currentView); // Save current view state
-
-        // Update common UI elements
-        dashboardUsername.textContent = mockData.user.name;
-        sidebarUsername.textContent = mockData.user.name;
-        sidebarUsernameMobile.textContent = mockData.user.name;
-        currentStreak.textContent = `🔥 ${mockData.user.streak} Days`;
-        totalMasteredFlashcards.textContent = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
-        dailyQueueCount.textContent = `${getDailyQueue().length} Flashcards`; // Renamed
-        upcomingEventsCount.textContent = getUpcomingEvents().length;
-
-        // Render content specific to the current view
-        if (appState.currentView === 'dashboard') renderDashboard();
-        if (appState.currentView === 'calendar') renderCalendar();
-        if (appState.currentView === 'library') renderLibrary();
-        if (appState.currentView === 'ai-learning') renderAILearning();
-        if (appState.currentView === 'mind-map') renderMindMap();
-        if (appState.currentView === 'glossary') renderGlossary();
-        if (appState.currentView === 'analytics') renderAnalytics();
-        if (appState.currentView === 'achievements') renderAchievements();
-        if (appState.currentView === 'focus') renderFocusTools();
-        if (appState.currentView === 'learning-hub') renderLearningHub();
-        if (appState.currentView === 'settings') renderSettings();
-        if (appState.currentView === 'tutorial') renderTutorial();
     }
 
     /**
-     * Renders content for the Dashboard view.
+     * Renders the list of recommended flashcards on the dashboard.
      */
-    function renderDashboard() {
-        const dailyQueue = getDailyQueue();
-        const weakFlashcards = getWeakFlashcards(); // Renamed
-        const queueList = document.getElementById('daily-queue-list');
-        queueList.innerHTML = ''; // Clear previous list items
+    function renderRecommendedFlashcards() {
+        if (!recommendedFlashcardsList) return;
 
-        if (dailyQueue.length === 0) {
-            queueList.innerHTML = '<li class="p-3 text-secondary text-center list-item-themed">No flashcards due for review today. Great job!</li>'; // Renamed
-            startReviewBtn.textContent = 'No Reviews Today';
+        recommendedFlashcardsList.innerHTML = '';
+        const now = new Date();
+
+        // Filter flashcards that are due for review AND sort by nextReview date
+        const dueFlashcards = mockData.flashcards
+            .filter(flashcard => flashcard.nextReview <= now)
+            .sort((a, b) => a.nextReview.getTime() - b.nextReview.getTime());
+
+        if (dueFlashcards.length === 0) {
+            recommendedFlashcardsList.innerHTML = `
+                <li class="list-item-themed p-3 rounded-lg border text-secondary text-center">
+                    No flashcards due soon! Keep up the great work!
+                </li>
+            `;
             startReviewBtn.disabled = true;
+            dailyQueueCount.textContent = `0 Flashcards`;
         } else {
-            dailyQueue.forEach(flashcard => { // Renamed
-                const subject = mockData.subjects.find(s => s.id === flashcard.subjectId); // Renamed
+            dueFlashcards.slice(0, 5).forEach(flashcard => {
                 const li = document.createElement('li');
-                li.className = 'flex items-center justify-between p-3 rounded-lg border list-item-themed hover:list-item-themed';
-                const subjectColorClass = subject ? `${subject.color} ${subject.textColor}` : 'bg-gray-200 text-gray-800';
+                li.className = 'list-item-themed p-3 rounded-lg border flex justify-between items-center';
+                const subject = mockData.subjects.find(s => s.id === flashcard.subjectId);
+                const subjectName = subject ? subject.name : 'Uncategorized';
                 li.innerHTML = `
-                    <div>
-                        <p class="font-medium text-primary">${flashcard.question}</p>
-                        <span class="text-xs font-semibold ${subjectColorClass} px-2 py-1 rounded-full">${subject ? subject.name : 'Unknown Subject'}</span>
-                    </div>
-                    <span class="text-secondary text-lg">›</span>
+                    <span class="font-medium text-primary truncate mr-2">${flashcard.question}</span>
+                    <span class="text-sm ${subject ? subject.textColor : 'text-gray-600'} ${subject ? subject.color : 'bg-gray-200'} px-2 py-1 rounded-full">${subjectName}</span>
                 `;
-                queueList.appendChild(li);
+                recommendedFlashcardsList.appendChild(li);
             });
-            startReviewBtn.textContent = `Start Daily Review (${dailyQueue.length} items)`;
             startReviewBtn.disabled = false;
+            dailyQueueCount.textContent = `${dueFlashcards.length} Flashcard${dueFlashcards.length !== 1 ? 's' : ''}`;
         }
+        updateDailyChallengeProgress(); // Update challenge after rendering recommended flashcards
+        updateStudyWeakFlashcardsButton(); // Update study weak button count
+    }
 
-        // Update Weak Flashcards button text
-        studyWeakFlashcardsBtn.textContent = `Study Weak Flashcards (${weakFlashcards.length})`; // Renamed
-        studyWeakFlashcardsBtn.disabled = weakFlashcards.length === 0; // Renamed
 
-        // Render Recommended Flashcards
-        const recommendedFlashcards = getRecommendedFlashcards(); // Renamed
-        recommendedFlashcardsList.innerHTML = ''; // Renamed
-        if (recommendedFlashcards.length === 0) { // Renamed
-            recommendedFlashcardsList.innerHTML = `<p class="text-secondary text-center mt-4">No specific recommendations yet. Start importing content!</p>`; // Renamed
-        } else {
-            recommendedFlashcards.forEach(flashcard => { // Renamed
-                const subject = mockData.subjects.find(s => s.id === flashcard.subjectId); // Renamed
-                const li = document.createElement('div');
-                li.className = 'flex items-center justify-between p-3 rounded-lg border list-item-themed hover:list-item-themed';
-                const subjectColorClass = subject ? `${subject.color} ${subject.textColor}` : 'bg-gray-200 text-gray-800';
-                li.innerHTML = `
-                    <div>
-                        <p class="font-medium text-primary">${flashcard.question}</p>
-                        <span class="text-xs font-semibold ${subjectColorClass} px-2 py-1 rounded-full">${subject ? subject.name : 'Unknown Subject'}</span>
-                    </div>
-                    <button class="bg-accent-blue text-white text-xs py-1 px-2 rounded-md hover:bg-accent-blue-hover" data-flashcard-id="${flashcard.id}" aria-label="Review ${flashcard.question}">Review</button>
-                `; // Renamed data-atom-id
-                recommendedFlashcardsList.appendChild(li); // Renamed
+    /**
+     * Initializes the daily challenge if not already set for today.
+     * Increments progress and checks for completion.
+     */
+    function updateDailyChallengeProgress() {
+        if (!dailyChallengeText || !dailyChallengeProgress || !dailyChallengeStatus || !claimChallengeBtn) return;
 
-                const reviewBtn = li.querySelector('button');
-                reviewBtn.addEventListener('click', () => {
-                    const flashcardId = parseInt(reviewBtn.dataset.flashcardId); // Renamed
-                    const selectedFlashcard = mockData.flashcards.find(f => f.id === flashcardId); // Renamed
-                    if (selectedFlashcard) {
-                        showDetailModal({ title: selectedFlashcard.question, details: selectedFlashcard.answer });
-                    }
-                });
-            });
-        }
+        const today = new Date().toDateString();
+        const lastChallengeDate = mockData.user.lastChallengeDate;
+        const masteredToday = mockData.flashcards.filter(f =>
+            f.lastReviewed && new Date(f.lastReviewed).toDateString() === today && f.repetitions >= 3 && f.easeFactor >= 2.0
+        ).length;
 
-        // Daily Challenge Logic
-        const today = new Date().toISOString().split('T')[0];
-        if (mockData.user.lastChallengeDate !== today) {
+        // Reset challenge if new day
+        if (lastChallengeDate !== today) {
             mockData.user.dailyChallengeProgress = 0;
-            // Only reset streak if the day before was also not studied
-            const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0];
-            if (mockData.user.lastChallengeDate !== yesterday) {
-                mockData.user.streak = 0;
-            }
+            mockData.user.lastChallengeDate = today;
+            mockData.user.dailyChallengeCount = 0; // Reset daily count for the new day
+            claimChallengeBtn.classList.add('hidden');
+            saveUserData();
         }
-        dailyChallengeText.textContent = `Review 5 flashcards to complete today's challenge!`; // Renamed
-        dailyChallengeProgress.style.width = `${(mockData.user.dailyChallengeProgress / 5) * 100}%`;
-        dailyChallengeStatus.textContent = `${mockData.user.dailyChallengeProgress}/5 Flashcards Reviewed`; // Renamed
 
-        if (mockData.user.dailyChallengeProgress >= 5 && mockData.user.lastChallengeDate === today) {
+        mockData.user.dailyChallengeProgress = masteredToday;
+        const target = 5; // Example: Master 5 flashcards
+
+        const progressPercent = (mockData.user.dailyChallengeProgress / target) * 100;
+        dailyChallengeProgress.style.width = `${Math.min(100, progressPercent)}%`;
+        dailyChallengeStatus.textContent = `${mockData.user.dailyChallengeProgress}/${target} Flashcards Mastered Today`;
+
+        if (mockData.user.dailyChallengeProgress >= target) {
+            dailyChallengeText.textContent = "Daily Challenge Completed!";
             claimChallengeBtn.classList.remove('hidden');
-            unlockAchievement('daily-challenge-master'); // Unlock achievement
+            // Check if reward has already been claimed today
+            if (mockData.user.lastChallengeClaimDate === today) {
+                claimChallengeBtn.disabled = true;
+                claimChallengeBtn.textContent = "Reward Claimed!";
+                claimChallengeBtn.classList.remove('button-primary');
+                claimChallengeBtn.classList.add('bg-gray-400', 'text-white');
+            } else {
+                claimChallengeBtn.disabled = false;
+                claimChallengeBtn.textContent = "Claim Reward";
+                claimChallengeBtn.classList.add('button-primary');
+                claimChallengeBtn.classList.remove('bg-gray-400', 'text-white');
+            }
         } else {
+            dailyChallengeText.textContent = `Master ${target} flashcards to complete today's challenge!`;
             claimChallengeBtn.classList.add('hidden');
         }
         saveUserData();
+    }
 
-        // Backup Reminder
-        const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-        const lastExportDate = mockData.user.lastExportDate ? new Date(mockData.user.lastExportDate) : null;
-        if (!lastExportDate || (new Date() - lastExportDate > ONE_WEEK_MS)) {
+    /**
+     * Updates the count on the "Study Weak Flashcards" button.
+     */
+    function updateStudyWeakFlashcardsButton() {
+        const weakFlashcards = mockData.flashcards.filter(f => f.repetitions < 3 || f.easeFactor < 2.0); // Simple definition for "weak"
+        studyWeakFlashcardsBtn.textContent = `Study Weak Flashcards (${weakFlashcards.length})`;
+        studyWeakFlashcardsBtn.disabled = weakFlashcards.length === 0;
+    }
+
+
+    /**
+     * Updates the dashboard view with current user data.
+     */
+    function updateDashboard() {
+        if (dashboardUsername) dashboardUsername.textContent = mockData.user.name;
+        if (sidebarUsername) sidebarUsername.textContent = mockData.user.name;
+        if (sidebarUsernameMobile) sidebarUsernameMobile.textContent = mockData.user.name;
+        if (currentStreak) currentStreak.textContent = `🔥 ${mockData.user.streak} Day${mockData.user.streak !== 1 ? 's' : ''}`;
+        if (totalMasteredFlashcards) totalMasteredFlashcards.textContent = `${mockData.user.totalMastered} Flashcard${mockData.user.totalMastered !== 1 ? 's' : ''}`;
+        if (upcomingEventsCount) {
+            const today = new Date();
+            const sevenDaysLater = new Date();
+            sevenDaysLater.setDate(today.getDate() + 7);
+            const upcomingEvents = mockData.calendarEvents.filter(event =>
+                event.date >= today && event.date <= sevenDaysLater
+            ).length;
+            upcomingEventsCount.textContent = upcomingEvents;
+        }
+        renderRecommendedFlashcards();
+        updateDailyChallengeProgress();
+        checkBackupReminder();
+    }
+
+    /**
+     * Checks if the backup reminder should be shown.
+     */
+    function checkBackupReminder() {
+        if (!backupReminder) return;
+        const now = new Date();
+        const lastExport = mockData.user.lastExportDate ? new Date(mockData.user.lastExportDate) : null;
+        if (!lastExport || (now.getTime() - lastExport.getTime()) > (7 * 24 * 60 * 60 * 1000)) { // 7 days
             backupReminder.classList.remove('hidden');
         } else {
             backupReminder.classList.add('hidden');
@@ -932,2453 +874,1884 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Renders the Calendar view for the current month.
+     * Initializes a study session with due flashcards or all flashcards if none are due.
+     * @param {boolean} onlyWeak - If true, only include weak flashcards.
      */
-    function renderCalendar() {
-        const today = new Date();
-        const currentMonth = appState.calendar.currentDate.getMonth();
-        const currentYear = appState.calendar.currentDate.getFullYear();
+    function startStudySession(onlyWeak = false) {
+        const now = new Date();
+        let queue = [];
 
-        currentMonthYearDisplay.textContent = new Date(currentYear, currentMonth).toLocaleString('en-US', { month: 'long', year: 'numeric' });
-        calendarGrid.innerHTML = '';
-        eventsListForDay.innerHTML = ''; // Clear events list for selected day initially
+        if (onlyWeak) {
+            queue = mockData.flashcards.filter(f => f.repetitions < 3 || f.easeFactor < 2.0);
+            if (queue.length === 0) {
+                showNotification("No weak flashcards to review!", true);
+                return;
+            }
+        } else {
+            // Include flashcards due for review and any that haven't been reviewed yet (new)
+            const dueFlashcards = mockData.flashcards.filter(f => f.nextReview <= now);
+            const newFlashcards = mockData.flashcards.filter(f => f.repetitions === 0 && f.nextReview > now); // Flashcards never reviewed
+            queue = [...dueFlashcards, ...newFlashcards];
 
-        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-        const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
-        const daysInMonth = lastDayOfMonth.getDate();
-        const startDayOfWeek = firstDayOfMonth.getDay(); // 0 for Sunday, 6 for Saturday
-
-        // Add empty cells for days before the 1st of the month
-        for (let i = 0; i < startDayOfWeek; i++) {
-            const emptyCell = document.createElement('div');
-            emptyCell.className = 'calendar-day-cell inactive';
-            calendarGrid.appendChild(emptyCell);
+            if (queue.length === 0) {
+                showNotification("No flashcards due for review. You're all caught up!", false);
+                // Optionally, could start a session with all cards or recommend adding new ones
+                return;
+            }
         }
 
-        // Add actual days of the month
-        for (let i = 1; i <= daysInMonth; i++) {
-            const dayCell = document.createElement('div');
-            dayCell.className = 'calendar-day-cell';
-            dayCell.dataset.date = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-            dayCell.innerHTML = `<span class="calendar-day-number">${i}</span>`;
+        // Shuffle the queue to randomize review order
+        appState.studySession.queue = shuffleArray(queue);
+        appState.studySession.currentIndex = 0;
+        appState.studySession.isActive = true;
+        appState.studySession.flashcardsReviewedInSession = 0; // Reset count for the new session
 
-            const fullDate = new Date(currentYear, currentMonth, i);
-
-            // Add 'today' class if it's the current day
-            if (fullDate.toDateString() === today.toDateString()) {
-                dayCell.classList.add('today');
-                // Select today by default on calendar load if no specific day is selected
-                if (!appState.calendar.selectedDay || appState.calendar.selectedDay.toDateString() !== fullDate.toDateString()) {
-                    appState.calendar.selectedDay = fullDate;
-                }
-            }
-
-            // Add 'selected-day' class if it's the currently selected day
-            if (appState.calendar.selectedDay && fullDate.toDateString() === appState.calendar.selectedDay.toDateString()) {
-                dayCell.classList.add('selected-day');
-            }
-
-            // Add event markers
-            const eventsForThisDay = mockData.calendarEvents.filter(event => {
-                const eventDate = new Date(event.date);
-                return eventDate.toDateString() === fullDate.toDateString();
-            });
-
-            if (eventsForThisDay.length > 0) {
-                eventsForThisDay.slice(0, 3).forEach(event => { // Show up to 3 events directly on the day cell
-                    const eventItem = document.createElement('div');
-                    eventItem.className = `calendar-event-item event-type-${event.type}`;
-                    eventItem.innerHTML = `<span class="calendar-event-marker"></span><span class="calendar-event-title">${event.title}</span>`;
-                    dayCell.appendChild(eventItem);
-                });
-                if (eventsForThisDay.length > 3) {
-                    const moreEvents = document.createElement('div');
-                    moreEvents.className = 'text-xs text-secondary mt-1 ml-4';
-                    moreEvents.textContent = `+${eventsForThisDay.length - 3} more`;
-                    dayCell.appendChild(moreEvents);
-                }
-            }
-
-            dayCell.addEventListener('click', () => {
-                // Remove selected-day from previously selected cell
-                const prevSelected = calendarGrid.querySelector('.calendar-day-cell.selected-day');
-                if (prevSelected) prevSelected.classList.remove('selected-day');
-
-                // Add selected-day to current cell
-                dayCell.classList.add('selected-day');
-                appState.calendar.selectedDay = fullDate;
-                renderEventsForSelectedDay();
-            });
-
-            calendarGrid.appendChild(dayCell);
-        }
-
-        // Add empty cells for days after the last day of the month
-        const endDayOfWeek = lastDayOfMonth.getDay();
-        for (let i = endDayOfWeek + 1; i <= 6; i++) {
-            const emptyCell = document.createElement('div');
-            emptyCell.className = 'calendar-day-cell inactive';
-            calendarGrid.appendChild(emptyCell);
-        }
-
-        // Ensure events for the initially selected day are rendered
-        renderEventsForSelectedDay();
+        loadView('study');
+        loadCurrentFlashcard();
+        updateStudyProgressBar();
     }
 
     /**
-     * Renders events for the currently selected day in the calendar.
+     * Loads the current flashcard into the study view.
      */
-    function renderEventsForSelectedDay() {
-        if (!appState.calendar.selectedDay) {
-            eventsListForDay.innerHTML = '<li class="text-secondary text-center">Select a day to view events.</li>';
-            selectedDayDisplay.textContent = 'Today';
+    function loadCurrentFlashcard() {
+        if (appState.studySession.currentIndex < appState.studySession.queue.length) {
+            const currentFlashcard = appState.studySession.queue[appState.studySession.currentIndex];
+            const subject = mockData.subjects.find(s => s.id === currentFlashcard.subjectId);
+
+            document.getElementById('card-question').textContent = currentFlashcard.question;
+            document.getElementById('card-answer').textContent = currentFlashcard.answer;
+            document.getElementById('card-subject-front').textContent = subject ? subject.name : 'Uncategorized';
+            document.getElementById('card-subject-back').textContent = subject ? subject.name : 'Uncategorized';
+
+            // Reset flashcard to front side
+            flashcardContainer.classList.remove('flipped');
+            showAnswerBtn.classList.remove('hidden');
+            recallButtons.forEach(btn => btn.classList.add('hidden')); // Hide recall buttons until answer is shown
+        } else {
+            endStudySession();
+        }
+    }
+
+    /**
+     * Shows the answer of the current flashcard and reveals recall buttons.
+     */
+    function showAnswer() {
+        flashcardContainer.classList.add('flipped');
+        showAnswerBtn.classList.add('hidden');
+        recallButtons.forEach(btn => btn.classList.remove('hidden'));
+    }
+
+    /**
+     * Handles recall rating for a flashcard and schedules the next review.
+     * @param {number} rating - The recall rating (0-3).
+     */
+    function handleRecall(rating) {
+        const currentFlashcard = appState.studySession.queue[appState.studySession.currentIndex];
+
+        // Spaced Repetition Logic (SM-2 algorithm simplified)
+        const srsIntervals = mockData.user.srsIntervals;
+        const srsFactors = mockData.user.srsFactors;
+
+        if (rating === 0) { // Forgot
+            currentFlashcard.repetitions = 0;
+            currentFlashcard.interval = srsIntervals.forgot; // Very short interval (e.g., a few hours)
+            currentFlashcard.easeFactor = Math.max(1.3, currentFlashcard.easeFactor - 0.20); // Decrease ease factor
+        } else if (rating === 1) { // Struggled
+            currentFlashcard.repetitions = 0; // Reset repetitions as it wasn't easy
+            currentFlashcard.interval = srsIntervals.struggled; // Short interval (e.g., 1 day)
+            currentFlashcard.easeFactor = Math.max(1.3, currentFlashcard.easeFactor - 0.10); // Slightly decrease ease factor
+        } else { // Good (2) or Perfect (3)
+            currentFlashcard.repetitions++;
+            if (currentFlashcard.repetitions === 1) {
+                currentFlashcard.interval = srsIntervals.good; // First successful recall after initial interval
+            } else if (currentFlashcard.repetitions === 2) {
+                currentFlashcard.interval = srsIntervals.perfect; // Second successful recall, longer interval
+            } else {
+                // Subsequent recalls, use ease factor for exponential growth
+                currentFlashcard.interval = currentFlashcard.interval * currentFlashcard.easeFactor;
+            }
+            // Adjust ease factor based on performance
+            if (rating === 3) { // Perfect
+                currentFlashcard.easeFactor += 0.10;
+            } else if (rating === 2) { // Good
+                // No change or slight decrease for 'good' if not consistently perfect
+                currentFlashcard.easeFactor = currentFlashcard.easeFactor; // Maintain current ease
+            }
+        }
+
+        // Ensure easeFactor doesn't drop below minimum
+        currentFlashcard.easeFactor = Math.max(1.3, currentFlashcard.easeFactor);
+
+        // Calculate next review date
+        const nextReviewDate = new Date();
+        nextReviewDate.setDate(nextReviewDate.getDate() + currentFlashcard.interval);
+        currentFlashcard.nextReview = nextReviewDate;
+        currentFlashcard.lastReviewed = new Date(); // Update last reviewed date
+
+        // Update total mastered flashcards if it's the first time mastering this one
+        if (rating === 3 && currentFlashcard.repetitions === 3 && currentFlashcard.easeFactor >= 2.0) { // Define "mastered"
+            const alreadyMastered = mockData.flashcards.some(f => f.id === currentFlashcard.id && f.wasMastered === true);
+            if (!alreadyMastered) {
+                mockData.user.totalMastered++;
+                currentFlashcard.wasMastered = true; // Mark as mastered
+                showNotification("Flashcard mastered!", false);
+                checkAchievements();
+            }
+        }
+
+        appState.studySession.flashcardsReviewedInSession++;
+        saveUserData(); // Save the updated flashcard data immediately
+
+        appState.studySession.currentIndex++;
+        updateStudyProgressBar();
+        loadCurrentFlashcard(); // Load next flashcard
+    }
+
+    /**
+     * Updates the study progress bar and text.
+     */
+    function updateStudyProgressBar() {
+        const progressBar = document.getElementById('study-progress-bar');
+        const progressText = document.getElementById('study-progress-text');
+        if (!progressBar || !progressText) return;
+
+        const total = appState.studySession.queue.length;
+        const current = appState.studySession.currentIndex;
+
+        if (total === 0) {
+            progressBar.style.width = '0%';
+            progressText.textContent = 'Flashcard 0 of 0';
+        } else {
+            const progressPercent = (current / total) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            progressText.textContent = `Flashcard ${current} of ${total}`;
+        }
+    }
+
+
+    /**
+     * Ends the study session and prompts for reflection.
+     */
+    function endStudySession() {
+        appState.studySession.isActive = false;
+        showNotification(`Study session complete! Reviewed ${appState.studySession.flashcardsReviewedInSession} flashcards.`, false);
+        updateDailyChallengeProgress(); // Final update after session
+        // Only show reflection if actual flashcards were reviewed
+        if (appState.studySession.flashcardsReviewedInSession > 0) {
+            showModal(reflectionModal);
+        } else {
+            loadView('dashboard'); // Go back to dashboard if no cards were reviewed
+        }
+        appState.studySession.flashcardsReviewedInSession = 0; // Reset for next session
+    }
+
+    /**
+     * Populates the subject select dropdowns (for quick add and AI learning).
+     * @param {HTMLElement} selectElement - The select element to populate.
+     * @param {string} currentSubjectId - The ID of the currently selected subject, if any.
+     */
+    function populateSubjectSelect(selectElement, currentSubjectId = '') {
+        selectElement.innerHTML = '<option value="">Select a Subject</option>'; // Default empty option
+        const allSubjects = [...defaultSubjects]; // Start with default subjects
+
+        // Add user-defined subjects, ensuring no duplicates
+        mockData.subjects.forEach(userSubject => {
+            if (!allSubjects.some(s => s.id === userSubject.id)) {
+                allSubjects.push(userSubject);
+            }
+        });
+
+        allSubjects.sort((a, b) => a.name.localeCompare(b.name));
+
+        allSubjects.forEach(subject => {
+            const option = document.createElement('option');
+            option.value = subject.id;
+            option.textContent = subject.name;
+            if (subject.id === currentSubjectId) {
+                option.selected = true;
+            }
+            selectElement.appendChild(option);
+        });
+    }
+
+
+    /**
+     * Adds a new flashcard to the mockData.
+     */
+    function addFlashcard() {
+        const question = quickAddQuestionInput.value.trim();
+        const answer = quickAddAnswerInput.value.trim();
+        let subjectId = quickAddSubjectSelect.value;
+        const newSubjectName = newSubjectInput.value.trim();
+
+        if (!question || !answer) {
+            showNotification('Please enter both a question and an answer.', true);
             return;
         }
 
-        const selectedDate = appState.calendar.selectedDay;
-        selectedDayDisplay.textContent = selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        if (toggleNewSubjectInputBtn.classList.contains('hidden') && newSubjectName) {
+            // User typed a new subject name directly
+            subjectId = newSubjectName.toLowerCase().replace(/\s+/g, '-');
+            if (!mockData.subjects.some(s => s.id === subjectId)) {
+                mockData.subjects.push({
+                    id: subjectId,
+                    name: newSubjectName,
+                    color: 'bg-gray-200', // Default color for new subjects
+                    textColor: 'text-gray-800'
+                });
+            }
+        } else if (!subjectId && !newSubjectName) {
+            showNotification('Please select or add a subject.', true);
+            return;
+        } else if (newSubjectName && subjectId === '') {
+            subjectId = newSubjectName.toLowerCase().replace(/\s+/g, '-');
+            if (!mockData.subjects.some(s => s.id === subjectId)) {
+                mockData.subjects.push({
+                    id: subjectId,
+                    name: newSubjectName,
+                    color: 'bg-gray-200', // Default color for new subjects
+                    textColor: 'text-gray-800'
+                });
+            }
+        }
 
-        const events = mockData.calendarEvents.filter(event => {
-            const eventDate = new Date(event.date);
-            return eventDate.toDateString() === selectedDate.toDateString();
-        }).sort((a, b) => {
-            // Sort by time if available, otherwise by title
+
+        const newFlashcard = {
+            id: crypto.randomUUID(), // Unique ID for the flashcard
+            question: question,
+            answer: answer,
+            subjectId: subjectId,
+            lastReviewed: new Date(),
+            nextReview: new Date(), // Initially due immediately
+            easeFactor: 2.5, // Standard initial ease factor
+            interval: 0,
+            repetitions: 0,
+            wasMastered: false
+        };
+
+        mockData.flashcards.push(newFlashcard);
+        saveUserData();
+        showNotification('Flashcard added successfully!');
+        quickAddQuestionInput.value = '';
+        quickAddAnswerInput.value = '';
+        newSubjectInput.value = '';
+        newSubjectInput.classList.add('hidden');
+        toggleNewSubjectInputBtn.textContent = 'Add New Subject';
+        populateSubjectSelect(quickAddSubjectSelect); // Re-populate to show new subject
+        hideModal(quickAddFlashcardModal);
+        renderSubjects(); // Re-render library subjects if currently in library view
+        updateDashboard(); // Update dashboard counts
+    }
+
+
+    /**
+     * Renders subjects in the library view.
+     */
+    function renderSubjects() {
+        if (!subjectGrid) return;
+
+        subjectGrid.innerHTML = '';
+        if (mockData.subjects.length === 0 && mockData.flashcards.length === 0) {
+            emptyLibraryMessage.classList.remove('hidden');
+            return;
+        } else {
+            emptyLibraryMessage.classList.add('hidden');
+        }
+
+        // Group flashcards by subject
+        const flashcardsBySubject = mockData.flashcards.reduce((acc, flashcard) => {
+            const subject = mockData.subjects.find(s => s.id === flashcard.subjectId) ||
+                            defaultSubjects.find(s => s.id === flashcard.subjectId);
+            const subjectName = subject ? subject.name : 'Uncategorized';
+            const subjectId = subject ? subject.id : 'uncategorized'; // Use 'uncategorized' for grouping
+            const subjectColor = subject ? subject.color : 'bg-gray-200';
+            const subjectTextColor = subject ? subject.textColor : 'text-gray-800';
+
+            if (!acc[subjectId]) {
+                acc[subjectId] = {
+                    name: subjectName,
+                    id: subjectId,
+                    color: subjectColor,
+                    textColor: subjectTextColor,
+                    flashcards: []
+                };
+            }
+            acc[subjectId].flashcards.push(flashcard);
+            return acc;
+        }, {});
+
+        // Render each subject card
+        Object.values(flashcardsBySubject).forEach(subject => {
+            const card = document.createElement('div');
+            card.className = `${subject.color} ${subject.textColor} p-6 rounded-xl shadow-sm border border-border-color cursor-pointer hover:shadow-md transition-shadow`;
+            card.dataset.subjectId = subject.id; // Store subject ID for detail view
+            card.innerHTML = `
+                <h4 class="font-bold text-lg mb-2">${subject.name}</h4>
+                <p class="text-sm">${subject.flashcards.length} Flashcard${subject.flashcards.length !== 1 ? 's' : ''}</p>
+            `;
+            card.addEventListener('click', () => showSubjectDetail(subject.id));
+            subjectGrid.appendChild(card);
+        });
+    }
+
+    /**
+     * Shows a modal with details for a specific subject (its flashcards).
+     * @param {string} subjectId - The ID of the subject to show.
+     */
+    function showSubjectDetail(subjectId) {
+        const subject = mockData.subjects.find(s => s.id === subjectId) || defaultSubjects.find(s => s.id === subjectId);
+        if (!subject) return;
+
+        subjectDetailTitle.textContent = `${subject.name} Flashcards`;
+        subjectFlashcardsList.innerHTML = '';
+
+        const flashcardsInSubject = mockData.flashcards.filter(f => f.subjectId === subjectId);
+
+        if (flashcardsInSubject.length === 0) {
+            subjectFlashcardsList.innerHTML = `<p class="text-secondary text-center p-4">No flashcards in this subject yet.</p>`;
+        } else {
+            flashcardsInSubject.forEach(flashcard => {
+                const item = document.createElement('div');
+                item.className = 'list-item-themed p-3 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center';
+                item.innerHTML = `
+                    <div class="flex-1">
+                        <p class="font-semibold text-primary">${flashcard.question}</p>
+                        <p class="text-sm text-secondary">${flashcard.answer}</p>
+                    </div>
+                    <div class="flex items-center gap-2 mt-2 sm:mt-0">
+                        <span class="text-xs ${flashcard.wasMastered ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'} px-2 py-1 rounded-full">
+                            ${flashcard.wasMastered ? 'Mastered' : 'Learning'}
+                        </span>
+                        <button class="text-red-500 hover:text-red-700 delete-flashcard-btn" data-id="${flashcard.id}" title="Delete Flashcard">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                subjectFlashcardsList.appendChild(item);
+            });
+            // Add event listeners for delete buttons within the modal
+            subjectFlashcardsList.querySelectorAll('.delete-flashcard-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const flashcardIdToDelete = event.currentTarget.dataset.id;
+                    if (window.confirm("Are you sure you want to delete this flashcard?")) {
+                        deleteFlashcard(flashcardIdToDelete);
+                        showSubjectDetail(subjectId); // Re-render the modal content
+                        updateDashboard(); // Update dashboard counts
+                    }
+                });
+            });
+        }
+        showModal(subjectDetailModal);
+    }
+
+    /**
+     * Deletes a flashcard by its ID.
+     * @param {string} idToDelete - The ID of the flashcard to delete.
+     */
+    function deleteFlashcard(idToDelete) {
+        const initialLength = mockData.flashcards.length;
+        mockData.flashcards = mockData.flashcards.filter(f => f.id !== idToDelete);
+        if (mockData.flashcards.length < initialLength) {
+            saveUserData();
+            showNotification("Flashcard deleted successfully.");
+        } else {
+            showNotification("Flashcard not found.", true);
+        }
+    }
+
+
+    /**
+     * Renders AI-generated materials in the library.
+     */
+    function renderAiMaterials() {
+        if (!aiMaterialsList) return;
+
+        aiMaterialsList.innerHTML = '';
+        if (mockData.aiMaterials.length === 0) {
+            emptyAiMaterialsMessage.classList.remove('hidden');
+            return;
+        } else {
+            emptyAiMaterialsMessage.classList.add('hidden');
+        }
+
+        mockData.aiMaterials.sort((a, b) => new Date(b.generatedDate) - new Date(a.generatedDate)); // Sort by newest first
+
+        mockData.aiMaterials.forEach(material => {
+            const item = document.createElement('div');
+            item.className = 'list-item-themed p-3 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center';
+
+            const subject = mockData.subjects.find(s => s.id === material.subjectId) || defaultSubjects.find(s => s.id === material.subjectId);
+            const subjectName = subject ? subject.name : 'Uncategorized';
+            const subjectColor = subject ? subject.color : 'bg-gray-200';
+            const subjectTextColor = subject ? subject.textColor : 'text-gray-800';
+
+            const materialDate = new Date(material.generatedDate).toLocaleDateString();
+
+            item.innerHTML = `
+                <div class="flex-1">
+                    <p class="font-semibold text-primary">${material.title}</p>
+                    <p class="text-sm text-secondary mb-1">${material.type} - ${materialDate}</p>
+                    <span class="text-xs ${subjectColor} ${subjectTextColor} px-2 py-1 rounded-full">${subjectName}</span>
+                </div>
+                <div class="flex items-center gap-2 mt-2 sm:mt-0">
+                    <button class="text-accent-blue hover:text-accent-blue-hover view-ai-material-btn" data-id="${material.id}" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="text-red-500 hover:text-red-700 delete-ai-material-btn" data-id="${material.id}" title="Delete Material">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            aiMaterialsList.appendChild(item);
+        });
+
+        aiMaterialsList.querySelectorAll('.view-ai-material-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const materialId = event.currentTarget.dataset.id;
+                viewAiMaterial(materialId);
+            });
+        });
+
+        aiMaterialsList.querySelectorAll('.delete-ai-material-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const materialId = event.currentTarget.dataset.id;
+                if (window.confirm("Are you sure you want to delete this AI-generated material?")) {
+                    deleteAiMaterial(materialId);
+                }
+            });
+        });
+    }
+
+    /**
+     * Displays the content of an AI-generated material in the detail modal.
+     * @param {string} materialId - The ID of the material to display.
+     */
+    function viewAiMaterial(materialId) {
+        const material = mockData.aiMaterials.find(m => m.id === materialId);
+        if (!material) {
+            showNotification("AI material not found.", true);
+            return;
+        }
+
+        detailTitle.textContent = material.title;
+        detailContentText.innerHTML = material.content;
+        detailContentText.classList.remove('hidden');
+        detailLoading.classList.add('hidden');
+        showModal(detailModal);
+    }
+
+    /**
+     * Deletes an AI-generated material by its ID.
+     * @param {string} idToDelete - The ID of the material to delete.
+     */
+    function deleteAiMaterial(idToDelete) {
+        const initialLength = mockData.aiMaterials.length;
+        mockData.aiMaterials = mockData.aiMaterials.filter(m => m.id !== idToDelete);
+        if (mockData.aiMaterials.length < initialLength) {
+            saveUserData();
+            showNotification("AI material deleted successfully.");
+            renderAiMaterials(); // Re-render the list
+        } else {
+            showNotification("AI material not found.", true);
+        }
+    }
+
+
+    /**
+     * Renders the calendar grid for the given month.
+     * @param {Date} date - The date object representing the month to render.
+     */
+    function renderCalendar(date) {
+        if (!calendarGrid || !currentMonthYearDisplay) return;
+
+        appState.calendar.currentDate = new Date(date.getFullYear(), date.getMonth(), 1); // Set to 1st of the month
+        currentMonthYearDisplay.textContent = appState.calendar.currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+        calendarGrid.innerHTML = '';
+
+        const year = appState.calendar.currentDate.getFullYear();
+        const month = appState.calendar.currentDate.getMonth();
+        const firstDayOfMonth = new Date(year, month, 1);
+        const lastDayOfMonth = new Date(year, month + 1, 0);
+        const daysInMonth = lastDayOfMonth.getDate();
+
+        const firstDayOfWeek = firstDayOfMonth.getDay(); // 0 for Sunday, 6 for Saturday
+
+        // Add blank cells for days before the 1st of the month
+        for (let i = 0; i < firstDayOfWeek; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'calendar-day-cell inactive';
+            calendarGrid.appendChild(cell);
+        }
+
+        // Add cells for each day of the month
+        for (let day = 1; day <= daysInMonth; day++) {
+            const cell = document.createElement('div');
+            const currentDayDate = new Date(year, month, day);
+            cell.className = 'calendar-day-cell relative'; // Added relative for absolute positioning of number
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize today's date
+
+            // Add 'today' class
+            if (currentDayDate.toDateString() === today.toDateString()) {
+                cell.classList.add('today');
+            }
+
+            // Add 'selected-day' class if it matches the current selected day state
+            if (appState.calendar.selectedDay && currentDayDate.toDateString() === appState.calendar.selectedDay.toDateString()) {
+                cell.classList.add('selected-day');
+            }
+
+            cell.dataset.date = currentDayDate.toISOString(); // Store full date string
+
+            // Day number element
+            const dayNumberSpan = document.createElement('span');
+            dayNumberSpan.className = 'calendar-day-number';
+            dayNumberSpan.textContent = day;
+            cell.appendChild(dayNumberSpan);
+
+            // Add event markers
+            const eventsOnThisDay = mockData.calendarEvents.filter(event =>
+                event.date.toDateString() === currentDayDate.toDateString()
+            );
+
+            eventsOnThisDay.forEach(event => {
+                const eventItem = document.createElement('div');
+                eventItem.className = `calendar-event-item event-type-${event.type} absolute left-0 right-0 bottom-1 flex items-center justify-center pointer-events-none`;
+                eventItem.innerHTML = `
+                    <span class="calendar-event-marker"></span>
+                `;
+                cell.appendChild(eventItem);
+            });
+
+
+            cell.addEventListener('click', () => {
+                appState.calendar.selectedDay = currentDayDate;
+                renderCalendar(appState.calendar.currentDate); // Re-render to update selected day highlight
+                renderEventsForSelectedDay(currentDayDate);
+            });
+
+            calendarGrid.appendChild(cell);
+        }
+    }
+
+
+    /**
+     * Renders the events for the currently selected day.
+     * @param {Date} date - The selected date.
+     */
+    function renderEventsForSelectedDay(date) {
+        if (!selectedDayDisplay || !eventsListForDay) return;
+
+        selectedDayDisplay.textContent = date.toLocaleDateString('default', { weekday: 'long', month: 'long', day: 'numeric' });
+        eventsListForDay.innerHTML = '';
+
+        const events = mockData.calendarEvents.filter(event =>
+            event.date.toDateString() === date.toDateString()
+        ).sort((a, b) => {
+            // Sort by time, if available
             const timeA = a.time ? a.time.split(':').map(Number) : [0, 0];
             const timeB = b.time ? b.time.split(':').map(Number) : [0, 0];
             if (timeA[0] !== timeB[0]) return timeA[0] - timeB[0];
-            if (timeA[1] !== timeB[1]) return timeA[1] - timeB[1];
-            return a.title.localeCompare(b.title);
+            return timeA[1] - timeB[1];
         });
 
-        eventsListForDay.innerHTML = '';
         if (events.length === 0) {
-            eventsListForDay.innerHTML = '<li class="text-secondary text-center">No events for this day.</li>';
+            eventsListForDay.innerHTML = `
+                <li class="list-item-themed p-3 rounded-lg border text-secondary text-center">No events for this day.</li>
+            `;
         } else {
             events.forEach(event => {
                 const li = document.createElement('li');
-                li.className = `p-3 rounded-lg border list-item-themed hover:list-item-themed cursor-pointer flex items-center gap-2 event-type-${event.type}`;
-                const eventTime = event.time ? `${event.time}` : '';
+                li.className = `list-item-themed p-3 rounded-lg border flex justify-between items-center event-type-${event.type}`;
+                const displayTime = event.time ? `(${event.time})` : '';
                 li.innerHTML = `
-                    <span class="calendar-event-marker"></span>
                     <div>
-                        <p class="font-semibold text-primary">${event.title}</p>
-                        <p class="text-xs text-secondary">${eventTime} ${event.notes ? ` - ${event.notes}` : ''}</p>
+                        <p class="font-semibold text-primary">${event.title} ${displayTime}</p>
+                        <p class="text-sm text-secondary">${event.notes}</p>
                     </div>
+                    <button class="text-accent-blue hover:text-accent-blue-hover edit-event-btn" data-id="${event.id}" title="Edit Event">
+                        <i class="fas fa-edit"></i>
+                    </button>
                 `;
-                li.addEventListener('click', () => showAddEditEventModal(event));
                 eventsListForDay.appendChild(li);
+            });
+
+            eventsListForDay.querySelectorAll('.edit-event-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const eventId = e.currentTarget.dataset.id;
+                    editEvent(eventId);
+                });
             });
         }
     }
 
-    // Calendar Navigation event listeners
-    prevMonthBtn.addEventListener('click', () => {
-        appState.calendar.currentDate.setMonth(appState.calendar.currentDate.getMonth() - 1);
-        renderCalendar();
-    });
+    /**
+     * Opens the add/edit event modal, populating it if editing an existing event.
+     * @param {string} eventId - The ID of the event to edit, or null for new.
+     */
+    function openEventModal(eventId = null) {
+        appState.calendar.editingEvent = null; // Clear previous editing state
+        eventModalTitle.textContent = "Add New Event";
+        eventTitleInput.value = '';
+        eventDateInput.value = appState.calendar.selectedDay ? appState.calendar.selectedDay.toISOString().split('T')[0] : '';
+        eventTimeInput.value = '';
+        eventNotesInput.value = '';
+        eventTypeSelect.value = 'assignment';
+        deleteEventBtn.classList.add('hidden'); // Hide delete button for new events
 
-    nextMonthBtn.addEventListener('click', () => {
-        appState.calendar.currentDate.setMonth(appState.calendar.currentDate.getMonth() + 1);
-        renderCalendar();
-    });
-
-    addEventBtn.addEventListener('click', () => showAddEditEventModal(null, appState.calendar.selectedDay)); // Pass selected day to pre-fill date
-
-    // Add/Edit Event Modal Logic
-    function showAddEditEventModal(event = null, dateToPreFill = null) {
-        addEditEventModal.classList.remove('hidden');
-        if (event) {
-            appState.calendar.editingEvent = event;
-            eventModalTitle.textContent = 'Edit Event';
-            eventTitleInput.value = event.title;
-            eventDateInput.value = event.date.toISOString().split('T')[0]; //YYYY-MM-DD
-            eventTimeInput.value = event.time || '';
-            eventNotesInput.value = event.notes || '';
-            eventTypeSelect.value = event.type || 'other';
-            deleteEventBtn.classList.remove('hidden');
-        } else {
-            appState.calendar.editingEvent = null;
-            eventModalTitle.textContent = 'Add New Event';
-            eventTitleInput.value = '';
-            eventDateInput.value = dateToPreFill ? dateToPreFill.toISOString().split('T')[0] : '';
-            eventTimeInput.value = '';
-            eventNotesInput.value = '';
-            eventTypeSelect.value = 'assignment'; // Default type
-            deleteEventBtn.classList.add('hidden');
+        if (eventId) {
+            const eventToEdit = mockData.calendarEvents.find(e => e.id === eventId);
+            if (eventToEdit) {
+                appState.calendar.editingEvent = eventToEdit;
+                eventModalTitle.textContent = "Edit Event";
+                eventTitleInput.value = eventToEdit.title;
+                eventDateInput.value = eventToEdit.date.toISOString().split('T')[0];
+                eventTimeInput.value = eventToEdit.time || '';
+                eventNotesInput.value = eventToEdit.notes || '';
+                eventTypeSelect.value = eventToEdit.type;
+                deleteEventBtn.classList.remove('hidden');
+            }
         }
+        showModal(addEditEventModal);
     }
 
-    closeEventModalBtn.addEventListener('click', () => {
-        addEditEventModal.classList.add('hidden');
-        appState.calendar.editingEvent = null; // Clear editing state
-    });
-
-    saveEventBtn.addEventListener('click', () => {
+    /**
+     * Saves a new or edited event.
+     */
+    function saveEvent() {
         const title = eventTitleInput.value.trim();
-        const dateString = eventDateInput.value;
-        const time = eventTimeInput.value.trim();
+        const date = eventDateInput.value;
+        const time = eventTimeInput.value;
         const notes = eventNotesInput.value.trim();
         const type = eventTypeSelect.value;
 
-        if (!title || !dateString) {
-            showNotification('Event title and date are required.', true);
+        if (!title || !date) {
+            showNotification("Please enter event title and date.", true);
             return;
         }
 
-        const eventDate = new Date(dateString);
-        if (isNaN(eventDate.getTime())) {
-            showNotification('Invalid date selected.', true);
-            return;
+        const eventDate = new Date(date);
+        // If time is provided, set it. Otherwise, event is all-day for scheduling purposes
+        if (time) {
+            const [hours, minutes] = time.split(':').map(Number);
+            eventDate.setHours(hours, minutes);
+        } else {
+            eventDate.setHours(0, 0, 0, 0); // Normalize to start of day for consistency if no time
         }
 
         if (appState.calendar.editingEvent) {
             // Update existing event
-            appState.calendar.editingEvent.title = title;
-            appState.calendar.editingEvent.date = eventDate;
-            appState.calendar.editingEvent.time = time;
-            appState.calendar.editingEvent.notes = notes;
-            appState.calendar.editingEvent.type = type;
-            showNotification('Event updated successfully!');
+            const eventIndex = mockData.calendarEvents.findIndex(e => e.id === appState.calendar.editingEvent.id);
+            if (eventIndex !== -1) {
+                mockData.calendarEvents[eventIndex] = {
+                    ...mockData.calendarEvents[eventIndex],
+                    title, date: eventDate, time, notes, type
+                };
+                showNotification("Event updated successfully!");
+            }
         } else {
             // Add new event
             const newEvent = {
-                id: mockData.calendarEvents.length > 0 ? Math.max(...mockData.calendarEvents.map(e => e.id)) + 1 : 1,
-                title: title,
-                date: eventDate,
-                time: time,
-                notes: notes,
-                type: type
+                id: crypto.randomUUID(),
+                title, date: eventDate, time, notes, type
             };
             mockData.calendarEvents.push(newEvent);
-            showNotification('Event added successfully!');
+            showNotification("Event added successfully!");
         }
         saveUserData();
-        addEditEventModal.classList.add('hidden');
-        render(); // Re-render to update calendar and dashboard counts
-    });
+        renderCalendar(appState.calendar.currentDate); // Re-render calendar to show changes
+        renderEventsForSelectedDay(eventDate); // Re-render events list for the specific day
+        hideModal(addEditEventModal);
+        updateDashboard(); // Update upcoming events count
+    }
 
-    deleteEventBtn.addEventListener('click', () => {
-        if (appState.calendar.editingEvent && confirm('Are you sure you want to delete this event?')) {
-            mockData.calendarEvents = mockData.calendarEvents.filter(event => event.id !== appState.calendar.editingEvent.id);
+    /**
+     * Deletes an event.
+     */
+    function deleteEvent() {
+        if (appState.calendar.editingEvent) {
+            mockData.calendarEvents = mockData.calendarEvents.filter(e => e.id !== appState.calendar.editingEvent.id);
             saveUserData();
-            showNotification('Event deleted successfully!');
-            addEditEventModal.classList.add('hidden');
-            render(); // Re-render to update calendar and dashboard counts
-        }
-    });
-
-    /**
-     * Renders content for the Library view.
-     */
-    function renderLibrary() {
-        subjectGrid.innerHTML = '';
-        if (mockData.subjects.length === 0) {
-            emptyLibraryMessage.classList.remove('hidden');
-        } else {
-            emptyLibraryMessage.classList.add('hidden');
-            mockData.subjects.forEach(subject => {
-                const div = document.createElement('div');
-                div.className = `p-4 rounded-xl shadow-sm border border-border-color ${subject.color} cursor-pointer hover:shadow-md transition-shadow`;
-                div.innerHTML = `
-                    <h4 class="font-bold ${subject.textColor}">${subject.name}</h4>
-                    <p class="text-sm ${subject.textColor.replace('-800', '-600')}">${mockData.flashcards.filter(f => f.subjectId === subject.id).length} Flashcards</p>
-                `; // Renamed
-                div.addEventListener('click', () => showSubjectDetails(subject.id));
-                subjectGrid.appendChild(div);
-            });
-        }
-
-        // Render AI-Generated Materials
-        aiMaterialsList.innerHTML = '';
-        if (mockData.aiMaterials.length === 0) {
-            emptyAiMaterialsMessage.classList.remove('hidden');
-        } else {
-            emptyAiMaterialsMessage.classList.add('hidden');
-            mockData.aiMaterials.forEach(aiMaterial => {
-                const materialDiv = document.createElement('div');
-                materialDiv.className = 'p-3 rounded-lg border list-item-themed hover:list-item-themed cursor-pointer transition-colors';
-                let typeLabel = '';
-                let displayContent = '';
-
-                if (aiMaterial.type === 'note') {
-                    typeLabel = 'AI Note';
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = aiMaterial.content;
-                    displayContent = `<p>${tempDiv.textContent.substring(0, 100)}...</p>`;
-                } else if (aiMaterial.type === 'quiz') {
-                    typeLabel = 'AI Quiz';
-                    displayContent = `<p>${aiMaterial.content.length} Questions</p>`;
-                } else if (aiMaterial.type === 'keywords') {
-                    typeLabel = 'Keywords';
-                    displayContent = `<p>${aiMaterial.content.map(k => k.keyword).join(', ')}</p>`;
-                } else if (aiMaterial.type === 'exam-questions') {
-                    typeLabel = 'Exam Questions';
-                    displayContent = `<p>${aiMaterial.content.length} Questions</p>`;
-                } else if (aiMaterial.type === 'summary') {
-                    typeLabel = 'AI Summary';
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = aiMaterial.content;
-                    displayContent = `<p>${tempDiv.textContent.substring(0, 100)}...</p>`;
-                }
-
-                materialDiv.innerHTML = `
-                    <p class="font-semibold text-primary">${aiMaterial.title}</p>
-                    <p class="text-xs text-secondary mt-1">${typeLabel} - ${new Date(aiMaterial.timestamp).toLocaleDateString()}</p>
-                    ${displayContent}
-                `;
-                materialDiv.addEventListener('click', () => showAIGeneratedMaterial(aiMaterial));
-                aiMaterialsList.appendChild(materialDiv);
-            });
+            showNotification("Event deleted successfully!");
+            hideModal(addEditEventModal);
+            renderCalendar(appState.calendar.currentDate);
+            renderEventsForSelectedDay(appState.calendar.selectedDay || new Date());
+            updateDashboard(); // Update upcoming events count
         }
     }
 
     /**
-     * Shows the subject details modal with its associated flashcards.
-     * @param {string} subjectId - The ID of the subject.
+     * Loads settings from mockData into the UI.
      */
-    function showSubjectDetails(subjectId) {
-        const subject = mockData.subjects.find(s => s.id === subjectId);
-        if (!subject) return;
-
-        subjectDetailTitle.textContent = `${subject.name} Flashcards`; // Renamed
-        subjectFlashcardsList.innerHTML = ''; // Renamed // Clear previous list
-
-        const flashcardsInSubject = mockData.flashcards.filter(flashcard => flashcard.subjectId === subjectId); // Renamed
-
-        if (flashcardsInSubject.length === 0) {
-            subjectFlashcardsList.innerHTML = '<p class="text-secondary text-center list-item-themed">No flashcards in this subject yet.</p>'; // Renamed
-        } else {
-            flashcardsInSubject.forEach(flashcard => { // Renamed
-                const flashcardDiv = document.createElement('div'); // Renamed
-                flashcardDiv.className = 'p-3 rounded-lg border list-item-themed hover:list-item-themed cursor-pointer transition-colors';
-                flashcardDiv.innerHTML = `
-                    <p class="font-semibold text-primary">${flashcard.question}</p>
-                    <p class="text-xs text-secondary mt-1">
-                        Recall: ${flashcard.repetitions}x, Interval: ${flashcard.interval.toFixed(2)} days, Ease: ${flashcard.easeFactor.toFixed(2)}
-                    </p>
-                    <p class="text-xs text-secondary">Next Review: ${new Date(flashcard.nextReview).toLocaleDateString()}</p>
-                `;
-                flashcardDiv.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    showDetailModal({ title: flashcard.question, details: flashcard.answer });
-                });
-                subjectFlashcardsList.appendChild(flashcardDiv); // Renamed
-            });
-        }
-        subjectDetailModal.classList.remove('hidden');
+    function loadSettings() {
+        usernameInput.value = mockData.user.name;
+        intervalPerfectInput.value = mockData.user.srsIntervals.perfect;
+        intervalGoodInput.value = mockData.user.srsIntervals.good;
+        intervalStruggledInput.value = mockData.user.srsIntervals.struggled;
+        intervalForgotInput.value = mockData.user.srsIntervals.forgot;
+        renderThemeButtons();
     }
 
     /**
-     * Displays AI Generated Material in the detail modal or triggers a quiz.
-     * @param {Object} aiMaterial - The AI material object.
+     * Saves settings from the UI to mockData.
      */
-    function showAIGeneratedMaterial(aiMaterial) {
-        if (aiMaterial.type === 'quiz') {
-            startQuizSession(aiMaterial);
+    function saveSettings() {
+        mockData.user.name = usernameInput.value.trim();
+        mockData.user.srsIntervals.perfect = parseFloat(intervalPerfectInput.value);
+        mockData.user.srsIntervals.good = parseFloat(intervalGoodInput.value);
+        mockData.user.srsIntervals.struggled = parseFloat(intervalStruggledInput.value);
+        mockData.user.srsIntervals.forgot = parseFloat(intervalForgotInput.value);
+        saveUserData();
+        updateDashboard(); // Update username in dashboard
+        showNotification("Settings saved successfully!");
+    }
+
+    /**
+     * Renders theme selection buttons.
+     */
+    function renderThemeButtons() {
+        const themeButtonContainer = document.querySelector('#view-settings .flex.flex-wrap.gap-4');
+        if (!themeButtonContainer) return;
+
+        themeButtonContainer.innerHTML = ''; // Clear existing buttons
+
+        mockData.themes.forEach(theme => {
+            const button = document.createElement('button');
+            button.className = `theme-btn px-4 py-2 rounded-lg font-semibold border border-border-color ${appState.currentTheme === theme.id ? 'ring-2 ring-accent-blue-hover' : ''}`;
+            button.dataset.theme = theme.id;
+            button.textContent = theme.name;
+            button.addEventListener('click', () => {
+                setTheme(theme.id);
+            });
+            themeButtonContainer.appendChild(button);
+        });
+    }
+
+    /**
+     * Sets the active theme.
+     * @param {string} themeName - The name of the theme to apply.
+     */
+    function setTheme(themeName) {
+        document.body.classList.remove(...mockData.themes.map(t => `theme-${t.id}`));
+        document.body.classList.add(`theme-${themeName}`);
+        appState.currentTheme = themeName;
+        saveUserData();
+        renderThemeButtons(); // Re-render buttons to update active state
+    }
+
+
+    // --- AI Learning Studio Functions ---
+
+    /**
+     * Handles the toggle between 'text' and 'topic' input modes for AI generation.
+     */
+    function toggleAiInputMode() {
+        if (appState.aiInputMode === 'text') {
+            appState.aiInputMode = 'topic';
+            aiInputContentLabel.textContent = "Enter a topic for the AI to process:";
+            aiInputContent.placeholder = "e.g., 'Quantum Physics', 'History of Ancient Rome'";
+            quizSettingsContainer.classList.add('hidden'); // Hide quiz settings when in topic mode
+        } else {
+            appState.aiInputMode = 'text';
+            aiInputContentLabel.textContent = "Provide text, a topic, or questions for the AI to process:";
+            aiInputContent.placeholder = "Enter text, a topic, or specific questions here... e.g., 'Explain blockchain technology', 'Summarize World War 2 causes', or 'Quiz me on React hooks'.";
+            // Quiz settings visibility will be managed by generateQuizBtn handler
+        }
+        aiInputContent.value = ''; // Clear content when switching modes
+    }
+
+    /**
+     * Generates AI content based on the user's input and selected action.
+     * @param {string} action - The AI generation action (e.g., 'notes', 'flashcards', 'quiz').
+     */
+    async function generateAiContent(action) {
+        const inputContent = aiInputContent.value.trim();
+        let subjectId = aiContentSubjectSelect.value;
+        const newSubjectName = aiContentNewSubjectInput.value.trim();
+        const quizQuestionCount = quizQuestionCountInput ? parseInt(quizQuestionCountInput.value) : 5;
+        const quizDifficulty = quizDifficultySelect ? quizDifficultySelect.value : 'medium';
+
+        if (!inputContent) {
+            showNotification('Please provide content or a topic for AI generation.', true);
             return;
         }
 
-        detailTitle.textContent = aiMaterial.title;
-        detailLoading.classList.add('hidden');
-        detailContentText.classList.remove('hidden');
-
-        let contentHtml = '';
-        if (aiMaterial.type === 'note' || aiMaterial.type === 'summary') {
-            contentHtml = aiMaterial.content;
-        } else if (aiMaterial.type === 'keywords') {
-            contentHtml = '<h3 class="text-xl font-bold text-primary mb-4">Keywords & Definitions:</h3>';
-            aiMaterial.content.forEach(item => {
-                contentHtml += `<div class="mb-3 p-2 border list-item-themed rounded-md"><h4>${item.keyword}:</h4><p>${item.definition}</p></div>`;
-            });
-        } else if (aiMaterial.type === 'exam-questions') {
-            contentHtml = '<h3 class="text-xl font-bold text-primary mb-4">Predicted Exam Questions:</h3>';
-            aiMaterial.content.forEach((q, index) => {
-                contentHtml += `<p class="mb-2 p-2 border list-item-themed rounded-md">Q${index + 1}: ${q}</p>`;
-            });
-        }
-
-        detailContentText.innerHTML = contentHtml;
-        detailModal.classList.remove('hidden');
-    }
-
-    /**
-     * Renders content for the AI Learning view.
-     */
-    function renderAILearning() {
-        aiInputContent.value = '';
-        aiContentNewSubjectInput.value = '';
-        aiContentNewSubjectInput.classList.add('hidden');
-        toggleAIContentNewSubjectInput.textContent = 'Add New Subject';
-        aiGeneratedOutput.classList.add('hidden');
-        aiOutputContentDisplay.innerHTML = '';
-        aiGenerationStatus.classList.add('hidden');
-        populateAILearningSubjectSelect();
-        updateAiInputUI();
-        // Initialize quiz controls visibility (assuming they are there)
-        const quizControls = document.getElementById('quiz-settings-container'); // Corrected ID
-        if (quizControls) {
-            quizControls.classList.add('hidden');
-        }
-    }
-
-    /**
-     * Populates the subject dropdown for the AI Learning section, including default subjects.
-     */
-    function populateAILearningSubjectSelect() {
-        aiContentSubjectSelect.innerHTML = '<option value="">Select or Add New Subject</option>';
-
-        // Add default subjects first
-        defaultSubjects.forEach(subject => {
-            const option = document.createElement('option');
-            option.value = subject.id;
-            option.textContent = subject.name;
-            aiContentSubjectSelect.appendChild(option);
-        });
-
-        // Add user-added subjects, avoiding duplicates if they have the same ID as a default
-        mockData.subjects.filter(s => !defaultSubjects.some(ds => ds.id === s.id)).forEach(subject => {
-            const option = document.createElement('option');
-            option.value = subject.id;
-            option.textContent = subject.name;
-            aiContentSubjectSelect.appendChild(option);
-        });
-        aiContentSubjectSelect.value = "";
-    }
-
-    /**
-     * Updates the AI input UI based on the selected input mode (text or topic).
-     */
-    function updateAiInputUI() {
-        if (appState.aiInputMode === 'topic') {
-            aiInputContentLabel.textContent = 'Enter a topic name (e.g., "Quantum Physics", "French Revolution"):';
-            aiInputContent.placeholder = "Enter topic name here...";
-        } else {
-            aiInputContentLabel.textContent = 'Provide text, a topic, or questions for the AI to process:';
-            aiInputContent.placeholder = "Enter text, a topic, or specific questions here... e.g., 'Explain blockchain technology', 'Summarize World War 2 causes', or 'Quiz me on React hooks'.";
-        }
-    }
-
-    /**
-     * Toggles visibility of quiz settings based on active AI generation type.
-     * @param {string} type - The type of content to generate.
-     */
-    function toggleQuizSettingsVisibility(type) {
-        const quizSettings = document.getElementById('quiz-settings-container'); // Assuming you'll add this container in HTML
-        if (quizSettings) {
-            if (type === 'quiz') {
-                quizSettings.classList.remove('hidden');
-            } else {
-                quizSettings.classList.add('hidden');
+        if (newSubjectName && subjectId === '') {
+            subjectId = newSubjectName.toLowerCase().replace(/\s+/g, '-');
+            if (!mockData.subjects.some(s => s.id === subjectId)) {
+                mockData.subjects.push({
+                    id: subjectId,
+                    name: newSubjectName,
+                    color: 'bg-gray-200',
+                    textColor: 'text-gray-800'
+                });
+                populateSubjectSelect(aiContentSubjectSelect, subjectId); // Update select with new subject
+                showNotification(`New subject "${newSubjectName}" added!`);
             }
         }
-    }
-
-    /**
-     * Triggers AI content generation based on the specified type.
-     * @param {string} type - The type of content to generate (e.g., 'note', 'quiz').
-     */
-    async function generateAIContent(type) {
-        const buttonMap = {
-            'note': generateAiNotesBtn,
-            'notes-flashcards': generateNotesFlashcardsBtn,
-            'quiz': generateQuizBtn,
-            'keywords': extractKeywordsBtn,
-            'exam-questions': predictExamQuestionsBtn,
-            'summary': summarizeContentBtn
-        };
-        const currentButton = buttonMap[type];
 
         aiGenerationStatus.classList.remove('hidden');
-        aiGenerationStatus.textContent = 'Generating... Please wait...';
-        if (currentButton) currentButton.disabled = true;
-
         aiGeneratedOutput.classList.add('hidden');
-        aiOutputContentDisplay.innerHTML = '';
-
-        const content = aiInputContent.value.trim();
-        if (!content) {
-            showNotification('Please provide some content (topic, text, or questions) for the AI.', true);
-            aiGenerationStatus.classList.add('hidden');
-            if (currentButton) currentButton.disabled = false;
-            return;
-        }
-
-        let subjectId;
-        let subjectName;
-        // First check if a new subject is being added via the input field
-        if (!aiContentNewSubjectInput.classList.contains('hidden') && aiContentNewSubjectInput.value.trim()) {
-            subjectName = aiContentNewSubjectInput.value.trim();
-            subjectId = subjectName.toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9-]/g, '');
-            // Check if this new subject already exists (either default or user-added)
-            if (!mockData.subjects.find(s => s.id === subjectId) && !defaultSubjects.find(ds => ds.id === subjectId)) {
-                // Add to user-specific subjects if it's genuinely new
-                mockData.subjects.push({ id: subjectId, name: subjectName, color: "bg-blue-100", textColor: "text-blue-800", flashcards: 0, lastReviewed: null }); // Renamed 'atoms'
-            }
-        } else {
-            // If not adding a new subject, use the selected subject
-            subjectId = aiContentSubjectSelect.value;
-            if (type === 'notes-flashcards' && !subjectId) {
-                showNotification('Please select an existing subject or add a new one for Flashcards.', true); // Renamed
-                aiGenerationStatus.classList.add('hidden');
-                if (currentButton) currentButton.disabled = false;
-                return;
-            }
-            subjectName = (mockData.subjects.find(s => s.id === subjectId) || defaultSubjects.find(s => s.id === subjectId))?.name || 'General AI Content';
-        }
+        aiOutputContentDisplay.innerHTML = ''; // Clear previous output
+        aiOutputTitle.textContent = 'Generated Output'; // Default title
 
         let prompt = '';
-        let responseSchema = {};
-        let outputTitle = '';
-        let savedContentTitle = '';
-
-        // UPDATED: commonNoteFormatInstructions to match user's requested bolded format with bullets
-        const commonNoteFormatInstructions = `Format the content into clear sections. For section titles, use strong HTML tags. For list items, use ul and li HTML tags.
-        <strong>Main Info</strong>
-        <ul>
-            <li>[Concise bullet point]</li>
-            <li>[Concise bullet point]</li>
-        </ul>
-        <strong>Extra Info:</strong>
-        <ul>
-            <li>[Additional relevant detail]</li>
-            <li>[Another additional relevant detail]</li>
-        </ul>
-        <strong>Conclusion</strong>
-        <ul>
-            <li>[Brief summary or key takeaway]</li>
-        </ul>
-        Ensure the entire response is valid HTML, strictly using strong, ul, and li tags as specified. Do not include any conversational filler, disclaimers, or extra text outside this structure.`;
-
-
-        switch (type) {
-            case 'note':
-                outputTitle = 'AI Notes';
-                savedContentTitle = `AI Notes on: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
-                prompt = `Generate concise, organized notes on the topic or from the text: "${content}". ${commonNoteFormatInstructions}`;
-                responseSchema = { type: "STRING" };
-                break;
-            case 'notes-flashcards':
-                outputTitle = 'Generated Flashcards';
-                savedContentTitle = `Flashcards for: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
-                prompt = `Extract key concepts and their explanations, structured as concise question-answer pairs (Flashcards). Provide at least 5 pairs if possible. For each pair, the question should be concise and the answer should be informative but brief enough for a flashcard. Ensure no markdown formatting like asterisks or bullet points are used within the question or answer text. Content: "${content}"`; // Renamed
-                responseSchema = {
-                    type: "ARRAY",
-                    items: {
-                        type: "OBJECT",
-                        properties: {
-                            "question": { "type": "STRING" },
-                            "answer": { "type": "STRING" }
-                        },
-                        "propertyOrdering": ["question", "answer"]
-                    }
-                };
-                break;
-            case 'quiz':
-                outputTitle = 'Generated Quiz';
-                savedContentTitle = `Quiz on: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
-                const numQuestions = quizQuestionCountInput ? parseInt(quizQuestionCountInput.value) : 5; // Default to 5
-                const difficulty = quizDifficultySelect ? quizDifficultySelect.value : 'medium'; // Default to medium
-                prompt = `Generate a ${numQuestions}-question multiple-choice quiz based on the following content: "${content}". The questions should be of ${difficulty} difficulty. For each question, provide 4 options (A, B, C, D) and indicate the correct answer. Format as JSON, ensuring no markdown characters like asterisks or bullet points are used within the question or option text: [{"question": "...", "options": ["A", "B", "C", "D"], "correct_answer": "A"}, ...]`;
-                responseSchema = {
-                    type: "ARRAY",
-                    items: {
-                        type: "OBJECT",
-                        properties: {
-                            "question": { "type": "STRING" },
-                            "options": { "type": "ARRAY", "items": { "type": "STRING" } },
-                            "correct_answer": { "type": "STRING" }
-                        },
-                        "propertyOrdering": ["question", "options", "correct_answer"]
-                    }
-                };
-                break;
-            case 'keywords':
-                outputTitle = 'Extracted Keywords';
-                savedContentTitle = `Keywords from: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
-                prompt = `Extract up to 10 most important keywords or key phrases and their brief definitions from the following text/topic: "${content}". Format as JSON, ensuring no markdown characters like asterisks or bullet points are used: [{"keyword": "...", "definition": "..."}, ...]`;
-                responseSchema = {
-                    type: "ARRAY",
-                    items: {
-                        type: "OBJECT",
-                        properties: {
-                            "keyword": { "type": "STRING" },
-                            "definition": { "type": "STRING" }
-                        },
-                        "propertyOrdering": ["keyword", "definition"]
-                    }
-                };
-                break;
-            case 'exam-questions':
-                outputTitle = 'Predicted Exam Questions';
-                savedContentTitle = `Exam Questions for: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
-                prompt = `Generate 5 challenging exam-style questions for the subject related to: "${content}". Focus on core concepts and different question types (e.g., multiple choice, short answer, explanation). Provide only the questions, without answers. Format as JSON, ensuring no markdown characters like asterisks or bullet points are used in the questions: ["Q1", "Q2", "Q3", "Q4", "Q5"]`;
-                responseSchema = {
-                    type: "ARRAY",
-                    items: {
-                        type: "STRING"
-                    }
-                };
-                break;
-            case 'summary':
-                outputTitle = 'AI Summary';
-                savedContentTitle = `Summary for: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`;
-                prompt = `Provide a concise, key-point summary of the following text/topic: "${content}". ${commonNoteFormatInstructions}`;
-                responseSchema = { type: "STRING" };
-                break;
-            default:
-                showNotification('Invalid AI generation type.', true);
-                aiGenerationStatus.classList.add('hidden');
-                if (currentButton) currentButton.disabled = false;
-                return;
-        }
+        let generatedContent = '';
+        let aiMaterialType = '';
 
         try {
-            let chatHistory = [];
-            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-            const payload = {
-                contents: chatHistory,
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: responseSchema
+            if (action === 'notes') {
+                aiMaterialType = 'Notes';
+                if (appState.aiInputMode === 'text') {
+                    prompt = `Generate comprehensive study notes from the following text, focusing on key concepts and explanations:\n\n${inputContent}`;
+                } else {
+                    prompt = `Generate comprehensive study notes on the topic of "${inputContent}", focusing on key concepts and explanations.`;
                 }
-            };
+            } else if (action === 'flashcards') {
+                aiMaterialType = 'Flashcards';
+                if (appState.aiInputMode === 'text') {
+                    prompt = `Generate a set of 5-10 flashcards (question::answer format, one per line) from the following text, suitable for spaced repetition:\n\n${inputContent}\n\nExample: What is photosynthesis?::The process by which green plants and some other organisms convert light energy into chemical energy.`;
+                } else {
+                    prompt = `Generate a set of 5-10 flashcards (question::answer format, one per line) about "${inputContent}", suitable for spaced repetition:\n\nExample: What is photosynthesis?::The process by which green plants and some other organisms convert light energy into chemical energy.`;
+                }
+            } else if (action === 'quiz') {
+                aiMaterialType = 'Quiz';
+                // For quiz, structure the response for easy parsing
+                prompt = `Generate a ${quizQuestionCount} question multiple-choice quiz with 4 options per question on the topic of "${inputContent}" with difficulty "${quizDifficulty}". Provide the output in a JSON array format. Each object in the array should have 'question', 'options' (an array of strings), and 'correct_answer' (string, matching one of the options). Ensure there's a correct answer in options.`;
+            } else if (action === 'keywords') {
+                aiMaterialType = 'Keywords';
+                if (appState.aiInputMode === 'text') {
+                    prompt = `Extract a list of 10-15 key terms and their concise definitions from the following text. Format as 'term: definition' one per line:\n\n${inputContent}`;
+                } else {
+                    prompt = `List 10-15 essential keywords and their concise definitions related to "${inputContent}". Format as 'term: definition' one per line.`;
+                }
+            } else if (action === 'exam-questions') {
+                aiMaterialType = 'Exam Questions';
+                if (appState.aiInputMode === 'text') {
+                    prompt = `Predict 5-7 potential exam questions based on the following study material. Provide open-ended questions:\n\n${inputContent}`;
+                } else {
+                    prompt = `Predict 5-7 potential exam questions for a course covering "${inputContent}". Provide open-ended questions.`;
+                }
+            } else if (action === 'summary') {
+                aiMaterialType = 'Summary';
+                if (appState.aiInputMode === 'text') {
+                    prompt = `Provide a concise summary (max 200 words) of the following text:\n\n${inputContent}`;
+                } else {
+                    prompt = `Provide a concise summary (max 200 words) on the topic of "${inputContent}".`;
+                }
+            } else {
+                showNotification("Invalid AI action.", true);
+                aiGenerationStatus.classList.add('hidden');
+                return;
+            }
 
-            // Remove responseMimeType and responseSchema for note/summary as they are expected to return raw text/HTML
-            if (type === 'note' || type === 'summary') {
-                delete payload.generationConfig.responseMimeType;
-                delete payload.generationConfig.responseSchema;
+            // Call to Gemini API
+            const chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+
+            if (action === 'quiz') {
+                payload.generationConfig = {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                "question": { "type": "STRING" },
+                                "options": {
+                                    "type": "ARRAY",
+                                    "items": { "type": "STRING" }
+                                },
+                                "correct_answer": { "type": "STRING" }
+                            },
+                            "propertyOrdering": ["question", "options", "correct_answer"]
+                        }
+                    }
+                };
             }
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorData.error.message}`);
+            }
+
             const result = await response.json();
 
             if (result.candidates && result.candidates.length > 0 &&
                 result.candidates[0].content && result.candidates[0].content.parts &&
                 result.candidates[0].content.parts.length > 0) {
-                let generatedContent;
-                if (type === 'note' || type === 'summary') {
-                    generatedContent = result.candidates[0].content.parts[0].text;
-                } else {
-                    generatedContent = JSON.parse(result.candidates[0].content.parts[0].text);
-                }
 
-                if (generatedContent && (Array.isArray(generatedContent) ? generatedContent.length > 0 : true)) {
-                    aiOutputTitle.textContent = outputTitle;
-                    aiGeneratedOutput.classList.remove('hidden');
+                generatedContent = result.candidates[0].content.parts[0].text;
 
-                    if (type === 'notes-flashcards') {
-                        // Merge default subjects with user-added ones for a complete list
-                        const allSubjects = [...defaultSubjects, ...mockData.subjects];
-                        const subjectObj = allSubjects.find(s => s.id === subjectId);
-
-                        generatedContent.forEach(flashcardData => { // Renamed
-                            const newFlashcard = { // Renamed
-                                id: mockData.flashcards.length > 0 ? Math.max(...mockData.flashcards.map(f => f.id)) + 1 : 1, // Renamed
-                                subjectId: subjectId,
-                                question: flashcardData.question,
-                                answer: flashcardData.answer,
-                                lastReviewed: new Date(),
-                                easeFactor: 2.5,
-                                interval: 0,
-                                repetitions: 0,
-                                nextReview: new Date()
+                if (action === 'quiz') {
+                    try {
+                        const quizData = JSON.parse(generatedContent);
+                        if (Array.isArray(quizData) && quizData.every(q => q.question && Array.isArray(q.options) && q.correct_answer)) {
+                            appState.currentQuiz = {
+                                title: `AI Quiz on ${inputContent}`,
+                                questions: quizData.map(q => ({
+                                    question: q.question,
+                                    options: q.options,
+                                    correctAnswer: q.correct_answer // Ensure this matches the key in the JSON
+                                }))
                             };
-                            mockData.flashcards.push(newFlashcard); // Renamed
-                        });
-                        showNotification(`Generated flashcards added to your '${subjectName}' subject!`); // Renamed
-                        unlockAchievement('first-flashcards-generated');
-                    } else if (type === 'keywords') {
-                        generatedContent.forEach(item => {
-                            if (!mockData.glossary.find(g => g.keyword.toLowerCase() === item.keyword.toLowerCase())) {
-                                mockData.glossary.push(item);
-                            }
-                        });
-                        showNotification(`Keywords extracted and added to your Glossary!`);
-                        unlockAchievement('first-keywords-extracted');
-                    } else if (type === 'quiz') {
-                         showNotification(`Quiz generated and saved!`);
-                         unlockAchievement('first-quiz-generated');
-                    } else if (type === 'note') {
-                         showNotification(`Notes generated and saved!`);
-                         unlockAchievement('first-ai-note');
-                    } else if (type === 'summary') {
-                        showNotification(`Summary generated and saved!`);
+                            startQuizSession(appState.currentQuiz);
+                            hideModal(quizModal); // Hide previous modal if any
+                            aiGeneratedOutput.classList.add('hidden'); // Ensure AI output section is hidden
+                            aiGenerationStatus.classList.add('hidden'); // Hide loading status
+                            return; // Exit as quiz handled separately
+                        } else {
+                            console.error("Generated quiz data is not in expected format:", quizData);
+                            generatedContent = "Error: Failed to parse quiz data. Please try again with a clearer prompt.";
+                            aiMaterialType = "Error"; // Mark as error for display
+                        }
+                    } catch (parseError) {
+                        console.error("Failed to parse quiz JSON:", parseError);
+                        generatedContent = "Error: Failed to parse quiz data. Please try again with a clearer prompt.";
+                        aiMaterialType = "Error"; // Mark as error for display
                     }
-
-                    if (type !== 'notes-flashcards') {
-                        const newMaterial = {
-                            id: mockData.aiMaterials.length > 0 ? Math.max(...mockData.aiMaterials.map(m => m.id)) + 1 : 1,
-                            type: type,
-                            title: savedContentTitle,
-                            content: generatedContent,
-                            timestamp: new Date().toISOString(),
-                            subjectId: subjectId
+                } else if (action === 'flashcards') {
+                    const flashcardLines = generatedContent.split('\n').filter(line => line.includes('::')).map(line => line.trim());
+                    const newFlashcards = flashcardLines.map(line => {
+                        const [question, answer] = line.split('::').map(s => s.trim());
+                        return {
+                            id: crypto.randomUUID(),
+                            question: question,
+                            answer: answer,
+                            subjectId: subjectId,
+                            lastReviewed: new Date(),
+                            nextReview: new Date(),
+                            easeFactor: 2.5,
+                            interval: 0,
+                            repetitions: 0,
+                            wasMastered: false
                         };
-                        mockData.aiMaterials.push(newMaterial);
-                    }
+                    }).filter(f => f.question && f.answer); // Filter out incomplete flashcards
 
-                    // Display generated content in the output area regardless of where it's saved
-                    if (type === 'note' || type === 'summary') {
-                        aiOutputContentDisplay.innerHTML = generatedContent;
-                    } else if (type === 'quiz') {
-                        aiOutputContentDisplay.innerHTML = '<h3 class="text-xl font-bold text-primary mb-4">Generated Quiz:</h3>';
-                        generatedContent.forEach((q, index) => {
-                            const quizItem = document.createElement('div');
-                            quizItem.className = 'p-3 rounded-lg border list-item-themed';
-                            let optionsHtml = q.options.map((opt, i) => `<p class="ml-4">${String.fromCharCode(65 + i)}. ${opt}</p>`).join('');
-                            quizItem.innerHTML = `
-                                <p class="font-semibold text-primary">Q${index + 1}: ${q.question}</p>
-                                ${optionsHtml}
-                                <p class="text-green-600 mt-2">Correct Answer: ${q.correct_answer}</p>
-                            `;
-                            aiOutputContentDisplay.appendChild(quizItem);
-                        });
-                    } else if (type === 'keywords') {
-                        aiOutputContentDisplay.innerHTML = '<h3 class="text-xl font-bold text-primary mb-4">Extracted Keywords:</h3>';
-                        generatedContent.forEach(item => {
-                            const keywordItem = document.createElement('div');
-                            keywordItem.className = 'p-3 rounded-lg border list-item-themed';
-                            keywordItem.innerHTML = `<p class="font-semibold text-primary">${item.keyword}:</p><p>${item.definition}</p>`;
-                            aiOutputContentDisplay.appendChild(keywordItem);
-                        });
-                    } else if (type === 'exam-questions') {
-                        aiOutputContentDisplay.innerHTML = '<h3 class="text-xl font-bold text-primary mb-4">Predicted Exam Questions:</h3>';
-                        generatedContent.forEach((q, index) => {
-                            const questionItem = document.createElement('p');
-                            questionItem.className = 'p-3 rounded-lg border list-item-themed';
-                            questionItem.textContent = `Q${index + 1}: ${q}`;
-                            aiOutputContentDisplay.appendChild(questionItem);
-                        });
+                    if (newFlashcards.length > 0) {
+                        mockData.flashcards.push(...newFlashcards);
+                        showNotification(`${newFlashcards.length} flashcards generated and added to your library!`);
+                        generatedContent = newFlashcards.map(f => `<strong>Q:</strong> ${f.question}<br><strong>A:</strong> ${f.answer}`).join('<br><br>');
+                        aiOutputTitle.textContent = `Generated Flashcards (${newFlashcards.length})`;
+                        updateDashboard(); // Update dashboard counts
+                        renderSubjects(); // Re-render subjects in library
+                    } else {
+                        showNotification("AI did not generate any valid flashcards. Try refining your input.", true);
+                        generatedContent = "No valid flashcards generated. Please try again with a clearer input.";
+                        aiMaterialType = "Error";
                     }
-                    saveUserData();
-                    render();
-                } else {
-                    showNotification('AI did not generate any content. Try a different input or subject.', true);
-                    aiGeneratedOutput.classList.add('hidden');
+                }
+                // For other actions, just display the content
+                aiOutputContentDisplay.innerHTML = marked.parse(generatedContent); // Use marked.js for Markdown
+                aiGeneratedOutput.classList.remove('hidden');
+
+                // Save non-quiz, non-flashcard generated content as AI Material
+                if (action !== 'quiz' && action !== 'flashcards') {
+                    const newMaterial = {
+                        id: crypto.randomUUID(),
+                        title: `${aiMaterialType} for "${inputContent.substring(0, 50)}..."`,
+                        type: aiMaterialType,
+                        content: generatedContent,
+                        subjectId: subjectId,
+                        generatedDate: new Date().toISOString()
+                    };
+                    mockData.aiMaterials.push(newMaterial);
+                    showNotification(`${aiMaterialType} generated and saved!`);
                 }
             } else {
-                showNotification('Error: Could not process content with AI. Invalid response structure or API error.', true);
-                console.error("AI Response Error:", result);
+                throw new Error("API response format unexpected.");
             }
         } catch (error) {
             console.error("Error generating AI content:", error);
-            showNotification('Failed to connect to AI service or generate content. Please try again.', true);
+            showNotification(`Failed to generate content: ${error.message}`, true);
+            aiOutputContentDisplay.innerHTML = `<p class="text-red-600">Error: Failed to generate content. Please try again. Details: ${error.message}</p>`;
+            aiGeneratedOutput.classList.remove('hidden');
         } finally {
             aiGenerationStatus.classList.add('hidden');
-            if (currentButton) currentButton.disabled = false;
-        }
-    }
-
-    // --- Chart Management ---
-    let charts = {};
-
-    function destroyCharts() {
-        Object.values(charts).forEach(chart => {
-            if (chart) chart.destroy();
-        });
-        charts = {};
-    }
-
-    /**
-     * Renders content for the Analytics view, including charts.
-     */
-    function renderAnalytics() {
-        destroyCharts();
-
-        const primaryTextColor = getComputedStyle(document.body).getPropertyValue('--text-primary');
-        const secondaryTextColor = getComputedStyle(document.body).getPropertyValue('--text-secondary');
-        const accentBlueColor = getComputedStyle(document.body).getPropertyValue('--accent-blue');
-        const borderDivColor = getComputedStyle(document.body).getPropertyValue('--border-color');
-        const textGreenColor = getComputedStyle(document.body).getPropertyValue('--text-green');
-        const textOrangeColor = getComputedStyle(document.body).getPropertyValue('--text-orange');
-
-        const masteredCount = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
-        const learningCount = mockData.flashcards.filter(f => f.repetitions > 0 && !(f.repetitions >= 3 && f.easeFactor >= 2.0)).length; // Renamed
-        const newCount = mockData.flashcards.filter(f => f.repetitions === 0).length; // Renamed
-
-        const masteryCtx = document.getElementById('masteryChart').getContext('2d');
-        charts.mastery = new Chart(masteryCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Mastered', 'Learning', 'New'],
-                datasets: [{
-                    data: [masteredCount, learningCount, newCount],
-                    backgroundColor: [textGreenColor, textOrangeColor, secondaryTextColor],
-                    borderColor: getComputedStyle(document.body).getPropertyValue('--bg-secondary'),
-                    borderWidth: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: primaryTextColor } },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => {
-                                let label = context.label || '';
-                                if (label) { label += ': '; }
-                                label += Math.round(context.parsed) + ' flashcards'; // Renamed
-                                return label;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // Placeholder for real study activity data
-        const activityData = Array(7).fill(0); // [Mon, Tue, ..., Sun]
-        const todayStr = new Date().toISOString().split('T')[0];
-        if (mockData.user.dailyStudyLogs) {
-            mockData.user.dailyStudyLogs.forEach(log => {
-                // Check if the log date is within the last 7 days from today
-                const logDate = new Date(log.date);
-                const diffTime = Math.abs(new Date(todayStr) - logDate.getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                if (diffDays <= 7) {
-                    const dayOfWeek = logDate.getDay(); // 0 for Sunday, 1 for Monday
-                    activityData[dayOfWeek === 0 ? 6 : dayOfWeek - 1] += (log.minutes / 60); // Convert minutes to hours
-                }
-            });
-        }
-
-        const activityCtx = document.getElementById('activityChart').getContext('2d');
-        charts.activity = new Chart(activityCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{ label: 'Hours Studied', data: activityData, backgroundColor: accentBlueColor }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => {
-                                let label = context.dataset.label || '';
-                                if (label) { label += ': '; }
-                                label += context.parsed.y.toFixed(1) + ' hrs';
-                                return label;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: secondaryTextColor }, grid: { color: borderDivColor } },
-                    y: { beginAtZero: true, ticks: { color: secondaryTextColor }, grid: { color: borderDivColor } }
-                }
-            }
-        });
-
-        // Placeholder for knowledge growth data
-        const growthData = [0, 0, 0, 0, 0, 0, 0]; // Last 6 months + Current Month
-        const currentMonth = new Date().getMonth(); // 0-11
-        if (mockData.user.monthlyMasteryLogs) {
-            mockData.user.monthlyMasteryLogs.forEach(log => {
-                const logDate = new Date(log.date);
-                // Calculate month difference to place data correctly in the last 6 months + current
-                const monthDiff = (currentMonth - logDate.getMonth() + 12) % 12;
-                if (monthDiff < 7) { // 0 for current month, 1 for last month, ..., 6 for 6 months ago
-                    growthData[6 - monthDiff] = log.masteredFlashcards; // Renamed
-                }
-            });
-        }
-        growthData[6] = masteredCount; // Always show current month's real-time mastered count
-
-        const growthCtx = document.getElementById('growthChart').getContext('2d');
-        charts.growth = new Chart(growthCtx, {
-            type: 'line',
-            data: {
-                labels: ['6M Ago', '5M Ago', '4M Ago', '3M Ago', '2M Ago', 'Last Month', 'Current'],
-                datasets: [{
-                    label: 'Total Flashcards Mastered', // Renamed
-                    data: growthData,
-                    fill: true,
-                    borderColor: accentBlueColor,
-                    backgroundColor: accentBlueColor.replace('rgb', 'rgba').replace(')', ', 0.1)'),
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => {
-                                let label = context.dataset.label || '';
-                                if (label) { label += ': '; }
-                                label += context.parsed.y + ' flashcards'; // Renamed
-                                return label;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: secondaryTextColor }, grid: { color: borderDivColor } },
-                    y: { beginAtZero: true, ticks: { color: secondaryTextColor }, grid: { color: borderDivColor } }
-                }
-            }
-        });
-
-        // Render Learning Goals
-        goalsList.innerHTML = '';
-        if (mockData.user.learningGoals.length === 0) {
-            emptyGoalsMessage.classList.remove('hidden');
-        } else {
-            emptyGoalsMessage.classList.add('hidden');
-            mockData.user.learningGoals.forEach(goal => {
-                let currentProgressValue = 0;
-                const masteredCount = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
-
-                if (goal.targetType === 'flashcards') { // Renamed
-                    currentProgressValue = masteredCount;
-                } else if (goal.targetType === 'time') {
-                    const now = new Date();
-                    const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7)).toISOString().split('T')[0];
-                    currentProgressValue = (mockData.user.dailyStudyLogs || [])
-                        .filter(log => log.date >= sevenDaysAgo)
-                        .reduce((sum, log) => sum + log.minutes, 0) / 60; // Convert to hours
-                }
-
-                const progress = Math.min(100, (currentProgressValue / goal.targetValue) * 100);
-                const goalDiv = document.createElement('div');
-                goalDiv.className = 'p-4 rounded-lg border list-item-themed';
-                goalDiv.innerHTML = `
-                    <div class="flex justify-between items-center mb-2">
-                        <h4 class="font-semibold text-primary">${goal.name}</h4>
-                        <span class="text-sm text-secondary">Due: ${new Date(goal.endDate).toLocaleDateString()}</span>
-                    </div>
-                    <div class="w-full bg-border-color rounded-full h-2.5">
-                        <div class="bg-accent-blue h-2.5 rounded-full" style="width: ${progress}%;"></div>
-                    </div>
-                    <p class="text-secondary text-sm mt-2">Progress: ${Math.round(progress)}% (${currentProgressValue.toFixed(0)} / ${goal.targetValue})</p>
-                `;
-                goalsList.appendChild(goalDiv);
-            });
-        }
-    }
-
-    /**
-     * Renders content for the Achievements view.
-     */
-    function renderAchievements() {
-        achievementsList.innerHTML = '';
-        // Defined here for clarity, but could be loaded from an external config
-        const allAchievements = [
-            { id: 'first-flashcard', name: 'First Flashcard Added', description: 'Add your very first flashcard.', icon: '✨' }, // Renamed
-            { id: 'mastery-beginner', name: 'Beginner Master', description: 'Master 10 flashcards.', icon: '⭐' }, // Renamed
-            { id: 'mastery-intermediate', name: 'Intermediate Master', description: 'Master 50 flashcards.', icon: '🌟' }, // Renamed
-            { id: 'streak-7-days', name: '7-Day Streak', description: 'Achieve a 7-day study streak.', icon: '🗓️' },
-            { id: 'streak-30-days', name: '30-Day Streak', description: 'Achieve a 30-day study streak.', icon: '🏆' },
-            { id: 'daily-challenge-master', name: 'Daily Challenger', description: 'Complete 10 daily challenges.', icon: '🎯' },
-            { id: 'first-ai-note', name: 'AI Note Creator', description: 'Generate your first AI Note.', icon: '📝' },
-            { id: 'first-flashcards-generated', name: 'Flashcard Progenitor', description: 'Generate flashcards using AI.', icon: '💡' },
-            { id: 'first-quiz-generated', name: 'Quiz Whiz', description: 'Generate your first AI quiz.', icon: '🧠' },
-            { id: 'first-keywords-extracted', name: 'Keyword Explorer', description: 'Extract keywords using AI.', icon: '🔑' },
-            { id: 'first-mind-map', name: 'Mind Mapper', description: 'Create your first Mind Map.', icon: '🗺️' }
-        ];
-        mockData.achievements = mockData.user.achievements; // Ensure mockData.achievements always reflects user's unlocked ones
-
-        if (allAchievements.every(ach => !mockData.achievements.includes(ach.id))) {
-            emptyAchievementsMessage.classList.remove('hidden');
-        } else {
-            emptyAchievementsMessage.classList.add('hidden');
-        }
-
-        allAchievements.forEach(ach => {
-            const isUnlocked = mockData.achievements.includes(ach.id);
-            const card = document.createElement('div');
-            card.className = `achievement-card ${isUnlocked ? 'unlocked' : 'locked'}`;
-            card.innerHTML = `
-                <span class="icon">${ach.icon}</span>
-                <h4>${ach.name}</h4>
-                <p>${ach.description}</p>
-                ${isUnlocked ? '<span class="text-xs font-semibold mt-2">Unlocked!</span>' : ''}
-            `;
-            achievementsList.appendChild(card);
-        });
-    }
-
-
-    /**
-     * Renders content for the Focus Tools view.
-     */
-    function renderFocusTools() {
-        const soundscapesContainer = document.getElementById('soundscapes');
-        soundscapesContainer.innerHTML = '';
-        mockData.soundscapes.forEach(sound => {
-            const button = document.createElement('button');
-            button.className = 'soundscape-btn flex items-center gap-2 p-4 rounded-lg border list-item-themed hover:list-item-themed text-primary';
-            button.innerHTML = `<span class="text-2xl">${sound.icon}</span><span class="font-semibold">${sound.name}</span>`;
-            button.dataset.file = sound.file;
-            soundscapesContainer.appendChild(button);
-        });
-        updatePomodoroDisplay();
-    }
-
-    /**
-     * Renders content for the Learning Hub view.
-     */
-    function renderLearningHub() {
-        const learningHubContent = document.getElementById('learning-hub-content');
-        learningHubContent.innerHTML = '';
-        const currentCategory = mockData.learningHubContent[appState.learningHubCategory];
-
-        currentCategory.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'bg-secondary p-5 rounded-xl shadow-sm border border-border-color cursor-pointer hover:shadow-md transition-shadow';
-            card.innerHTML = `<h4 class="font-bold text-primary mb-2">${item.title}</h4><p class="text-secondary text-sm">${item.summary}</p>`;
-            card.addEventListener('click', () => showDetailModal(item));
-            learningHubContent.appendChild(card);
-        });
-
-        // Update active tab styling
-        document.querySelectorAll('.tab-button').forEach(btn => {
-            if (btn.dataset.category === appState.learningHubCategory) {
-                btn.classList.add('bg-accent-blue', 'text-white');
-                btn.classList.remove('hover:bg-border-color', 'text-primary');
-            } else {
-                btn.classList.remove('bg-accent-blue', 'text-white');
-                btn.classList.add('hover:bg-border-color', 'text-primary');
-            }
-        });
-    }
-
-    /**
-     * Renders content for the Settings view.
-     */
-    function renderSettings() {
-        usernameInput.value = mockData.user.name;
-        // Load current SRS intervals into input fields
-        intervalPerfectInput.value = mockData.user.srsIntervals.perfect;
-        intervalGoodInput.value = mockData.user.srsIntervals.good;
-        intervalStruggledInput.value = mockData.user.srsIntervals.struggled;
-        intervalForgotInput.value = mockData.user.srsIntervals.forgot;
-
-        // Render theme buttons
-        const themeButtonContainer = document.querySelector('#view-settings .flex.gap-4'); // Target the theme buttons container
-        if (themeButtonContainer) {
-            themeButtonContainer.innerHTML = ''; // Clear existing buttons
-            mockData.themes.forEach(theme => {
-                const button = document.createElement('button');
-                button.dataset.theme = theme.id;
-                button.className = `theme-btn border-2 p-3 rounded-lg text-primary font-semibold hover:opacity-80 transition-opacity`;
-                button.textContent = theme.name;
-                button.addEventListener('click', (e) => applyTheme(e.target.dataset.theme));
-
-                if (theme.id === appState.currentTheme) {
-                    button.classList.add('border-accent-blue');
-                    button.classList.remove('border-border-color');
-                } else {
-                    button.classList.remove('border-accent-blue');
-                    button.classList.add('border-border-color');
-                }
-                themeButtonContainer.appendChild(button);
-            });
-        }
-    }
-
-    /**
-     * Renders content for the Tutorial view.
-     */
-    function renderTutorial() {
-        // No specific dynamic content render needed beyond the static HTML for this view.
-        // Modals will handle the tour steps and detailed guides.
-    }
-
-    /**
-     * Updates the active navigation item styling.
-     */
-    function updateActiveNav() {
-        navLinks.forEach(link => {
-            if (link.dataset.view === appState.currentView) {
-                link.classList.add('nav-item-active');
-            } else {
-                link.classList.remove('nav-item-active');
-            }
-        });
-    }
-
-    /**
-     * Navigates to a different view in the application.
-     * @param {string} view - The ID of the view to navigate to.
-     */
-    function navigate(view) {
-        appState.currentView = view;
-        render();
-    }
-
-    // Event listeners for navigation items
-    document.querySelectorAll('nav').forEach(nav => {
-        nav.addEventListener('click', (e) => {
-            const navItem = e.target.closest('.nav-item');
-            if (navItem) {
-                e.preventDefault();
-                const view = navItem.dataset.view;
-                navigate(view);
-                // Close mobile sidebar if open
-                if (!mobileSidebarContainer.classList.contains('hidden')) {
-                    toggleMobileMenu();
-                }
-            }
-        });
-    });
-
-    /**
-     * Toggles the visibility of the mobile sidebar.
-     */
-    function toggleMobileMenu() {
-        const isHidden = mobileSidebarContainer.classList.contains('hidden');
-        if (isHidden) {
-            mobileSidebarContainer.classList.remove('hidden');
-            setTimeout(() => { mobileSidebar.classList.remove('-translate-x-full'); }, 10);
-        } else {
-            mobileSidebar.classList.add('-translate-x-full');
-            setTimeout(() => { mobileSidebarContainer.classList.add('hidden'); }, 300);
-        }
-    }
-
-    // Mobile menu button event listeners
-    mobileMenuButton.addEventListener('click', toggleMobileMenu);
-    closeMenuButton.addEventListener('click', toggleMobileMenu);
-    mobileSidebarContainer.addEventListener('click', (e) => {
-        if (e.target === mobileSidebarContainer) {
-            toggleMobileMenu();
-        }
-    });
-
-    // --- Study Session (Flashcards) Logic ---
-    /**
-     * Starts a new study session.
-     * @param {string} queueType - 'daily' for daily queue, 'weak' for weak flashcards.
-     */
-    function startStudySession(queueType = 'daily') {
-        appState.studySession.isActive = true;
-        appState.studySession.queue = queueType === 'weak' ? getWeakFlashcards() : getDailyQueue(); // Renamed
-        appState.studySession.currentIndex = 0;
-        appState.studySession.flashcardsReviewedInSession = 0; // Renamed
-
-        if (appState.studySession.queue.length === 0) {
-            showNotification(`Your ${queueType} review queue is empty! Import some content or review more to create weak flashcards.`, true); // Renamed
-            navigate('library');
-            return;
-        }
-        navigate('study');
-        renderCurrentCard();
-    }
-
-    /**
-     * Renders the current flashcard in the study session.
-     */
-    function renderCurrentCard() {
-        if (appState.studySession.currentIndex >= appState.studySession.queue.length) {
-            endStudySession();
-            return;
-        }
-        flashcardContainer.classList.remove('flipped');
-
-        const currentFlashcard = appState.studySession.queue[appState.studySession.currentIndex]; // Renamed
-        const subject = mockData.subjects.find(s => s.id === currentFlashcard.subjectId); // Renamed
-
-        document.getElementById('card-subject-front').textContent = subject ? subject.name : 'Unknown';
-        document.getElementById('card-subject-back').textContent = subject ? subject.name : 'Unknown';
-        document.getElementById('card-question').textContent = currentFlashcard.question; // Renamed
-        document.getElementById('card-answer').textContent = currentFlashcard.answer; // Renamed
-
-        const totalItems = appState.studySession.queue.length;
-        const progress = ((appState.studySession.currentIndex + 1) / totalItems) * 100;
-        document.getElementById('study-progress-bar').style.width = `${progress}%`;
-        document.getElementById('study-progress-text').textContent = `Flashcard ${appState.studySession.currentIndex + 1} of ${totalItems}`; // Renamed
-    }
-
-    /**
-     * Ends the current study session.
-     */
-    function endStudySession() {
-        appState.studySession.isActive = false;
-        showReflectionModal();
-
-        const today = new Date().toISOString().split('T')[0];
-        const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0];
-
-        // Update streak logic
-        if (mockData.user.lastChallengeDate === today) {
-            // Already updated streak today, no change
-        } else if (mockData.user.lastChallengeDate === yesterday) {
-            mockData.user.streak = (mockData.user.streak || 0) + 1;
-        } else {
-            mockData.user.streak = 1; // Start new streak if not consecutive
-        }
-
-        mockData.user.lastChallengeDate = today;
-        mockData.user.dailyChallengeProgress += appState.studySession.flashcardsReviewedInSession; // Renamed
-
-        // Log daily study time (placeholder, actual tracking would be more robust)
-        const minutesStudiedThisSession = appState.studySession.flashcardsReviewedInSession * 2; // Rough estimate: 2 mins per flashcard // Renamed
-        if (!mockData.user.dailyStudyLogs) {
-            mockData.user.dailyStudyLogs = [];
-        }
-        const existingLog = mockData.user.dailyStudyLogs.find(log => log.date === today);
-        if (existingLog) {
-            existingLog.minutes += minutesStudiedThisSession;
-        } else {
-            mockData.user.dailyStudyLogs.push({ date: today, minutes: minutesStudiedThisSession });
-        }
-        saveUserData(); // Save updated study log
-
-        // Check for achievements
-        checkAchievements();
-        saveUserData();
-    }
-
-    // Study session button event listeners
-    startReviewBtn.addEventListener('click', () => startStudySession('daily'));
-    studyWeakFlashcardsBtn.addEventListener('click', () => startStudySession('weak')); // Renamed
-    showAnswerBtn.addEventListener('click', () => { flashcardContainer.classList.add('flipped'); });
-
-    recallButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            const quality = parseInt(e.currentTarget.dataset.rating);
-            const currentFlashcard = appState.studySession.queue[appState.studySession.currentIndex]; // Renamed
-
-            const wasMasteredBefore = currentFlashcard.repetitions >= 3 && currentFlashcard.easeFactor >= 2.0; // Renamed
-
-            // Update SM-2 properties for the current flashcard
-            const { nextReview, newInterval, newEaseFactor, newRepetitions } = calculateNextReviewDateSM2(
-                currentFlashcard.lastReviewed, quality, currentFlashcard.easeFactor, currentFlashcard.interval, currentFlashcard.repetitions // Renamed
-            );
-
-            currentFlashcard.lastReviewed = new Date(); // Renamed
-            currentFlashcard.nextReview = nextReview; // Renamed
-            currentFlashcard.interval = newInterval; // Renamed
-            currentFlashcard.easeFactor = newEaseFactor; // Renamed
-            currentFlashcard.repetitions = newRepetitions; // Renamed
-
-            const isNowMastered = newRepetitions >= 3 && newEaseFactor >= 2.0;
-            if (!wasMasteredBefore && isNowMastered) {
-                // Flashcard just became mastered
-                unlockAchievement('first-flashcard'); // Renamed
-            }
-
             saveUserData();
-            console.log(`Rated card ${currentFlashcard.id} with rating: ${quality}. Next review: ${currentFlashcard.nextReview.toLocaleDateString()}`); // Renamed
-
-            flashcardContainer.classList.remove('flipped');
-            appState.studySession.currentIndex++;
-            appState.studySession.flashcardsReviewedInSession++; // Renamed
-            setTimeout(renderCurrentCard, 300);
-        });
-    });
-
-    // Daily Challenge Claim Button
-    claimChallengeBtn.addEventListener('click', () => {
-        const today = new Date().toISOString().split('T')[0];
-        if (mockData.user.dailyChallengeProgress >= 5 && mockData.user.lastChallengeDate === today) {
-            showNotification('Congratulations! You claimed your daily challenge reward!');
-            mockData.user.dailyChallengeProgress = 0; // Reset for next day
-            // Only increment daily challenge count for achievement if it's the first claim today
-            if (mockData.user.lastChallengeClaimDate !== today) {
-                mockData.user.dailyChallengeCount = (mockData.user.dailyChallengeCount || 0) + 1;
-                mockData.user.lastChallengeClaimDate = today;
-            }
-            mockData.user.lastChallengeDate = null; // Forces new streak check or challenge reset tomorrow
-            checkAchievements(); // Check again after challenge completion
-            saveUserData();
-            renderDashboard();
-        } else {
-            showNotification('You have not completed the daily challenge yet!', true);
-        }
-    });
-
-
-    // --- Pomodoro Timer Logic ---
-    const pomodoroTimerEl = document.getElementById('pomodoro-timer');
-    const pomodoroStatusEl = document.getElementById('pomodoro-status');
-    const pomodoroStartBtn = document.getElementById('pomodoro-start');
-    const pomodoroPauseBtn = document.getElementById('pomodoro-pause');
-    const pomodoroResetBtn = document.getElementById('pomodoro-reset');
-
-    function updatePomodoroDisplay() {
-        const minutes = Math.floor(appState.pomodoro.timeLeft / 60).toString().padStart(2, '0');
-        const seconds = (appState.pomodoro.timeLeft % 60).toString().padStart(2, '0');
-        pomodoroTimerEl.textContent = `${minutes}:${seconds}`;
-    }
-
-    function tick() {
-        if (appState.pomodoro.timeLeft > 0) {
-            appState.pomodoro.timeLeft--;
-            updatePomodoroDisplay();
-        } else {
-            clearInterval(appState.pomodoro.timerId);
-            appState.pomodoro.isRunning = false;
-            // Record study minutes for analytics
-            const today = new Date().toISOString().split('T')[0];
-            const minutesStudied = appState.pomodoro.mode === 'work' ? 25 : 5; // 25 work, 5 break
-            if (!mockData.user.dailyStudyLogs) {
-                mockData.user.dailyStudyLogs = [];
-            }
-            const existingLog = mockData.user.dailyStudyLogs.find(log => log.date === today);
-            if (existingLog) {
-                existingLog.minutes += minutesStudied;
-            } else {
-                mockData.user.dailyStudyLogs.push({ date: today, minutes: minutesStudied });
-            }
-            saveUserData(); // Save updated study log
-
-            if (appState.pomodoro.mode === 'work') {
-                appState.pomodoro.mode = 'break';
-                appState.pomodoro.timeLeft = 5 * 60; // 5-minute break
-                pomodoroStatusEl.textContent = "Time for a short break!";
-                showNotification("Time for a short break!");
-            } else {
-                appState.pomodoro.mode = 'work';
-                appState.pomodoro.timeLeft = 25 * 60; // 25-minute work
-                pomodoroStatusEl.textContent = "Time to focus!";
-                showNotification("Break time is over! Time to focus!");
-            }
-            updatePomodoroDisplay();
-            // Check for achievements related to study time
-            checkAchievements();
+            renderAiMaterials(); // Re-render the AI materials list
         }
     }
-
-    // Pomodoro controls event listeners
-    pomodoroStartBtn.addEventListener('click', () => {
-        if (!appState.pomodoro.isRunning) {
-            appState.pomodoro.isRunning = true;
-            appState.pomodoro.timerId = setInterval(tick, 1000);
-        }
-    });
-    pomodoroPauseBtn.addEventListener('click', () => {
-        clearInterval(appState.pomodoro.timerId);
-        appState.pomodoro.isRunning = false;
-    });
-    pomodoroResetBtn.addEventListener('click', () => {
-        clearInterval(appState.pomodoro.timerId);
-        appState.pomodoro.isRunning = false;
-        appState.pomodoro.mode = 'work';
-        appState.pomodoro.timeLeft = 25 * 60;
-        pomodoroStatusEl.textContent = "Time to focus!";
-        updatePomodoroDisplay();
-    });
-
-    // Ambient soundscapes logic
-    document.getElementById('soundscapes').addEventListener('click', (e) => {
-        const soundscapeButton = e.target.closest('.soundscape-btn');
-        if (soundscapeButton) {
-            const soundFile = soundscapeButton.dataset.file;
-
-            if (appState.activeSoundscapeAudio) {
-                appState.activeSoundscapeAudio.pause();
-                appState.activeSoundscapeAudio.currentTime = 0;
-                appState.activeSoundscapeAudio = null;
-                showNotification(`Stopped soundscape.`);
-            }
-
-            // Simple placeholder for playing sound. In a real app, you'd use actual audio files.
-            // For GitHub Pages, you'd need to host these audio files.
-            // For now, this just simulates playback.
-            if (soundFile) {
-                const audio = new Audio(`audio/${soundFile}`); // Assumes an 'audio' folder exists
-                audio.loop = true;
-                audio.volume = 0.5; // Default volume
-                audio.play().then(() => {
-                    appState.activeSoundscapeAudio = audio;
-                    showNotification(`Playing ${soundFile.replace('.mp3', '')} soundscape.`);
-                }).catch(error => {
-                    console.error("Error playing audio:", error);
-                    showNotification(`Failed to play ${soundFile.replace('.mp3', '')} soundscape. (Audio file not found or browser blocked autoplay)`, true);
-                });
-            }
-        }
-    });
-
-
-    // --- Onboarding Logic ---
-    let currentOnboardingStep = 1;
-
-    function showOnboarding() {
-        onboardingModal.classList.remove('hidden');
-        currentOnboardingStep = 1;
-        updateOnboardingStep();
-    }
-
-    function updateOnboardingStep() {
-        // Hide all steps
-        Object.values(onboardingSteps).forEach(step => step.classList.add('hidden'));
-
-        // Show current step
-        const currentStepElement = onboardingSteps[`step-${currentOnboardingStep}`];
-        if (currentStepElement) {
-            currentStepElement.classList.remove('hidden');
-        }
-
-        // Update text and button label
-        if (currentOnboardingStep === 1) {
-            onboardingText.textContent = "Let's set up your personalized learning journey. Tell us about your primary learning goals.";
-            onboardingNextBtn.textContent = "Next";
-        } else if (currentOnboardingStep === 2) {
-            onboardingText.textContent = "How much time can you realistically dedicate to learning each week?";
-            onboardingNextBtn.textContent = "Next";
-        } else if (currentOnboardingStep === 3) {
-            onboardingText.textContent = "What subjects or areas are you currently focusing on?";
-            onboardingNextBtn.textContent = "Finish Setup";
-        } else {
-            completeOnboarding();
-        }
-    }
-
-    function completeOnboarding() {
-        const goal = document.getElementById('goal-input').value;
-        const time = document.getElementById('time-input').value;
-        const subjects = document.getElementById('subjects-input').value;
-
-        mockData.user.learningGoals = goal ? [{ id: 'initial-goal', name: goal, targetType: 'general', targetValue: 0, currentProgress: 0, endDate: new Date().toISOString() }] : [];
-        mockData.user.weeklyStudyTime = parseInt(time) || 0;
-        mockData.user.focusedSubjects = subjects.split(',').map(s => s.trim()).filter(s => s);
-        // Initialize these if they are null/undefined from localStorage
-        mockData.user.dailyStudyLogs = mockData.user.dailyStudyLogs || [];
-        mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs || [];
-        mockData.user.lastChallengeClaimDate = mockData.user.lastChallengeClaimDate || null;
-        mockData.user.dailyChallengeCount = mockData.user.dailyChallengeCount || 0;
-
-        appState.onboardingCompleted = true; // Set appState directly
-        localStorage.setItem('auralearn_onboardingCompleted', 'true'); // Persist to localStorage
-        onboardingModal.classList.add('hidden');
-        saveUserData(); // Save mockData.user which now contains new initial values
-        showNotification('Onboarding complete! Your personalized journey begins now.');
-        navigate('dashboard');
-    }
-
-    onboardingNextBtn.addEventListener('click', () => {
-        currentOnboardingStep++;
-        updateOnboardingStep();
-    });
-    onboardingSkipBtn.addEventListener('click', () => {
-        appState.onboardingCompleted = true; // Set appState directly
-        localStorage.setItem('auralearn_onboardingCompleted', 'true'); // Persist to localStorage
-        onboardingModal.classList.add('hidden');
-        // Ensure initial user data is saved even on skip, without resetting what was already loaded
-        mockData.user.dailyStudyLogs = mockData.user.dailyStudyLogs || [];
-        mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs || [];
-        mockData.user.lastChallengeClaimDate = mockData.user.lastChallengeClaimDate || null;
-        mockData.user.dailyChallengeCount = mockData.user.dailyChallengeCount || 0;
-        saveUserData();
-        navigate('dashboard');
-    });
-
-    // Toggle new subject input for AI Learning section
-    toggleAIContentNewSubjectInput.addEventListener('click', () => {
-        if (aiContentNewSubjectInput.classList.contains('hidden')) {
-            aiContentNewSubjectInput.classList.remove('hidden');
-            aiContentSubjectSelect.classList.add('hidden');
-            toggleAIContentNewSubjectInput.textContent = 'Select Existing Subject';
-        } else {
-            aiContentNewSubjectInput.classList.add('hidden');
-            aiContentNewSubjectInput.value = '';
-            aiContentSubjectSelect.classList.remove('hidden');
-            toggleAIContentNewSubjectInput.textContent = 'Add New Subject';
-        }
-        // Re-populate subjects to ensure new custom subjects appear after toggling
-        populateAILearningSubjectSelect();
-    });
-
-    // Listen for changes on aiContentSubjectSelect to ensure new subject input is correctly hidden/shown
-    aiContentSubjectSelect.addEventListener('change', () => {
-        if (aiContentSubjectSelect.value !== '') {
-            aiContentNewSubjectInput.classList.add('hidden');
-            aiContentNewSubjectInput.value = '';
-            toggleAIContentNewSubjectInput.textContent = 'Add New Subject';
-        }
-    });
-
-    // Event listener for the AI input mode toggle
-    aiInputModeToggle.addEventListener('change', () => {
-        appState.aiInputMode = aiInputModeToggle.checked ? 'topic' : 'text';
-        updateAiInputUI();
-    });
-
-    // AI Learning buttons event listeners
-    generateAiNotesBtn.addEventListener('click', () => {
-        toggleQuizSettingsVisibility('note');
-        generateAIContent('note');
-    });
-    generateNotesFlashcardsBtn.addEventListener('click', () => {
-        toggleQuizSettingsVisibility('notes-flashcards');
-        generateAIContent('notes-flashcards');
-    });
-    generateQuizBtn.addEventListener('click', () => {
-        toggleQuizSettingsVisibility('quiz');
-        generateAIContent('quiz');
-    });
-    extractKeywordsBtn.addEventListener('click', () => {
-        toggleQuizSettingsVisibility('keywords');
-        generateAIContent('keywords');
-    });
-    predictExamQuestionsBtn.addEventListener('click', () => {
-        toggleQuizSettingsVisibility('exam-questions');
-        generateAIContent('exam-questions');
-    });
-    summarizeContentBtn.addEventListener('click', () => {
-        toggleQuizSettingsVisibility('summary');
-        generateAIContent('summary');
-    });
-
-
-    // --- Quick Add Flashcard Modal Handlers ---
-    quickAddFlashcardBtnDashboard.addEventListener('click', showQuickAddFlashcardModal); // Renamed
-    quickAddFlashcardBtnLibrary.addEventListener('click', showQuickAddFlashcardModal); // Renamed
-
-    function showQuickAddFlashcardModal() { // Renamed
-        quickAddFlashcardModal.classList.remove('hidden'); // Renamed
-        quickAddQuestionInput.value = '';
-        quickAddAnswerInput.value = '';
-        newSubjectInput.value = '';
-        newSubjectInput.classList.add('hidden');
-        quickAddSubjectSelect.classList.remove('hidden');
-        toggleNewSubjectInputBtn.textContent = 'Add New Subject';
-        populateQuickAddSubjectSelect();
-    }
-
-    closeQuickAddModalBtn.addEventListener('click', () => {
-        quickAddFlashcardModal.classList.add('hidden'); // Renamed
-    });
-
-    toggleNewSubjectInputBtn.addEventListener('click', () => {
-        if (newSubjectInput.classList.contains('hidden')) {
-            newSubjectInput.classList.remove('hidden');
-            quickAddSubjectSelect.classList.add('hidden');
-            quickAddSubjectSelect.value = '';
-            toggleNewSubjectInputBtn.textContent = 'Select Existing Subject';
-        } else {
-            newSubjectInput.classList.add('hidden');
-            newSubjectInput.value = '';
-            quickAddSubjectSelect.classList.remove('hidden');
-            toggleNewSubjectInputBtn.textContent = 'Add New Subject';
-        }
-        populateQuickAddSubjectSelect(); // Re-populate subjects to ensure new custom subjects appear after toggling
-    });
-
-    quickAddSubjectSelect.addEventListener('change', () => {
-        if (quickAddSubjectSelect.value !== '') {
-            newSubjectInput.classList.add('hidden');
-            newSubjectInput.value = '';
-            toggleNewSubjectInputBtn.textContent = 'Add New Subject';
-        }
-    });
-
-    addFlashcardBtn.addEventListener('click', () => { // Renamed
-        let subjectId;
-        let subjectName;
-        // Check if a new subject is being added via the input field
-        if (!newSubjectInput.classList.contains('hidden') && newSubjectInput.value.trim()) {
-            subjectName = newSubjectInput.value.trim();
-            subjectId = subjectName.toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9-]/g, '');
-            // Check if this new subject already exists (either default or user-added)
-            if (!mockData.subjects.find(s => s.id === subjectId) && !defaultSubjects.find(ds => ds.id === subjectId)) {
-                // Add to user-specific subjects if it's genuinely new
-                mockData.subjects.push({ id: subjectId, name: subjectName, color: "bg-blue-100", textColor: "text-blue-800", flashcards: 0, lastReviewed: null }); // Renamed 'atoms'
-            }
-        } else {
-            // If not adding a new subject, use the selected subject
-            subjectId = quickAddSubjectSelect.value;
-            if (!subjectId) {
-                showNotification('Please select an existing subject or add a new one.', true);
-                return;
-            }
-            subjectName = (mockData.subjects.find(s => s.id === subjectId) || defaultSubjects.find(s => s.id === subjectId))?.name;
-        }
-
-        const question = quickAddQuestionInput.value.trim();
-        const answer = quickAddAnswerInput.value.trim();
-
-        if (!question || !answer) {
-            showNotification('Please enter both a question/concept and an answer/explanation.', true);
-            return;
-        }
-
-        const newFlashcard = { // Renamed
-            id: mockData.flashcards.length > 0 ? Math.max(...mockData.flashcards.map(f => f.id)) + 1 : 1, // Renamed
-            subjectId: subjectId,
-            question: question,
-            answer: answer,
-            lastReviewed: new Date(),
-            easeFactor: 2.5,
-            interval: 0,
-            repetitions: 0,
-            nextReview: new Date()
-        };
-        mockData.flashcards.push(newFlashcard); // Renamed
-
-        saveUserData();
-        showNotification('Flashcard added successfully!'); // Renamed
-        quickAddFlashcardModal.classList.add('hidden'); // Renamed
-        unlockAchievement('first-flashcard'); // Renamed // Check if first flashcard added unlocks achievement
-        checkAchievements(); // Recalculate other achievements potentially
-        render();
-    });
-
-    // --- Add Goal Modal Handlers ---
-    addGoalBtn.addEventListener('click', () => {
-        addGoalModal.classList.remove('hidden');
-        goalNameInput.value = '';
-        goalTargetValueInput.value = '';
-        goalEndDateInput.value = '';
-    });
-
-    closeAddGoalModalBtn.addEventListener('click', () => {
-        addGoalModal.classList.add('hidden');
-    });
-
-    createGoalBtn.addEventListener('click', () => {
-        const name = goalNameInput.value.trim();
-        const targetType = goalTargetTypeSelect.value;
-        const targetValue = parseInt(goalTargetValueInput.value);
-        const endDate = goalEndDateInput.value;
-
-        if (!name || !targetValue || !endDate) {
-            showNotification('Please fill in all goal fields.', true);
-            return;
-        }
-        if (isNaN(targetValue) || targetValue <= 0) {
-            showNotification('Target value must be a positive number.', true);
-            return;
-        }
-
-        const newGoal = {
-            id: `goal-${mockData.user.learningGoals.length > 0 ? Math.max(...mockData.user.learningGoals.map(g => parseInt(g.id.split('-')[1]))) + 1 : 1}`,
-            name: name,
-            targetType: targetType,
-            targetValue: targetValue,
-            currentProgress: 0,
-            endDate: endDate
-        };
-        mockData.user.learningGoals.push(newGoal);
-        saveUserData();
-        showNotification('Goal created successfully!');
-        addGoalModal.classList.add('hidden');
-        render();
-    });
-
-    // --- Reflection Modal Handlers ---
-    function showReflectionModal() {
-        reflectionModal.classList.remove('hidden');
-        reflectionTextarea.value = '';
-    }
-
-    closeReflectionModalBtn.addEventListener('click', () => {
-        reflectionModal.classList.add('hidden');
-        navigate('dashboard');
-    });
-
-    saveReflectionBtn.addEventListener('click', () => {
-        const reflectionText = reflectionTextarea.value.trim();
-        if (reflectionText) {
-            console.log("User Reflection:", reflectionText);
-            // In a more complex app, you might save this reflection with a timestamp
-            showNotification('Reflection saved! Thank you for your insights.');
-        } else {
-            showNotification('No reflection entered.');
-        }
-        reflectionModal.classList.add('hidden');
-        navigate('dashboard');
-    });
-
-    // --- Global Search Functionality ---
-    globalSearchInput.addEventListener('input', () => {
-        const query = globalSearchInput.value.toLowerCase().trim();
-        if (query.length > 2 || query.length === 0) {
-            filterAndDisplaySearchResults(query);
-        } else if (query.length <= 2 && !searchResultsModal.classList.contains('hidden')) {
-            searchResultsModal.classList.add('hidden'); // Hide modal if query is too short
-        }
-    });
-
-    closeSearchResultsModalBtn.addEventListener('click', () => {
-        searchResultsModal.classList.add('hidden');
-    });
-
-    function filterAndDisplaySearchResults(query) {
-        searchResultsContent.innerHTML = ''; // Clear previous results
-
-        if (query.length === 0) {
-            searchResultsModal.classList.add('hidden');
-            return;
-        }
-
-        let foundResults = [];
-
-        // Search in Flashcards
-        const filteredFlashcards = mockData.flashcards.filter(f => // Renamed
-            f.question.toLowerCase().includes(query) ||
-            f.answer.toLowerCase().includes(query) ||
-            mockData.subjects.find(s => s.id === f.subjectId)?.name.toLowerCase().includes(query) ||
-            defaultSubjects.find(s => s.id === f.subjectId)?.name.toLowerCase().includes(query)
-        );
-        if (filteredFlashcards.length > 0) {
-            foundResults.push({ type: "heading", content: "Flashcards" }); // Renamed
-            filteredFlashcards.forEach(flashcard => { // Renamed
-                const subjectName = (mockData.subjects.find(s => s.id === flashcard.subjectId) || defaultSubjects.find(s => s.id === flashcard.subjectId))?.name || 'Unknown'; // Renamed
-                foundResults.push({ type: "flashcard", title: flashcard.question, subtitle: `Subject: ${subjectName}`, details: flashcard.answer }); // Renamed
-            });
-        }
-
-        // Search in AI Materials
-        const filteredAiMaterials = mockData.aiMaterials.filter(m =>
-            m.title.toLowerCase().includes(query) ||
-            (typeof m.content === 'string' && m.content.toLowerCase().includes(query)) ||
-            (Array.isArray(m.content) && m.content.some(item =>
-                (item.question && item.question.toLowerCase().includes(query)) ||
-                (item.keyword && item.keyword.toLowerCase().includes(query)) ||
-                (item.definition && item.definition.toLowerCase().includes(query)) ||
-                (typeof item === 'string' && item.toLowerCase().includes(query))
-            ))
-        );
-        if (filteredAiMaterials.length > 0) {
-            foundResults.push({ type: "heading", content: "AI-Generated Materials" });
-            filteredAiMaterials.forEach(material => {
-                foundResults.push({ type: "ai-material", title: material.title, subtitle: `Type: ${material.type.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}` , materialData: material });
-            });
-        }
-
-        // Search in Learning Hub Content
-        let learningHubMatches = [];
-        for (const category in mockData.learningHubContent) {
-            mockData.learningHubContent[category].forEach(item => {
-                if (item.title.toLowerCase().includes(query) || item.summary.toLowerCase().includes(query) || (item.details && item.details.toLowerCase().includes(query))) {
-                    learningHubMatches.push({ type: "learning-hub", title: item.title, subtitle: `Category: ${category.replace(/\b\w/g, l => l.toUpperCase())}`, itemData: item });
-                }
-            });
-        }
-        if (learningHubMatches.length > 0) {
-            foundResults.push({ type: "heading", content: "Learning Hub Articles" });
-            foundResults = foundResults.concat(learningHubMatches);
-        }
-
-        // Search in Glossary
-        const filteredGlossary = mockData.glossary.filter(g =>
-            g.keyword.toLowerCase().includes(query) ||
-            g.definition.toLowerCase().includes(query)
-        );
-        if (filteredGlossary.length > 0) {
-            foundResults.push({ type: "heading", content: "Glossary Terms" });
-            filteredGlossary.forEach(term => {
-                foundResults.push({ type: "glossary-item", title: term.keyword, subtitle: term.definition });
-            });
-        }
-
-        // Search in Mind Maps
-        const filteredMindMaps = mockData.mindMaps.filter(m =>
-            m.name.toLowerCase().includes(query) ||
-            m.nodes.some(node => node.text.toLowerCase().includes(query))
-        );
-        if (filteredMindMaps.length > 0) {
-            foundResults.push({ type: "heading", content: "Mind Maps" });
-            filteredMindMaps.forEach(map => {
-                foundResults.push({ type: "mind-map-item", title: map.name, subtitle: `Nodes: ${map.nodes.length}`, mapData: map });
-            });
-        }
-
-        // Search in Calendar Events
-        const filteredCalendarEvents = mockData.calendarEvents.filter(e =>
-            e.title.toLowerCase().includes(query) ||
-            (e.notes && e.notes.toLowerCase().includes(query)) ||
-            e.type.toLowerCase().includes(query)
-        );
-        if (filteredCalendarEvents.length > 0) {
-            foundResults.push({ type: "heading", content: "Calendar Events" });
-            filteredCalendarEvents.forEach(event => {
-                foundResults.push({ type: "calendar-event", title: event.title, subtitle: `Date: ${event.date.toLocaleDateString()} (${event.type})`, eventData: event });
-            });
-        }
-
-
-        if (foundResults.length === 0) {
-            searchResultsContent.innerHTML = `<p class="text-secondary text-center">No matching results found for "${query}".</p>`;
-        } else {
-            foundResults.forEach(result => {
-                const resultDiv = document.createElement('div');
-                resultDiv.className = 'p-3 rounded-lg border list-item-themed hover:list-item-hover-bg cursor-pointer';
-
-                if (result.type === "heading") {
-                    resultDiv.className = 'col-span-full font-bold text-primary mt-4 mb-2 border-b border-border-color pb-2';
-                    resultDiv.textContent = result.content;
-                    resultDiv.style.cursor = 'default';
-                } else {
-                    resultDiv.innerHTML = `
-                        <p class="font-semibold text-primary">${result.title}</p>
-                        <p class="text-xs text-secondary">${result.subtitle}</p>
-                    `;
-                    resultDiv.addEventListener('click', () => {
-                        searchResultsModal.classList.add('hidden'); // Close search modal
-                        if (result.type === "flashcard") { // Renamed
-                            showDetailModal({ title: result.title, details: result.details });
-                        } else if (result.type === "ai-material") {
-                            showAIGeneratedMaterial(result.materialData);
-                        } else if (result.type === "learning-hub") {
-                            showDetailModal(result.itemData);
-                        } else if (result.type === "glossary-item") {
-                            navigate('glossary');
-                            setTimeout(() => {
-                                glossarySearchInput.value = result.title;
-                                renderGlossary();
-                            }, 100);
-                        } else if (result.type === "mind-map-item") {
-                            navigate('mind-map');
-                            setTimeout(() => loadMindMap(result.mapData.id), 100);
-                            unlockAchievement('first-mind-map');
-                        } else if (result.type === "calendar-event") {
-                            navigate('calendar');
-                            setTimeout(() => {
-                                appState.calendar.currentDate = new Date(result.eventData.date);
-                                appState.calendar.selectedDay = new Date(result.eventData.date);
-                                renderCalendar();
-                                showAddEditEventModal(result.eventData);
-                            }, 100);
-                        }
-                    });
-                }
-                searchResultsContent.appendChild(resultDiv);
-            });
-        }
-        searchResultsModal.classList.remove('hidden');
-    }
-
-    // Learning Hub Tab switching
-    document.querySelectorAll('.tab-button').forEach(button => {
-        button.addEventListener('click', (e) => {
-            appState.learningHubCategory = e.target.dataset.category;
-            renderLearningHub();
-        });
-    });
-
-    // --- Detail Modal Handlers ---
-    async function showDetailModal(item) {
-        detailTitle.textContent = item.title;
-        detailModal.classList.remove('hidden');
-        detailContentText.classList.add('hidden');
-        detailLoading.classList.remove('hidden');
-
-        let contentToDisplay = item.details;
-
-        // If the item details are short or not yet expanded by LLM, call LLM
-        // Added formatting instructions to the prompt
-        if (item.details.length < 200 || !item.llm_expanded) {
-            try {
-                const prompt = `Provide a detailed, comprehensive, and practical explanation of the concept or technique "${item.title}".
-                Format the content into clear sections. For section titles, use strong HTML tags. For list items, use ul and li HTML tags.
-                <strong>Main Info</strong>
-                <ul>
-                    <li>[Concise bullet point]</li>
-                    <li>[Concise bullet point]</li>
-                </ul>
-                <strong>Key Terms/Keywords:</strong>
-                <ul>
-                    <li>[Keyword]: [Brief definition]</li>
-                    <li>[Keyword]: [Brief definition]</li>
-                </ul>
-                <strong>Extra Info:</strong>
-                <ul>
-                    <li>[Additional relevant detail]</li>
-                    <li>[Another additional relevant detail]</li>
-                </ul>
-                <strong>Conclusion</strong>
-                <ul>
-                    <li>[Brief summary or key takeaway]</li>
-                </ul>
-                Ensure the entire response is valid HTML, strictly using strong, ul, and li tags as specified. Do not include any conversational filler, disclaimers, or extra text outside this structure.`;
-
-                let chatHistory = [];
-                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                const payload = { contents: chatHistory };
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    contentToDisplay = result.candidates[0].content.parts[0].text;
-                    item.details = contentToDisplay; // Update item in mockData for subsequent views
-                    item.llm_expanded = true; // Mark as expanded by LLM
-                } else {
-                    console.error("LLM did not return valid content for Learning Hub explanation.");
-                    showNotification('Failed to generate detailed explanation. Showing original content.', true);
-                }
-            } catch (error) {
-                console.error("Error fetching detailed explanation from LLM:", error);
-                showNotification('Error fetching detailed explanation. Showing original content.', true);
-            }
-        }
-
-        detailLoading.classList.add('hidden');
-        detailContentText.classList.remove('hidden');
-        detailContentText.innerHTML = contentToDisplay;
-    }
-
-    closeDetailModalBtn.addEventListener('click', () => {
-        detailModal.classList.add('hidden');
-    });
-
-    closeSubjectDetailModalBtn.addEventListener('click', () => {
-        subjectDetailModal.classList.add('hidden');
-    });
-
-    // --- User Profile & Settings ---
-    saveUsernameBtn.addEventListener('click', () => {
-        const newUsername = usernameInput.value.trim();
-        if (newUsername) {
-            mockData.user.name = newUsername;
-            saveUserData();
-            showNotification('Username updated successfully!');
-            render();
-        } else {
-            showNotification('Username cannot be empty.', true);
-        }
-    });
-
-    saveIntervalsBtn.addEventListener('click', () => {
-        const perfect = parseFloat(intervalPerfectInput.value);
-        const good = parseFloat(intervalGoodInput.value);
-        const struggled = parseFloat(intervalStruggledInput.value);
-        const forgot = parseFloat(intervalForgotInput.value);
-
-        if (isNaN(perfect) || isNaN(good) || isNaN(struggled) || isNaN(forgot) ||
-            perfect < 0 || good < 0 || struggled < 0 || forgot < 0) {
-            showNotification('Please enter valid non-negative numbers for all intervals.', true);
-            return;
-        }
-
-        mockData.user.srsIntervals = { perfect, good, struggled, forgot };
-        showNotification('Spaced Repetition intervals saved!');
-        saveUserData();
-    });
-
-    // --- Theme Switching ---
-    // Event listeners are dynamically attached in renderSettings() now
-    // themeButtons.forEach(button => {
-    //     button.addEventListener('click', (e) => {
-    //         applyTheme(e.target.dataset.theme);
-    //     });
-    // });
 
     /**
-     * Applies the selected theme to the application.
-     * @param {string} theme - The name of the theme ('light', 'dark', 'vibrant', 'forest-green', 'ocean-blue').
+     * Initializes and starts a quiz session.
+     * @param {object} quizData - The quiz data object.
      */
-    function applyTheme(theme) {
-        if (appContainer) {
-            // Remove all existing theme classes and add the new one
-            appContainer.classList.forEach(cls => {
-                if (cls.startsWith('theme-')) {
-                    appContainer.classList.remove(cls);
-                }
-            });
-            appContainer.classList.add(`theme-${theme}`);
-        }
-        // Update button states in settings view
-        const themeBtnsInSettings = document.querySelectorAll('#view-settings .theme-btn');
-        themeBtnsInSettings.forEach(btn => {
-            if (btn.dataset.theme === theme) {
-                btn.classList.add('border-accent-blue');
-                btn.classList.remove('border-border-color');
-            } else {
-                btn.classList.remove('border-accent-blue');
-                btn.classList.add('border-border-color');
-            }
-        });
-
-        localStorage.setItem('auralearn_theme', theme);
-        appState.currentTheme = theme; // Update appState theme
-        // Re-render charts on theme change to update colors
-        if (appState.currentView === 'analytics') {
-            renderAnalytics();
-        }
-        // Re-render mind map on theme change to update colors
-        if (appState.currentView === 'mind-map') {
-            drawMindMap();
-        }
-        // Re-render calendar on theme change to update colors
-        if (appState.currentView === 'calendar') {
-            renderCalendar();
-        }
-    }
-
-    // --- Data Export/Import ---
-    exportDataBtn.addEventListener('click', exportData);
-    importDataBtn.addEventListener('click', () => importDataInput.click()); // Trigger file input click
-    importDataInput.addEventListener('change', importData);
-
-    function exportData() {
-        const dataToExport = JSON.stringify(mockData, (key, value) => {
-            // Convert Date objects to ISO strings for export
-            if (value instanceof Date) {
-                return value.toISOString();
-            }
-            return value;
-        }, 2); // Pretty print with 2 space indentation
-
-        const blob = new Blob([dataToExport], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `auralearn_data_${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showNotification('Data exported successfully!');
-        mockData.user.lastExportDate = new Date().toISOString(); // Update last export date
-        saveUserData();
-        renderDashboard(); // Update dashboard to hide reminder
-    }
-
-    function importData(event) {
-        const file = event.target.files[0];
-        if (!file) {
-            showNotification('No file selected for import.', true);
+    function startQuizSession(quizData) {
+        if (!quizData || !quizData.questions || quizData.questions.length === 0) {
+            showNotification("No quiz questions available.", true);
             return;
         }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const importedData = JSON.parse(e.target.result);
-
-                // Basic validation for imported data structure
-                if (importedData.user && importedData.flashcards && importedData.subjects && importedData.aiMaterials) { // Renamed
-                    // Convert date strings back to Date objects for flashcards
-                    importedData.flashcards = importedData.flashcards.map(f => ({ // Renamed
-                        ...f,
-                        lastReviewed: new Date(f.lastReviewed),
-                        nextReview: new Date(f.nextReview)
-                    }));
-                    // Ensure new SM-2 properties are set if missing in old imported data
-                    importedData.flashcards.forEach(flashcard => { // Renamed
-                        flashcard.easeFactor = flashcard.easeFactor !== undefined ? flashcard.easeFactor : 2.5; // Renamed
-                        flashcard.interval = flashcard.interval !== undefined ? flashcard.interval : 0; // Renamed
-                        flashcard.repetitions = flashcard.repetitions !== undefined ? flashcard.repetitions : 0; // Renamed
-                    });
-
-                    // Safely merge or set user properties from imported data
-                    mockData.user = { ...initialUserData, ...importedData.user };
-                    mockData.user.srsIntervals = mockData.user.srsIntervals || initialUserData.srsIntervals;
-                    mockData.user.srsFactors = mockData.user.srsFactors || initialUserData.srsFactors;
-                    mockData.user.dailyStudyLogs = mockData.user.dailyStudyLogs || [];
-                    mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs || [];
-                    mockData.user.achievements = mockData.user.achievements || [];
-                    mockData.user.lastExportDate = mockData.user.lastExportDate || null;
-                    mockData.user.dailyChallengeCount = mockData.user.dailyChallengeCount || 0;
-                    mockData.user.lastChallengeClaimDate = mockData.user.lastChallengeClaimDate || null;
-                    mockData.user.onboardingCompleted = typeof mockData.user.onboardingCompleted === 'boolean' ? mockData.user.onboardingCompleted : false;
-
-
-                    // Overwrite main data arrays
-                    mockData.subjects = importedData.subjects;
-                    mockData.flashcards = importedData.flashcards; // Renamed
-                    mockData.aiMaterials = importedData.aiMaterials;
-                    mockData.glossary = importedData.glossary || [];
-                    mockData.mindMaps = importedData.mindMaps || [];
-                    mockData.calendarEvents = (importedData.calendarEvents || []).map(event => ({
-                        ...event,
-                        date: new Date(event.date)
-                    }));
-
-
-                    saveUserData(); // Save the imported data to local storage
-                    showNotification('Data imported successfully! App will reload.');
-                    location.reload(); // Reload to ensure all data is correctly loaded and UI refreshed
-                } else {
-                    showNotification('Invalid data file structure. Please ensure it\'s a valid AuraLearn export.', true);
-                }
-            } catch (error) {
-                console.error("Error importing data:", error);
-                showNotification('Failed to import data. Corrupted file or invalid JSON.', true);
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    // --- Quiz Session Logic ---
-    function startQuizSession(quizMaterial) {
-        appState.currentQuiz = quizMaterial;
         appState.quizSession = {
             isActive: true,
-            questions: [...quizMaterial.content], // Copy questions to avoid modifying original
+            questions: quizData.questions,
             currentIndex: 0,
             score: 0,
             selectedAnswer: null,
-            answers: [] // Store user's answers and correctness
+            answers: [] // Stores user's answer, correct answer, and question for review
         };
-
-        quizTitle.textContent = quizMaterial.title;
         quizModal.classList.remove('hidden');
-        renderQuizQuestion();
-    }
-
-    function renderQuizQuestion() {
-        quizQuestionContainer.classList.remove('hidden');
         quizResultsContainer.classList.add('hidden');
         quizReviewDetailContainer.classList.add('hidden');
-        quizFeedback.classList.add('hidden');
-        quizSubmitAnswerBtn.disabled = true; // Disable until an option is selected
+        quizQuestionContainer.classList.remove('hidden');
+        loadQuizQuestion();
+    }
 
-        if (appState.quizSession.currentIndex >= appState.quizSession.questions.length) {
+    /**
+     * Loads the current quiz question into the modal.
+     */
+    function loadQuizQuestion() {
+        const currentQuestion = appState.quizSession.questions[appState.quizSession.currentIndex];
+        if (!currentQuestion) {
             endQuizSession();
             return;
         }
 
-        const currentQuestion = appState.quizSession.questions[appState.quizSession.currentIndex];
-        quizQuestionText.textContent = `Q${appState.quizSession.currentIndex + 1}: ${currentQuestion.question}`;
+        quizQuestionText.textContent = currentQuestion.question;
         quizOptions.innerHTML = '';
-        currentQuestion.options.forEach((option, index) => {
-            const optionButton = document.createElement('button');
-            optionButton.className = 'quiz-option-btn';
-            optionButton.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
-            optionButton.dataset.option = option;
-            optionButton.addEventListener('click', () => selectQuizOption(optionButton));
-            quizOptions.appendChild(optionButton);
-        });
+        quizFeedback.classList.add('hidden');
+        quizSubmitAnswerBtn.classList.remove('hidden');
+        quizSubmitAnswerBtn.disabled = false;
+        appState.quizSession.selectedAnswer = null;
 
-        appState.quizSession.selectedAnswer = null; // Reset selected answer
+        currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.className = 'quiz-option-btn w-full p-3 text-left hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-accent-blue';
+            button.textContent = option;
+            button.dataset.option = option;
+            button.addEventListener('click', () => selectQuizOption(button, option));
+            quizOptions.appendChild(button);
+        });
     }
 
-    function selectQuizOption(selectedButton) {
-        document.querySelectorAll('.quiz-option-btn').forEach(btn => {
+    /**
+     * Handles selection of a quiz option.
+     * @param {HTMLElement} button - The button element that was clicked.
+     * @param {string} option - The text of the selected option.
+     */
+    function selectQuizOption(button, option) {
+        // Remove 'selected' class from all options
+        quizOptions.querySelectorAll('.quiz-option-btn').forEach(btn => {
             btn.classList.remove('selected');
         });
-        selectedButton.classList.add('selected');
-        appState.quizSession.selectedAnswer = selectedButton.dataset.option;
-        quizSubmitAnswerBtn.disabled = false;
+        // Add 'selected' class to the clicked button
+        button.classList.add('selected');
+        appState.quizSession.selectedAnswer = option;
     }
 
+    /**
+     * Submits the answer for the current quiz question.
+     */
     function submitQuizAnswer() {
-        if (!appState.quizSession.selectedAnswer) {
-            showNotification('Please select an answer.', true);
+        if (appState.quizSession.selectedAnswer === null) {
+            showNotification("Please select an answer.", true);
             return;
         }
 
         const currentQuestion = appState.quizSession.questions[appState.quizSession.currentIndex];
-        const isCorrect = (appState.quizSession.selectedAnswer === currentQuestion.correct_answer);
+        const isCorrect = appState.quizSession.selectedAnswer === currentQuestion.correctAnswer;
 
         if (isCorrect) {
             appState.quizSession.score++;
-            quizFeedback.textContent = 'Correct!';
-            quizFeedback.className = 'mt-4 text-center font-semibold text-green-600';
+            quizFeedback.textContent = "Correct!";
+            quizFeedback.classList.remove('text-red-600');
+            quizFeedback.classList.add('text-green-600');
         } else {
-            quizFeedback.textContent = `Incorrect. Correct answer was: ${currentQuestion.correct_answer}`;
-            quizFeedback.className = 'mt-4 text-center font-semibold text-red-600';
+            quizFeedback.textContent = `Incorrect. The correct answer was: ${currentQuestion.correctAnswer}`;
+            quizFeedback.classList.remove('text-green-600');
+            quizFeedback.classList.add('text-red-600');
         }
         quizFeedback.classList.remove('hidden');
+        quizSubmitAnswerBtn.disabled = true; // Disable submit button after answering
 
-        // Store result for review
-        appState.quizSession.answers.push({
-            question: currentQuestion.question,
-            selected: appState.quizSession.selectedAnswer,
-            correct: currentQuestion.correct_answer,
-            isCorrect: isCorrect
-        });
-
-        // Disable options and submit button after answer
-        document.querySelectorAll('.quiz-option-btn').forEach(btn => {
-            btn.disabled = true;
-            if (btn.dataset.option === currentQuestion.correct_answer) {
+        // Visually indicate correct/incorrect options
+        quizOptions.querySelectorAll('.quiz-option-btn').forEach(btn => {
+            btn.disabled = true; // Disable all options
+            if (btn.dataset.option === currentQuestion.correctAnswer) {
                 btn.classList.add('correct');
             } else if (btn.dataset.option === appState.quizSession.selectedAnswer) {
                 btn.classList.add('incorrect');
             }
         });
-        quizSubmitAnswerBtn.disabled = true;
 
-        // Auto-advance after a short delay
+        // Store result for review
+        appState.quizSession.answers.push({
+            question: currentQuestion.question,
+            userAnswer: appState.quizSession.selectedAnswer,
+            correctAnswer: currentQuestion.correctAnswer,
+            isCorrect: isCorrect,
+            options: currentQuestion.options // Store options for context in review
+        });
+
+
+        // Move to next question after a short delay
         setTimeout(() => {
             appState.quizSession.currentIndex++;
-            renderQuizQuestion();
-        }, 2000); // 2 seconds to show feedback
+            loadQuizQuestion();
+        }, 2000);
     }
 
+    /**
+     * Ends the quiz session and displays results.
+     */
     function endQuizSession() {
+        appState.quizSession.isActive = false;
         quizQuestionContainer.classList.add('hidden');
         quizResultsContainer.classList.remove('hidden');
-        quizScoreDisplay.textContent = `You scored: ${appState.quizSession.score} / ${appState.quizSession.questions.length}`;
+        quizScoreDisplay.textContent = `You scored: ${appState.quizSession.score}/${appState.quizSession.questions.length}`;
     }
 
+    /**
+     * Displays the quiz review screen.
+     */
     function reviewQuizAnswers() {
         quizResultsContainer.classList.add('hidden');
         quizReviewDetailContainer.classList.remove('hidden');
         quizReviewList.innerHTML = '';
 
-        appState.quizSession.answers.forEach((answer, index) => {
+        appState.quizSession.answers.forEach((item, index) => {
             const reviewItem = document.createElement('div');
-            reviewItem.className = 'p-3 rounded-lg border list-item-themed mb-3';
+            reviewItem.className = 'list-item-themed p-4 rounded-lg border mb-3';
             reviewItem.innerHTML = `
-                <p class="font-semibold text-primary">Q${index + 1}: ${answer.question}</p>
-                <p class="${answer.isCorrect ? 'text-green-600' : 'text-red-600'}">Your Answer: ${answer.selected} ${answer.isCorrect ? ' (Correct)' : ' (Incorrect)'}</p>
-                ${!answer.isCorrect ? `<p class="text-green-600">Correct Answer: ${answer.correct}</p>` : ''}
+                <p class="font-semibold text-primary mb-2">Q${index + 1}: ${item.question}</p>
+                <p class="text-sm text-secondary">Your Answer: <span class="${item.isCorrect ? 'text-green-600' : 'text-red-600'} font-bold">${item.userAnswer}</span></p>
+                <p class="text-sm text-secondary">Correct Answer: <span class="text-green-600 font-bold">${item.correctAnswer}</span></p>
+                <div class="mt-2 text-xs text-gray-500">
+                    <p>Options: ${item.options.join(' | ')}</p>
+                </div>
             `;
             quizReviewList.appendChild(reviewItem);
         });
     }
 
-    // Quiz event listeners
-    quizSubmitAnswerBtn.addEventListener('click', submitQuizAnswer);
-    quizRetakeBtn.addEventListener('click', () => startQuizSession(appState.currentQuiz));
-    quizReviewAnswersBtn.addEventListener('click', reviewQuizAnswers);
-    quizBackToResultsBtn.addEventListener('click', () => {
+    /**
+     * Goes back from quiz review to quiz results.
+     */
+    function backToQuizResults() {
         quizReviewDetailContainer.classList.add('hidden');
         quizResultsContainer.classList.remove('hidden');
-    });
-    closeQuizModalBtn.addEventListener('click', () => {
-        quizModal.classList.add('hidden');
-        appState.quizSession.isActive = false;
-        appState.currentQuiz = null;
-    });
+    }
 
-    // --- Tutorial Logic ---
-    function startTutorial(tourId) {
-        appState.currentTutorial = mockData.tutorialContent[tourId];
-        appState.currentTutorialStep = 0;
-
-        // Clear existing highlights from previous tours
-        document.querySelectorAll('[data-tutorial-highlighted]').forEach(el => {
-            el.classList.remove('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50');
-            el.removeAttribute('data-tutorial-highlighted'); // Remove the marker attribute
-        });
-
-
-        if (appState.currentTutorial.isDetailedGuide) {
-            // For detailed guides, just display content in the modal
-            tutorialStepTitle.textContent = appState.currentTutorial.title;
-            tutorialStepContent.innerHTML = appState.currentTutorial.content;
-            tutorialPrevBtn.classList.add('hidden');
-            tutorialNextBtn.classList.add('hidden');
-            tutorialFinishBtn.classList.remove('hidden');
-            tutorialStepModal.classList.remove('hidden');
+    /**
+     * Retakes the current quiz.
+     */
+    function retakeQuiz() {
+        if (appState.currentQuiz) {
+            startQuizSession(appState.currentQuiz);
         } else {
-            // For interactive tours, navigate to the first step
-            showTutorialStep();
-            tutorialStepModal.classList.remove('hidden');
+            showNotification("No quiz to retake.", true);
         }
     }
 
-    function showTutorialStep() {
-        const tour = appState.currentTutorial;
-        const step = tour.steps[appState.currentTutorialStep];
 
-        tutorialStepTitle.textContent = `${tour.title} - ${step.heading}`;
-        tutorialStepContent.innerHTML = `<p>${step.content}</p>`;
+    /**
+     * Shows a modal.
+     * @param {HTMLElement} modalElement - The modal element to show.
+     */
+    function showModal(modalElement) {
+        modalElement.classList.remove('hidden');
+        setTimeout(() => modalElement.classList.add('modal-active'), 10); // Trigger transition
+    }
 
-        // Remove previous highlights
-        document.querySelectorAll('[data-tutorial-highlighted]').forEach(el => {
-            el.classList.remove('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50');
-            el.removeAttribute('data-tutorial-highlighted');
+    /**
+     * Hides a modal.
+     * @param {HTMLElement} modalElement - The modal element to hide.
+     */
+    function hideModal(modalElement) {
+        modalElement.classList.remove('modal-active');
+        setTimeout(() => modalElement.classList.add('hidden'), 300); // Allow transition to finish
+    }
+
+    /**
+     * Shuffle array in place.
+     * @param {Array} array - The array to shuffle.
+     * @returns {Array} The shuffled array.
+     */
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    /**
+     * Renders learning goals in the analytics view.
+     */
+    function renderLearningGoals() {
+        if (!goalsList) return;
+
+        goalsList.innerHTML = '';
+        if (mockData.user.learningGoals.length === 0) {
+            emptyGoalsMessage.classList.remove('hidden');
+            return;
+        } else {
+            emptyGoalsMessage.classList.add('hidden');
+        }
+
+        mockData.user.learningGoals.forEach(goal => {
+            const li = document.createElement('li');
+            li.className = 'list-item-themed p-3 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center';
+
+            const now = new Date();
+            const endDate = new Date(goal.endDate);
+            const timeLeft = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24)); // Days left
+
+            let progressText = '';
+            let progressRatio = 0;
+            let statusBadge = '';
+
+            if (goal.targetType === 'flashcards') {
+                const masteredCount = mockData.flashcards.filter(f => f.wasMastered).length;
+                progressText = `Mastered: ${masteredCount}/${goal.targetValue} Flashcards`;
+                progressRatio = masteredCount / goal.targetValue;
+            } else if (goal.targetType === 'time') {
+                const totalStudyTime = mockData.user.weeklyStudyTime; // Assuming this is kept updated elsewhere
+                progressText = `Time: ${totalStudyTime}/${goal.targetValue} Hours (last 7 days)`;
+                progressRatio = totalStudyTime / goal.targetValue;
+            }
+
+            if (progressRatio >= 1) {
+                statusBadge = `<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">Completed!</span>`;
+            } else if (timeLeft <= 0) {
+                statusBadge = `<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-semibold">Overdue</span>`;
+            } else {
+                statusBadge = `<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold">${timeLeft} days left</span>`;
+            }
+
+
+            li.innerHTML = `
+                <div class="flex-1">
+                    <p class="font-semibold text-primary text-lg">${goal.name}</p>
+                    <p class="text-sm text-secondary">${progressText}</p>
+                    <p class="text-xs text-secondary">End Date: ${endDate.toLocaleDateString()}</p>
+                </div>
+                <div class="flex items-center gap-2 mt-2 sm:mt-0">
+                    ${statusBadge}
+                    <button class="text-red-500 hover:text-red-700 delete-goal-btn" data-id="${goal.id}" title="Delete Goal">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            goalsList.appendChild(li);
         });
 
-        // Highlight the relevant element
-        if (step.highlightElementId) {
-            const targetElement = document.getElementById(step.highlightElementId);
-            if (targetElement) {
-                targetElement.classList.add('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50');
-                targetElement.setAttribute('data-tutorial-highlighted', 'true'); // Mark as highlighted
-                targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        goalsList.querySelectorAll('.delete-goal-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const goalIdToDelete = event.currentTarget.dataset.id;
+                if (window.confirm("Are you sure you want to delete this learning goal?")) {
+                    deleteGoal(goalIdToDelete);
+                }
+            });
+        });
+    }
+
+    /**
+     * Creates a new learning goal.
+     */
+    function createLearningGoal() {
+        const name = goalNameInput.value.trim();
+        const targetType = goalTargetTypeSelect.value;
+        const targetValue = parseFloat(goalTargetValueInput.value);
+        const endDate = goalEndDateInput.value;
+
+        if (!name || !targetValue || !endDate) {
+            showNotification("Please fill in all goal fields.", true);
+            return;
+        }
+        if (targetValue <= 0) {
+            showNotification("Target value must be positive.", true);
+            return;
+        }
+
+        const newGoal = {
+            id: crypto.randomUUID(),
+            name,
+            targetType,
+            targetValue,
+            endDate
+        };
+
+        mockData.user.learningGoals.push(newGoal);
+        saveUserData();
+        showNotification("Learning goal created successfully!");
+        hideModal(addGoalModal);
+        goalNameInput.value = '';
+        goalTargetValueInput.value = '';
+        goalEndDateInput.value = '';
+        renderLearningGoals(); // Re-render goals list
+    }
+
+    /**
+     * Deletes a learning goal by ID.
+     * @param {string} idToDelete - The ID of the goal to delete.
+     */
+    function deleteGoal(idToDelete) {
+        const initialLength = mockData.user.learningGoals.length;
+        mockData.user.learningGoals = mockData.user.learningGoals.filter(goal => goal.id !== idToDelete);
+        if (mockData.user.learningGoals.length < initialLength) {
+            saveUserData();
+            showNotification("Learning goal deleted.");
+            renderLearningGoals(); // Re-render the list
+        } else {
+            showNotification("Learning goal not found.", true);
+        }
+    }
+
+
+    /**
+     * Renders soundscape buttons dynamically.
+     */
+    function renderSoundscapes() {
+        const soundscapesContainer = document.getElementById('soundscapes');
+        if (!soundscapesContainer) return;
+
+        soundscapesContainer.innerHTML = '';
+        mockData.soundscapes.forEach(s => {
+            const button = document.createElement('button');
+            button.className = 'soundscape-btn flex flex-col items-center p-4 rounded-lg transition-colors hover:bg-nav-active-bg';
+            button.innerHTML = `<span class="text-4xl mb-2">${s.icon}</span><span>${s.name}</span>`;
+            button.dataset.file = s.file;
+            button.addEventListener('click', () => toggleSoundscape(s.file, button));
+            soundscapesContainer.appendChild(button);
+        });
+    }
+
+    /**
+     * Toggles a soundscape on/off.
+     * @param {string} filePath - The path to the sound file.
+     * @param {HTMLElement} button - The button element associated with the soundscape.
+     */
+    function toggleSoundscape(filePath, button) {
+        if (appState.activeSoundscapeAudio && appState.activeSoundscapeAudio.src.includes(filePath)) {
+            // If the same soundscape is already playing, stop it
+            appState.activeSoundscapeAudio.pause();
+            appState.activeSoundscapeAudio.currentTime = 0; // Rewind
+            appState.activeSoundscapeAudio = null;
+            button.classList.remove('bg-accent-blue', 'text-white');
+            button.classList.add('bg-secondary', 'text-primary');
+        } else {
+            // Stop any currently playing soundscape
+            if (appState.activeSoundscapeAudio) {
+                appState.activeSoundscapeAudio.pause();
+                const prevButton = document.querySelector(`.soundscape-btn[data-file="${appState.activeSoundscapeAudio.src.split('/').pop()}"]`);
+                if (prevButton) {
+                    prevButton.classList.remove('bg-accent-blue', 'text-white');
+                    prevButton.classList.add('bg-secondary', 'text-primary');
+                }
+            }
+
+            // Start the new soundscape
+            const audio = new Audio(filePath);
+            audio.loop = true; // Loop the audio
+            audio.volume = 0.6; // Set a default volume
+            audio.play().catch(e => console.error("Error playing audio:", e));
+            appState.activeSoundscapeAudio = audio;
+            button.classList.add('bg-accent-blue', 'text-white');
+            button.classList.remove('bg-secondary', 'text-primary');
+        }
+    }
+
+
+    /**
+     * Updates the Pomodoro timer display.
+     */
+    function updatePomodoroDisplay() {
+        const minutes = Math.floor(appState.pomodoro.timeLeft / 60);
+        const seconds = appState.pomodoro.timeLeft % 60;
+        document.getElementById('pomodoro-timer').textContent =
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        let statusText = '';
+        if (appState.pomodoro.mode === 'work') {
+            statusText = appState.pomodoro.isRunning ? 'Focus Time!' : 'Time to focus!';
+            document.getElementById('pomodoro-timer').classList.remove('text-green-600', 'text-red-600');
+            document.getElementById('pomodoro-timer').classList.add('accent-blue');
+        } else { // break mode
+            statusText = appState.pomodoro.isRunning ? 'Break Time!' : 'Take a break!';
+            document.getElementById('pomodoro-timer').classList.remove('accent-blue');
+            document.getElementById('pomodoro-timer').classList.add('text-green-600');
+        }
+        document.getElementById('pomodoro-status').textContent = statusText;
+    }
+
+    /**
+     * Starts or resumes the Pomodoro timer.
+     */
+    function startPomodoro() {
+        if (appState.pomodoro.isRunning) return;
+
+        appState.pomodoro.isRunning = true;
+        appState.pomodoro.timerId = setInterval(() => {
+            appState.pomodoro.timeLeft--;
+            updatePomodoroDisplay();
+
+            if (appState.pomodoro.timeLeft <= 0) {
+                clearInterval(appState.pomodoro.timerId);
+                playPomodoroChime(); // Play sound when timer ends
+                if (appState.pomodoro.mode === 'work') {
+                    showNotification("Work session complete! Time for a break.", false);
+                    appState.pomodoro.mode = 'break';
+                    appState.pomodoro.timeLeft = 5 * 60; // 5 min break
+                } else {
+                    showNotification("Break over! Time to focus.", false);
+                    appState.pomodoro.mode = 'work';
+                    appState.pomodoro.timeLeft = 25 * 60; // 25 min work
+                }
+                appState.pomodoro.isRunning = false;
+                updatePomodoroDisplay(); // Update display for new mode/time
+                startPomodoro(); // Automatically start the next phase
+            }
+        }, 1000);
+    }
+
+    /**
+     * Pauses the Pomodoro timer.
+     */
+    function pausePomodoro() {
+        if (!appState.pomodoro.isRunning) return;
+        clearInterval(appState.pomodoro.timerId);
+        appState.pomodoro.isRunning = false;
+        document.getElementById('pomodoro-status').textContent = "Paused.";
+    }
+
+    /**
+     * Resets the Pomodoro timer to its initial state based on current mode.
+     */
+    function resetPomodoro() {
+        clearInterval(appState.pomodoro.timerId);
+        appState.pomodoro.isRunning = false;
+        appState.pomodoro.mode = 'work'; // Always reset to work mode first
+        appState.pomodoro.timeLeft = 25 * 60;
+        updatePomodoroDisplay();
+        document.getElementById('pomodoro-status').textContent = "Ready to focus!";
+    }
+
+    /**
+     * Plays a chime sound when Pomodoro timer completes a session.
+     */
+    function playPomodoroChime() {
+        // Use Tone.js for sound generation instead of external files
+        try {
+            if (!Tone.context.rawContext) {
+                 Tone.start(); // Start Tone.js context if not already started
+            }
+            const synth = new Tone.Synth().toDestination();
+            synth.triggerAttackRelease("C4", "8n"); // Simple C4 note for an 8th note duration
+        } catch (error) {
+            console.error("Error playing sound with Tone.js:", error);
+            // Fallback: If Tone.js fails for some reason, could use a simple Audio object
+            // This fallback is only if Tone.js completely fails, not for general use.
+            // const audio = new Audio('path/to/chime.mp3'); // Requires an actual sound file
+            // audio.play();
+        }
+    }
+
+
+    /**
+     * Renders content in the Learning Hub based on category.
+     * @param {string} category - The category to display.
+     */
+    function renderLearningHubContent(category) {
+        const contentContainer = document.getElementById('learning-hub-content');
+        if (!contentContainer || !mockData.learningHubContent[category]) return;
+
+        // Update active tab button
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            if (btn.dataset.category === category) {
+                btn.classList.add('bg-accent-blue', 'text-white');
+                btn.classList.remove('text-primary', 'hover:bg-border-color');
+            } else {
+                btn.classList.remove('bg-accent-blue', 'text-white');
+                btn.classList.add('text-primary', 'hover:bg-border-color');
+            }
+        });
+
+
+        contentContainer.innerHTML = '';
+        mockData.learningHubContent[category].forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'bg-primary p-4 rounded-xl shadow-sm border border-border-color cursor-pointer hover:shadow-md transition-shadow';
+            card.innerHTML = `
+                <h4 class="font-semibold text-lg text-primary mb-1">${item.title}</h4>
+                <p class="text-sm text-secondary">${item.summary}</p>
+            `;
+            card.addEventListener('click', () => showLearningHubDetail(item));
+            contentContainer.appendChild(card);
+        });
+        appState.learningHubCategory = category; // Update state
+        saveUserData(); // Save the current category
+    }
+
+    /**
+     * Displays detailed content from the Learning Hub in a modal.
+     * If details are empty, calls AI to generate.
+     * @param {object} item - The learning hub item object.
+     */
+    async function showLearningHubDetail(item) {
+        detailTitle.textContent = item.title;
+        detailContentText.classList.add('hidden');
+        detailLoading.classList.remove('hidden');
+        showModal(detailModal);
+
+        if (item.details) {
+            detailContentText.innerHTML = marked.parse(item.details);
+            detailContentText.classList.remove('hidden');
+            detailLoading.classList.add('hidden');
+        } else {
+            try {
+                // Call AI to generate detailed content
+                const prompt = `Provide a detailed explanation and practical insights for the learning concept "${item.title}". Aim for about 300-500 words, using clear headings and bullet points where appropriate.`;
+                const chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorData.error.message}`);
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    item.details = result.candidates[0].content.parts[0].text; // Update item details
+                    detailContentText.innerHTML = marked.parse(item.details);
+                    saveUserData(); // Save updated mockData with new details
+                    detailContentText.classList.remove('hidden');
+                    detailLoading.classList.add('hidden');
+                } else {
+                    throw new Error("AI did not return content.");
+                }
+            } catch (error) {
+                console.error("Error generating learning hub detail:", error);
+                detailContentText.innerHTML = `<p class="text-red-600">Failed to load details. AI generation error: ${error.message}</p>`;
+                detailContentText.classList.remove('hidden');
+                detailLoading.classList.add('hidden');
             }
         }
-
-        // Update navigation buttons
-        tutorialPrevBtn.classList.toggle('hidden', appState.currentTutorialStep === 0);
-        tutorialNextBtn.classList.toggle('hidden', appState.currentTutorialStep >= tour.steps.length - 1);
-        tutorialFinishBtn.classList.toggle('hidden', appState.currentTutorialStep < tour.steps.length - 1);
     }
 
-    function goToNextTutorialStep() {
-        if (appState.currentTutorialStep < appState.currentTutorial.steps.length - 1) {
-            appState.currentTutorialStep++;
-            showTutorialStep();
+
+    /**
+     * Renders glossary terms.
+     */
+    function renderGlossary() {
+        if (!glossaryList) return;
+
+        glossaryList.innerHTML = '';
+        const searchTerm = glossarySearchInput.value.toLowerCase();
+
+        const filteredGlossary = mockData.glossary.filter(term =>
+            term.term.toLowerCase().includes(searchTerm) ||
+            term.definition.toLowerCase().includes(searchTerm)
+        ).sort((a, b) => a.term.localeCompare(b.term)); // Sort alphabetically
+
+        if (filteredGlossary.length === 0) {
+            emptyGlossaryMessage.classList.remove('hidden');
+            return;
         } else {
-            endTutorial();
+            emptyGlossaryMessage.classList.add('hidden');
+        }
+
+        filteredGlossary.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'list-item-themed p-3 rounded-lg border flex justify-between items-start';
+            div.innerHTML = `
+                <div class="flex-1">
+                    <p class="font-semibold text-primary">${item.term}</p>
+                    <p class="text-sm text-secondary">${item.definition}</p>
+                </div>
+                <button class="text-red-500 hover:text-red-700 delete-glossary-btn" data-id="${item.id}" title="Delete Term">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            glossaryList.appendChild(div);
+        });
+
+        glossaryList.querySelectorAll('.delete-glossary-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const termIdToDelete = event.currentTarget.dataset.id;
+                if (window.confirm("Are you sure you want to delete this glossary term?")) {
+                    deleteGlossaryTerm(termIdToDelete);
+                }
+            });
+        });
+    }
+
+    /**
+     * Deletes a glossary term by ID.
+     * @param {string} idToDelete - The ID of the term to delete.
+     */
+    function deleteGlossaryTerm(idToDelete) {
+        const initialLength = mockData.glossary.length;
+        mockData.glossary = mockData.glossary.filter(term => term.id !== idToDelete);
+        if (mockData.glossary.length < initialLength) {
+            saveUserData();
+            showNotification("Glossary term deleted.");
+            renderGlossary(); // Re-render the list
+        } else {
+            showNotification("Glossary term not found.", true);
         }
     }
 
-    function goToPrevTutorialStep() {
-        if (appState.currentTutorialStep > 0) {
-            appState.currentTutorialStep--;
-            showTutorialStep();
-        }
-    }
 
-    function endTutorial() {
-        tutorialStepModal.classList.add('hidden');
-        // Clear all highlights
-        document.querySelectorAll('[data-tutorial-highlighted]').forEach(el => {
-            el.classList.remove('border-4', 'border-accent-blue', 'rounded-lg', 'shadow-lg', 'z-50');
-            el.removeAttribute('data-tutorial-highlighted');
-        });
-        // Reset tutorial state
-        appState.currentTutorial = null;
-        appState.currentTutorialStep = 0;
-    }
+    // --- Mind Map Functions ---
 
-    // Tutorial Event Listeners
-    tutorialTourButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            startTutorial(e.target.dataset.tour);
-        });
-    });
+    // Constants for mind map drawing
+    const NODE_RADIUS = 50;
+    const NODE_COLOR = 'var(--node-bg)';
+    const NODE_BORDER_COLOR = 'var(--node-border)';
+    const NODE_SELECTED_COLOR = 'var(--node-selected-border)';
+    const NODE_TEXT_COLOR = 'var(--node-text)';
+    const CONNECTION_COLOR = 'var(--connection-color)';
+    const CONNECTION_WIDTH = 2;
+    const ARROW_SIZE = 10;
 
-    tutorialDetailedGuideItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            startTutorial(e.currentTarget.dataset.guide);
-        });
-    });
-
-    closeTutorialStepModalBtn.addEventListener('click', endTutorial);
-    tutorialNextBtn.addEventListener('click', goToNextTutorialStep);
-    tutorialPrevBtn.addEventListener('click', goToPrevTutorialStep);
-    tutorialFinishBtn.addEventListener('click', endTutorial);
-
-    // --- Mind Map Logic ---
-    let mindMapNodes = appState.mindMap.nodes;
-    let mindMapConnections = appState.mindMap.connections;
-    let selectedNode = null;
-    let connectingNode = null;
-    let isDragging = false;
-    let dragStart = { x: 0, y: 0 };
-
-    function renderMindMap() {
-        // Ensure canvas dimensions are set, especially after view change
-        mindMapCanvas.width = mindMapCanvas.offsetWidth;
-        mindMapCanvas.height = mindMapCanvas.offsetHeight;
-        drawMindMap();
-        populateMindMapLoadSelect();
-    }
-
+    /**
+     * Draws the mind map on the canvas.
+     */
     function drawMindMap() {
+        if (!mindMapCanvas || !mindMapCtx) return;
+
+        // Clear canvas
         mindMapCtx.clearRect(0, 0, mindMapCanvas.width, mindMapCanvas.height);
 
+        mindMapCtx.save(); // Save context state
+        mindMapCtx.translate(appState.mindMap.offsetX, appState.mindMap.offsetY);
+        mindMapCtx.scale(appState.mindMap.scale, appState.mindMap.scale);
+
         // Draw connections first
-        mindMapConnections.forEach(conn => {
-            const nodeA = mindMapNodes.find(n => n.id === conn.from);
-            const nodeB = mindMapNodes.find(n => n.id === conn.to);
-            if (nodeA && nodeB) {
+        mindData.connections.forEach(conn => {
+            const startNode = mindData.nodes.find(n => n.id === conn.startNodeId);
+            const endNode = mindData.nodes.find(n => n.id === conn.endNodeId);
+
+            if (startNode && endNode) {
                 mindMapCtx.beginPath();
-                mindMapCtx.moveTo(nodeA.x, nodeA.y);
-                mindMapCtx.lineTo(nodeB.x, nodeB.y);
-                mindMapCtx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--connection-color');
-                mindMapCtx.lineWidth = 2;
+                mindMapCtx.moveTo(startNode.x, startNode.y);
+                mindMapCtx.lineTo(endNode.x, endNode.y);
+                mindMapCtx.strokeStyle = CONNECTION_COLOR;
+                mindMapCtx.lineWidth = CONNECTION_WIDTH;
                 mindMapCtx.stroke();
+
+                // Draw arrow head on the end node
+                drawArrowhead(mindMapCtx, startNode, endNode, CONNECTION_COLOR);
             }
         });
 
         // Draw nodes
-        mindMapNodes.forEach(node => {
+        mindData.nodes.forEach(node => {
             mindMapCtx.beginPath();
-            mindMapCtx.arc(node.x, node.y, 40, 0, Math.PI * 2); // Node circle
-            mindMapCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--node-bg');
+            mindMapCtx.arc(node.x, node.y, NODE_RADIUS, 0, Math.PI * 2);
+            mindMapCtx.fillStyle = NODE_COLOR;
             mindMapCtx.fill();
-            mindMapCtx.strokeStyle = node === selectedNode ? getComputedStyle(document.body).getPropertyValue('--node-selected-border') : getComputedStyle(document.body).getPropertyValue('--node-border');
-            mindMapCtx.lineWidth = node === selectedNode ? 4 : 2;
+            mindMapCtx.strokeStyle = (appState.mindMap.selectedNode && appState.mindMap.selectedNode.id === node.id) ? NODE_SELECTED_COLOR : NODE_BORDER_COLOR;
+            mindMapCtx.lineWidth = 2;
             mindMapCtx.stroke();
 
             // Draw text
-            mindMapCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--node-text');
+            mindMapCtx.fillStyle = NODE_TEXT_COLOR;
             mindMapCtx.font = '14px Inter';
             mindMapCtx.textAlign = 'center';
             mindMapCtx.textBaseline = 'middle';
-            mindMapCtx.fillText(node.text, node.x, node.y);
+
+            // Wrap text if too long
+            const words = node.text.split(' ');
+            let line = '';
+            const lines = [];
+            const MAX_WIDTH = (NODE_RADIUS * 2) * 0.8; // 80% of diameter
+
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = mindMapCtx.measureText(testLine);
+                const testWidth = metrics.width;
+                if (testWidth > MAX_WIDTH && n > 0) {
+                    lines.push(line);
+                    line = words[n] + ' ';
+                } else {
+                    line = testLine;
+                }
+            }
+            lines.push(line);
+
+            let yOffset = node.y - ((lines.length - 1) * 10 / 2); // Adjust for vertical centering
+            lines.forEach((lineText, i) => {
+                mindMapCtx.fillText(lineText.trim(), node.x, yOffset + (i * 15)); // 15px line height
+            });
         });
 
-        // Draw connecting line if a node is selected for connection
-        if (connectingNode && selectedNode) {
-            mindMapCtx.beginPath();
-            mindMapCtx.moveTo(connectingNode.x, connectingNode.y);
-            mindMapCtx.lineTo(selectedNode.x, selectedNode.y); // Draw to selected node for visualization
-            mindMapCtx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--accent-blue');
-            mindMapCtx.lineWidth = 3;
-            mindMapCtx.setLineDash([5, 5]); // Dashed line
-            mindMapCtx.stroke();
-            mindMapCtx.setLineDash([]); // Reset line dash
+        mindMapCtx.restore(); // Restore context state
+    }
+
+    /**
+     * Draws an arrowhead at the end of a line.
+     * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
+     * @param {object} startNode - The starting node object {x, y}.
+     * @param {object} endNode - The ending node object {x, y}.
+     * @param {string} color - The color of the arrow.
+     */
+    function drawArrowhead(ctx, startNode, endNode, color) {
+        const angle = Math.atan2(endNode.y - startNode.y, endNode.x - startNode.x);
+
+        // Calculate position slightly before the edge of the end node
+        const tipX = endNode.x - NODE_RADIUS * Math.cos(angle);
+        const tipY = endNode.y - NODE_RADIUS * Math.sin(angle);
+
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(tipX, tipY);
+        ctx.lineTo(tipX - ARROW_SIZE * Math.cos(angle - Math.PI / 6), tipY - ARROW_SIZE * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(tipX - ARROW_SIZE * Math.cos(angle + Math.PI / 6), tipY - ARROW_SIZE * Math.sin(angle + Math.PI / 6));
+        ctx.closePath();
+        ctx.fill();
+    }
+
+
+    // Mind Map Interaction state (local to mind map functions)
+    let mindData = {
+        nodes: [],
+        connections: []
+    };
+
+    /**
+     * Converts canvas coordinates to actual map coordinates, accounting for zoom and pan.
+     * @param {number} canvasX
+     * @param {number} canvasY
+     * @returns {object} {x, y} in map coordinates.
+     */
+    function getMapCoordinates(canvasX, canvasY) {
+        const rect = mindMapCanvas.getBoundingClientRect();
+        const clientX = canvasX - rect.left;
+        const clientY = canvasY - rect.top;
+
+        const x = (clientX - appState.mindMap.offsetX) / appState.mindMap.scale;
+        const y = (clientY - appState.mindMap.offsetY) / appState.mindMap.scale;
+        return { x, y };
+    }
+
+    /**
+     * Adds a new node to the mind map.
+     */
+    function addNode() {
+        const text = mindMapNodeTextInput.value.trim();
+        if (!text) {
+            showNotification('Please enter text for the node.', true);
+            return;
+        }
+
+        // Calculate a random position on the visible canvas area
+        const canvasRect = mindMapCanvas.getBoundingClientRect();
+        const randomX = Math.random() * canvasRect.width;
+        const randomY = Math.random() * canvasRect.height;
+
+        // Convert random canvas position to map coordinates
+        const { x, y } = getMapCoordinates(randomX + canvasRect.left, randomY + canvasRect.top);
+
+
+        const newNode = {
+            id: crypto.randomUUID(),
+            text: text,
+            x: x,
+            y: y
+        };
+        mindData.nodes.push(newNode);
+        mindMapNodeTextInput.value = '';
+        saveMindMap(); // Save immediately
+        drawMindMap();
+    }
+
+    /**
+     * Clears all nodes and connections from the mind map.
+     */
+    function clearMindMap() {
+        if (window.confirm("Are you sure you want to clear the entire mind map? This action cannot be undone.")) {
+            mindData.nodes = [];
+            mindData.connections = [];
+            appState.mindMap.selectedNode = null;
+            appState.mindMap.connectingNode = null;
+            appState.mindMap.scale = 1;
+            appState.mindMap.offsetX = 0;
+            appState.mindMap.offsetY = 0;
+            saveMindMap();
+            drawMindMap();
+            showNotification('Mind map cleared!');
         }
     }
 
-    // Function to add a new node
-    mindMapAddNodeBtn.addEventListener('click', () => {
-        const newNodeId = mindMapNodes.length > 0 ? Math.max(...mindMapNodes.map(n => n.id)) + 1 : 1;
-        const nodeText = mindMapNodeTextInput.value.trim() || `Node ${newNodeId}`;
-        const newNode = {
-            id: newNodeId,
-            text: nodeText,
-            x: mindMapCanvas.width / 2, // Start in center
-            y: mindMapCanvas.height / 2
-        };
-        mindMapNodes.push(newNode);
-        appState.mindMap.nodes = mindMapNodes; // Update appState reference
-        drawMindMap();
-        mindMapNodeTextInput.value = '';
-        showNotification('Node added! Double-click to edit, drag to move.');
-        unlockAchievement('first-mind-map'); // Check for achievement
-    });
-
-    // Clear all nodes and connections
-    mindMapClearAllBtn.addEventListener('click', () => {
-        if (confirm('Are you sure you want to clear the entire mind map? This cannot be undone.')) {
-            mindMapNodes = [];
-            mindMapConnections = [];
-            selectedNode = null;
-            connectingNode = null;
-            appState.mindMap.nodes = [];
-            appState.mindMap.connections = [];
-            drawMindMap();
-            showNotification('Mind map cleared.');
-            saveUserData(); // Save the cleared state
-        }
-    });
-
-    // Save Mind Map
-    mindMapSaveBtn.addEventListener('click', () => {
-        const mapName = prompt('Enter a name for this mind map:');
+    /**
+     * Saves the current mind map state to localStorage.
+     */
+    function saveMindMap() {
+        const mapName = prompt("Enter a name for this mind map:");
         if (mapName) {
-            const mapId = mapName.toLowerCase().replace(/\s/g, '-').replace(/[^a-z0-9-]/g, '');
-            const existingMapIndex = mockData.mindMaps.findIndex(m => m.id === mapId);
-            const newMap = {
-                id: mapId,
-                name: mapName,
-                nodes: mindMapNodes,
-                connections: mindMapConnections
+            const existingMapIndex = mockData.mindMaps.findIndex(m => m.name === mapName);
+            const currentMapState = {
+                nodes: mindData.nodes,
+                connections: mindData.connections,
+                scale: appState.mindMap.scale,
+                offsetX: appState.mindMap.offsetX,
+                offsetY: appState.mindMap.offsetY
             };
-            if (existingMapIndex > -1) {
-                mockData.mindMaps[existingMapIndex] = newMap;
-                showNotification(`Mind map "${mapName}" updated.`);
+            if (existingMapIndex !== -1) {
+                mockData.mindMaps[existingMapIndex].data = currentMapState;
+                showNotification(`Mind map "${mapName}" updated!`);
             } else {
-                mockData.mindMaps.push(newMap);
-                showNotification(`Mind map "${mapName}" saved.`);
+                mockData.mindMaps.push({ id: crypto.randomUUID(), name: mapName, data: currentMapState });
+                showNotification(`Mind map "${mapName}" saved!`);
             }
             saveUserData();
-            populateMindMapLoadSelect();
+            populateMindMapLoadSelect(); // Update the load dropdown
         } else {
-            showNotification('Mind map not saved. Name is required.', true);
+            showNotification("Mind map not saved. A name is required.", true);
         }
-    });
+    }
 
-    // Populate and Load Mind Map
+    /**
+     * Loads a selected mind map from localStorage.
+     */
+    function loadMindMap() {
+        const selectedMapId = mindMapLoadSelect.value;
+        if (!selectedMapId) return;
+
+        const mapToLoad = mockData.mindMaps.find(m => m.id === selectedMapId);
+        if (mapToLoad && mapToLoad.data) {
+            mindData.nodes = mapToLoad.data.nodes || [];
+            mindData.connections = mapToLoad.data.connections || [];
+            appState.mindMap.scale = mapToLoad.data.scale || 1;
+            appState.mindMap.offsetX = mapToLoad.data.offsetX || 0;
+            appState.mindMap.offsetY = mapToLoad.data.offsetY || 0;
+            appState.mindMap.selectedNode = null;
+            appState.mindMap.connectingNode = null;
+            drawMindMap();
+            showNotification(`Mind map "${mapToLoad.name}" loaded!`);
+        } else {
+            showNotification("Selected mind map not found or corrupted.", true);
+        }
+    }
+
+    /**
+     * Populates the dropdown with saved mind maps.
+     */
     function populateMindMapLoadSelect() {
+        if (!mindMapLoadSelect) return;
+
         mindMapLoadSelect.innerHTML = '<option value="">Load Map</option>';
         mockData.mindMaps.forEach(map => {
             const option = document.createElement('option');
@@ -3388,269 +2761,961 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    mindMapLoadSelect.addEventListener('change', (e) => {
-        const mapId = e.target.value;
-        if (mapId) {
-            loadMindMap(mapId);
-        }
-    });
+    // Mind Map Canvas Event Handlers
+    let lastX, lastY; // For panning
+    let dragMode = null; // 'pan' or 'node'
 
-    function loadMindMap(mapId) {
-        const mapToLoad = mockData.mindMaps.find(m => m.id === mapId);
-        if (mapToLoad) {
-            mindMapNodes = JSON.parse(JSON.stringify(mapToLoad.nodes)); // Deep copy
-            mindMapConnections = JSON.parse(JSON.stringify(mapToLoad.connections)); // Deep copy
-            appState.mindMap.nodes = mindMapNodes;
-            appState.mindMap.connections = mindMapConnections;
-            selectedNode = null;
-            connectingNode = null;
+    function handleMouseDown(e) {
+        if (e.button === 0) { // Left click
+            const { x, y } = getMapCoordinates(e.clientX, e.clientY);
+            const clickedNode = mindData.nodes.find(node => {
+                const dist = Math.sqrt(Math.pow(x - node.x, 2) + Math.pow(y - node.y, 2));
+                return dist < NODE_RADIUS;
+            });
+
+            if (clickedNode) {
+                appState.mindMap.selectedNode = clickedNode;
+                dragMode = 'node';
+                appState.mindMap.isDragging = true;
+                appState.mindMap.dragOffsetX = x - clickedNode.x;
+                appState.mindMap.dragOffsetY = y - clickedNode.y;
+            } else {
+                appState.mindMap.selectedNode = null;
+                dragMode = 'pan';
+                appState.mindMap.isDragging = true;
+                lastX = e.clientX;
+                lastY = e.clientY;
+            }
+        }
+        drawMindMap(); // Redraw to update selection highlight
+    }
+
+    function handleMouseMove(e) {
+        if (!appState.mindMap.isDragging) return;
+
+        if (dragMode === 'node' && appState.mindMap.selectedNode) {
+            const { x, y } = getMapCoordinates(e.clientX, e.clientY);
+            appState.mindMap.selectedNode.x = x - appState.mindMap.dragOffsetX;
+            appState.mindMap.selectedNode.y = y - appState.mindMap.dragOffsetY;
             drawMindMap();
-            showNotification(`Mind map "${mapToLoad.name}" loaded.`);
-            mindMapLoadSelect.value = mapId; // Set selected option
-        } else {
-            showNotification('Mind map not found.', true);
+        } else if (dragMode === 'pan') {
+            const deltaX = e.clientX - lastX;
+            const deltaY = e.clientY - lastY;
+            appState.mindMap.offsetX += deltaX;
+            appState.mindMap.offsetY += deltaY;
+            lastX = e.clientX;
+            lastY = e.clientY;
+            drawMindMap();
         }
     }
 
+    function handleMouseUp(e) {
+        appState.mindMap.isDragging = false;
+        dragMode = null;
+        saveMindMap(); // Auto-save after drag/pan
+    }
 
-    // Mind Map Interaction: Mouse/Touch Events
-    mindMapCanvas.addEventListener('mousedown', (e) => {
-        const rect = mindMapCanvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-
-        // Check if clicking on an existing node
-        const clickedNode = mindMapNodes.find(node => {
-            const distance = Math.sqrt((mouseX - node.x)**2 + (mouseY - node.y)**2);
-            return distance < 40; // 40 is node radius
+    function handleDblClick(e) {
+        const { x, y } = getMapCoordinates(e.clientX, e.clientY);
+        const clickedNode = mindData.nodes.find(node => {
+            const dist = Math.sqrt(Math.pow(x - node.x, 2) + Math.pow(y - node.y, 2));
+            return dist < NODE_RADIUS;
         });
 
         if (clickedNode) {
-            if (e.detail === 2) { // Double click to edit text
-                const newText = prompt('Edit node text:', clickedNode.text);
-                if (newText !== null) { // User didn't cancel
-                    clickedNode.text = newText;
-                    drawMindMap();
-                    saveUserData(); // Save change
+            if (!appState.mindMap.connectingNode) {
+                appState.mindMap.connectingNode = clickedNode;
+                showNotification(`Selected "${clickedNode.text}" to connect. Double-click another node to link.`, false);
+            } else if (appState.mindMap.connectingNode.id !== clickedNode.id) {
+                // Check if connection already exists
+                const connectionExists = mindData.connections.some(conn =>
+                    (conn.startNodeId === appState.mindMap.connectingNode.id && conn.endNodeId === clickedNode.id) ||
+                    (conn.startNodeId === clickedNode.id && conn.endNodeId === appState.mindMap.connectingNode.id)
+                );
+                if (!connectionExists) {
+                    mindData.connections.push({
+                        id: crypto.randomUUID(),
+                        startNodeId: appState.mindMap.connectingNode.id,
+                        endNodeId: clickedNode.id
+                    });
+                    showNotification(`Connected "${appState.mindMap.connectingNode.text}" and "${clickedNode.text}"`);
+                } else {
+                    showNotification("Connection already exists.", true);
                 }
-            } else { // Single click for selection/connection
-                if (connectingNode) { // Already selected a first node, now connecting
-                    if (connectingNode.id !== clickedNode.id) { // Cannot connect to itself
-                        const connectionExists = mindMapConnections.some(conn =>
-                            (conn.from === connectingNode.id && conn.to === clickedNode.id) ||
-                            (conn.from === clickedNode.id && conn.to === connectingNode.id)
-                        );
-                        if (!connectionExists) {
-                            mindMapConnections.push({ from: connectingNode.id, to: clickedNode.id });
-                            appState.mindMap.connections = mindMapConnections;
-                            showNotification('Nodes connected!');
-                            saveUserData(); // Save new connection
-                        } else {
-                            showNotification('Connection already exists.', true);
-                        }
-                    }
-                    connectingNode = null; // Reset for next connection
-                    selectedNode = null; // Deselect to stop highlighting
-                } else { // First node selection for connection or dragging
-                    connectingNode = clickedNode;
-                    selectedNode = clickedNode; // Highlight it as selected
-                    isDragging = true;
-                    dragStart.x = mouseX - clickedNode.x;
-                    dragStart.y = mouseY - clickedNode.y;
-                }
+                appState.mindMap.connectingNode = null; // Reset
             }
-        } else { // Clicked on empty space
-            selectedNode = null;
-            connectingNode = null;
-            isDragging = false;
-        }
-        drawMindMap();
-    });
-
-    mindMapCanvas.addEventListener('mousemove', (e) => {
-        if (!isDragging || !selectedNode) return;
-        const rect = mindMapCanvas.getBoundingClientRect();
-        selectedNode.x = e.clientX - rect.left - dragStart.x;
-        selectedNode.y = e.clientY - rect.top - dragStart.y;
-        drawMindMap();
-    });
-
-    mindMapCanvas.addEventListener('mouseup', () => {
-        isDragging = false;
-        if (selectedNode) {
-             // If a node was just dragged, save its new position
-             saveUserData();
-        }
-        // Keep node selected for connection until another click
-    });
-
-    mindMapCanvas.addEventListener('mouseout', () => { // If mouse leaves canvas while dragging
-        isDragging = false;
-    });
-
-    // Adjust canvas size on window resize
-    window.addEventListener('resize', () => {
-        if (appState.currentView === 'mind-map') {
-            renderMindMap(); // Re-render to adjust canvas size and redraw
-        }
-    });
-
-    // --- Glossary Logic ---
-    function renderGlossary() {
-        glossaryList.innerHTML = '';
-        const searchTerm = glossarySearchInput.value.toLowerCase().trim();
-
-        const filteredGlossary = mockData.glossary.filter(item =>
-            item.keyword.toLowerCase().includes(searchTerm) ||
-            item.definition.toLowerCase().includes(searchTerm)
-        ).sort((a, b) => a.keyword.localeCompare(b.keyword)); // Alphabetical sort
-
-        if (filteredGlossary.length === 0) {
-            emptyGlossaryMessage.classList.remove('hidden');
         } else {
-            emptyGlossaryMessage.classList.add('hidden');
-            filteredGlossary.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'glossary-item';
-                div.innerHTML = `
-                    <h4>${item.keyword}</h4>
-                    <p>${item.definition}</p>
+            appState.mindMap.connectingNode = null; // Clear if double-clicked empty space
+        }
+        drawMindMap();
+        saveMindMap(); // Auto-save after connection
+    }
+
+    function handleMouseWheel(e) {
+        e.preventDefault(); // Prevent page scrolling
+        const scaleAmount = 1.1;
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+
+        const oldScale = appState.mindMap.scale;
+        let newScale;
+
+        if (e.deltaY < 0) { // Zoom in
+            newScale = oldScale * scaleAmount;
+        } else { // Zoom out
+            newScale = oldScale / scaleAmount;
+        }
+
+        // Calculate new offset to zoom towards mouse cursor
+        const mousePointToClientX = mouseX - mindMapCanvas.getBoundingClientRect().left;
+        const mousePointToClientY = mouseY - mindMapCanvas.getBoundingClientRect().top;
+
+        appState.mindMap.offsetX = mousePointToClientX - ((mousePointToClientX - appState.mindMap.offsetX) / oldScale) * newScale;
+        appState.mindMap.offsetY = mousePointToClientY - ((mousePointToClientY - appState.mindMap.offsetY) / oldScale) * newScale;
+
+        appState.mindMap.scale = newScale;
+        drawMindMap();
+    }
+
+    // Touch event handlers for mobile Mind Map interaction
+    let initialPinchDistance = null;
+    let lastTouch = null; // For single touch drag
+
+    function handleTouchStart(e) {
+        e.preventDefault(); // Prevent scrolling and other default touch behaviors
+
+        if (e.touches.length === 1) {
+            // Single touch for dragging/selecting
+            const touch = e.touches[0];
+            lastTouch = { x: touch.clientX, y: touch.clientY };
+            handleMouseDown({ clientX: touch.clientX, clientY: touch.clientY, button: 0 }); // Simulate left click
+        } else if (e.touches.length === 2) {
+            // Two touches for pinch-to-zoom
+            initialPinchDistance = getPinchDistance(e.touches);
+            appState.mindMap.isDragging = false; // Disable node/pan drag during pinch
+        }
+    }
+
+    function handleTouchMove(e) {
+        e.preventDefault(); // Prevent scrolling
+
+        if (e.touches.length === 1 && appState.mindMap.isDragging) {
+            // Single touch drag (pan or node drag)
+            const touch = e.touches[0];
+            handleMouseMove({ clientX: touch.clientX, clientY: touch.clientY });
+            lastTouch = { x: touch.clientX, y: touch.clientY };
+        } else if (e.touches.length === 2 && initialPinchDistance) {
+            // Pinch-to-zoom
+            const currentPinchDistance = getPinchDistance(e.touches);
+            const scaleFactor = currentPinchDistance / initialPinchDistance;
+            initialPinchDistance = currentPinchDistance; // Update for next move
+
+            const oldScale = appState.mindMap.scale;
+            let newScale = oldScale * scaleFactor;
+
+            // Zoom towards the centroid of the two touches
+            const centroidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+            const centroidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
+            const mousePointToClientX = centroidX - mindMapCanvas.getBoundingClientRect().left;
+            const mousePointToClientY = centroidY - mindMapCanvas.getBoundingClientRect().top;
+
+            appState.mindMap.offsetX = mousePointToClientX - ((mousePointToClientX - appState.mindMap.offsetX) / oldScale) * newScale;
+            appState.mindMap.offsetY = mousePointToClientY - ((mousePointToClientY - appState.mindMap.offsetY) / oldScale) * newScale;
+
+            appState.mindMap.scale = newScale;
+            drawMindMap();
+        }
+    }
+
+    function handleTouchEnd(e) {
+        // Only trigger mouseup logic if it was a drag, not just a tap
+        if (appState.mindMap.isDragging) {
+            handleMouseUp(e);
+        }
+        appState.mindMap.isDragging = false;
+        initialPinchDistance = null; // Reset pinch state
+        lastTouch = null; // Reset single touch state
+    }
+
+    /**
+     * Calculates the distance between two touches for pinch gestures.
+     * @param {TouchList} touches - The list of active touches.
+     * @returns {number} The distance.
+     */
+    function getPinchDistance(touches) {
+        const touch1 = touches[0];
+        const touch2 = touches[1];
+        return Math.sqrt(
+            Math.pow(touch2.clientX - touch1.clientX, 2) +
+            Math.pow(touch2.clientY - touch1.clientY, 2)
+        );
+    }
+
+    // Make mind map canvas responsive
+    function resizeMindMapCanvas() {
+        if (mindMapCanvas) {
+            const container = mindMapCanvas.parentElement;
+            mindMapCanvas.width = container.clientWidth;
+            mindMapCanvas.height = Math.min(container.clientWidth * 0.7, 600); // Maintain aspect ratio or max height
+            drawMindMap();
+        }
+    }
+
+
+    /**
+     * Renders achievements on the achievements view.
+     */
+    function renderAchievements() {
+        if (!achievementsList) return;
+
+        achievementsList.innerHTML = '';
+
+        const allAchievements = [
+            { id: 'first-mastery', name: 'First Mastery', description: 'Master your first flashcard.', icon: '🌟', threshold: 1, type: 'totalMastered' },
+            { id: 'streak-7', name: '7-Day Streak', description: 'Achieve a 7-day study streak.', icon: '🔥', threshold: 7, type: 'streak' },
+            { id: 'streak-30', name: '30-Day Streak', description: 'Achieve a 30-day study streak.', icon: '🏆', threshold: 30, type: 'streak' },
+            { id: 'mastery-10', name: 'Knowledge Seeker', description: 'Master 10 flashcards.', icon: '🧠', threshold: 10, type: 'totalMastered' },
+            { id: 'mastery-50', name: 'Knowledge Expert', description: 'Master 50 flashcards.', icon: '💡', threshold: 50, type: 'totalMastered' },
+            { id: 'challenge-5', name: 'Daily Challenger', description: 'Complete 5 daily challenges.', icon: '🏅', threshold: 5, type: 'dailyChallengeCount' },
+            { id: 'challenge-20', name: 'Challenge Master', description: 'Complete 20 daily challenges.', icon: '🥇', threshold: 20, type: 'dailyChallengeCount' },
+            { id: 'first-quiz', name: 'Quiz Whiz', description: 'Complete your first AI-generated quiz.', icon: '📊', type: 'boolean', flag: 'completedFirstQuiz' },
+            { id: 'first-notes', name: 'Note Taker', description: 'Generate your first AI-generated notes.', icon: '📝', type: 'boolean', flag: 'generatedFirstNotes' },
+            { id: 'first-mindmap', name: 'Mind Mapper', description: 'Save your first mind map.', icon: '🗺️', type: 'boolean', flag: 'savedFirstMindMap' }
+        ];
+
+        if (allAchievements.length === 0) {
+            emptyAchievementsMessage.classList.remove('hidden');
+            return;
+        } else {
+            emptyAchievementsMessage.classList.add('hidden');
+        }
+
+        allAchievements.forEach(ach => {
+            const isUnlocked = mockData.user.achievements.includes(ach.id);
+            let meetsCriteria = false;
+
+            if (ach.type === 'totalMastered') {
+                meetsCriteria = mockData.user.totalMastered >= ach.threshold;
+            } else if (ach.type === 'streak') {
+                meetsCriteria = mockData.user.streak >= ach.threshold;
+            } else if (ach.type === 'dailyChallengeCount') {
+                meetsCriteria = mockData.user.dailyChallengeCount >= ach.threshold;
+            } else if (ach.type === 'boolean' && ach.flag) {
+                // For boolean flags, check if the flag is set to true in user data
+                meetsCriteria = mockData.user[ach.flag] === true;
+            }
+
+            // Unlock achievement if criteria met and not already unlocked
+            if (meetsCriteria && !isUnlocked) {
+                mockData.user.achievements.push(ach.id);
+                showNotification(`Achievement Unlocked: ${ach.name}!`, false);
+                saveUserData();
+            }
+
+            const card = document.createElement('div');
+            card.className = `achievement-card ${isUnlocked || meetsCriteria ? 'bg-secondary' : 'locked'} p-6 rounded-xl shadow-sm border border-border-color`;
+            card.innerHTML = `
+                <span class="icon mb-2">${ach.icon}</span>
+                <h4 class="font-bold text-primary mb-1">${ach.name}</h4>
+                <p class="text-sm text-secondary">${ach.description}</p>
+                <p class="text-xs text-gray-500 mt-2">${isUnlocked || meetsCriteria ? 'Unlocked!' : 'Locked'}</p>
+            `;
+            achievementsList.appendChild(card);
+        });
+    }
+
+    /**
+     * Checks achievements and unlocks them if criteria are met.
+     */
+    function checkAchievements() {
+        renderAchievements(); // Simply re-render and let the rendering logic handle unlocking
+    }
+
+    // Function to handle global search
+    function performGlobalSearch() {
+        const query = globalSearchInput.value.toLowerCase().trim();
+        const results = [];
+
+        if (!query) {
+            searchResultsContent.innerHTML = '<p class="text-secondary text-center">Please enter a search term.</p>';
+            showModal(searchResultsModal);
+            return;
+        }
+
+        // Search Flashcards
+        mockData.flashcards.forEach(f => {
+            if (f.question.toLowerCase().includes(query) || f.answer.toLowerCase().includes(query)) {
+                results.push({
+                    type: 'Flashcard',
+                    title: f.question.substring(0, 50) + (f.question.length > 50 ? '...' : ''),
+                    content: f.answer,
+                    subject: mockData.subjects.find(s => s.id === f.subjectId)?.name || 'Uncategorized',
+                    link: `javascript:loadView('library'); showSubjectDetail('${f.subjectId}');`
+                });
+            }
+        });
+
+        // Search AI Materials
+        mockData.aiMaterials.forEach(m => {
+            if (m.title.toLowerCase().includes(query) || m.content.toLowerCase().includes(query)) {
+                results.push({
+                    type: `AI ${m.type}`,
+                    title: m.title,
+                    content: m.content.substring(0, 100) + (m.content.length > 100 ? '...' : ''),
+                    subject: mockData.subjects.find(s => s.id === m.subjectId)?.name || 'Uncategorized',
+                    link: `javascript:loadView('library'); viewAiMaterial('${m.id}');`
+                });
+            }
+        });
+
+        // Search Glossary
+        mockData.glossary.forEach(g => {
+            if (g.term.toLowerCase().includes(query) || g.definition.toLowerCase().includes(query)) {
+                results.push({
+                    type: 'Glossary Term',
+                    title: g.term,
+                    content: g.definition,
+                    link: `javascript:loadView('glossary');` // Just go to glossary view, highlight will be handled by search input
+                });
+            }
+        });
+
+        // Render results
+        searchResultsContent.innerHTML = '';
+        if (results.length === 0) {
+            searchResultsContent.innerHTML = '<p class="text-secondary text-center">No results found.</p>';
+        } else {
+            results.forEach(result => {
+                const item = document.createElement('div');
+                item.className = 'list-item-themed p-3 rounded-lg border mb-2';
+                item.innerHTML = `
+                    <p class="text-xs font-semibold text-accent-blue mb-1">${result.type}</p>
+                    <h4 class="font-bold text-primary mb-1">${result.title}</h4>
+                    <p class="text-sm text-secondary truncate">${result.content}</p>
+                    ${result.link ? `<a href="${result.link}" class="text-sm text-accent-blue hover:underline mt-1 inline-block">View Details</a>` : ''}
                 `;
-                glossaryList.appendChild(div);
+                searchResultsContent.appendChild(item);
             });
         }
+        showModal(searchResultsModal);
     }
 
-    glossarySearchInput.addEventListener('input', renderGlossary);
+    // --- Onboarding Functions ---
+    let currentOnboardingStep = 0;
+    const onboardingSequence = ['step-1', 'step-2', 'step-3'];
 
-
-    // --- Achievements Logic ---
-    function checkAchievements() {
-        const masteredFlashcardsCount = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
-        const totalFlashcardsAdded = mockData.flashcards.length; // Renamed
-        const totalAiNotes = mockData.aiMaterials.filter(m => m.type === 'note').length;
-        const totalAiFlashcardsGenerated = mockData.aiMaterials.filter(m => m.type === 'notes-flashcards').length;
-        const totalAiQuizzesGenerated = mockData.aiMaterials.filter(m => m.type === 'quiz').length;
-        const totalAiKeywordsExtracted = mockData.aiMaterials.filter(m => m.type === 'keywords').length;
-        const totalMindMapsCreated = mockData.mindMaps.length;
-
-        // Mastered Flashcards
-        if (totalFlashcardsAdded >= 1 && !mockData.user.achievements.includes('first-flashcard')) { // Renamed
-            unlockAchievement('first-flashcard'); // Renamed
-        }
-        if (masteredFlashcardsCount >= 10) { // Renamed
-            unlockAchievement('mastery-beginner');
-        }
-        if (masteredFlashcardsCount >= 50) { // Renamed
-            unlockAchievement('mastery-intermediate');
-        }
-
-        // Streak Achievements
-        if (mockData.user.streak >= 7) {
-            unlockAchievement('streak-7-days');
-        }
-        if (mockData.user.streak >= 30) {
-            unlockAchievement('streak-30-days');
-        }
-
-        // Daily Challenge Achievement
-        if (mockData.user.dailyChallengeCount >= 10) {
-             unlockAchievement('daily-challenge-master');
-        }
-
-        // AI Usage Achievements
-        if (totalAiNotes >= 1) {
-            unlockAchievement('first-ai-note');
-        }
-        if (totalAiFlashcardsGenerated >= 1) {
-            unlockAchievement('first-flashcards-generated');
-        }
-        if (totalAiQuizzesGenerated >= 1) {
-            unlockAchievement('first-quiz-generated');
-        }
-        if (totalAiKeywordsExtracted >= 1) {
-            unlockAchievement('first-keywords-extracted');
-        }
-
-        // Mind Map Achievement
-        if (totalMindMapsCreated >= 1) {
-            unlockAchievement('first-mind-map');
-        }
-
-        saveUserData(); // Ensure achievements are saved
+    function showOnboarding() {
+        showModal(onboardingModal);
+        updateOnboardingStep();
     }
 
+    function updateOnboardingStep() {
+        onboardingNextBtn.textContent = (currentOnboardingStep === onboardingSequence.length - 1) ? 'Finish Setup' : 'Next';
+        onboardingSkipBtn.classList.toggle('hidden', currentOnboardingStep === onboardingSequence.length - 1);
 
-    // --- Local Storage Management ---
+        Object.values(onboardingSteps).forEach(step => step.classList.add('hidden'));
+        onboardingSteps[onboardingSequence[currentOnboardingStep]].classList.remove('hidden');
+
+        // Update onboarding text based on current step
+        if (currentOnboardingStep === 0) {
+            onboardingText.textContent = "Let's set up your personalized learning journey. Tell us about your primary learning goals.";
+        } else if (currentOnboardingStep === 1) {
+            onboardingText.textContent = "Great! How many hours can you realistically dedicate to learning each week?";
+        } else if (currentOnboardingStep === 2) {
+            onboardingText.textContent = "Almost there! What subjects or areas are you currently focusing on? (e.g., Biology, History, Programming)";
+        }
+    }
+
+    function goToNextOnboardingStep() {
+        if (currentOnboardingStep === 0) {
+            const goal = document.getElementById('goal-input').value.trim();
+            if (goal) mockData.user.learningGoals.push({ id: crypto.randomUUID(), name: goal, targetType: 'general', targetValue: 0, endDate: '' });
+            else { showNotification("Please enter a learning goal.", true); return; }
+        } else if (currentOnboardingStep === 1) {
+            const time = parseFloat(document.getElementById('time-input').value);
+            if (!isNaN(time) && time >= 0) mockData.user.weeklyStudyTime = time;
+            else { showNotification("Please enter a valid weekly study time.", true); return; }
+        } else if (currentOnboardingStep === 2) {
+            const subjectsInput = document.getElementById('subjects-input').value.trim();
+            if (subjectsInput) {
+                subjectsInput.split(',').forEach(subName => {
+                    const trimmedName = subName.trim();
+                    if (trimmedName) {
+                        const subjectId = trimmedName.toLowerCase().replace(/\s+/g, '-');
+                        if (!mockData.subjects.some(s => s.id === subjectId)) {
+                            mockData.subjects.push({ id: subjectId, name: trimmedName, color: 'bg-gray-200', textColor: 'text-gray-800' });
+                        }
+                    }
+                });
+            } else { showNotification("Please enter at least one subject.", true); return; }
+        }
+
+        if (currentOnboardingStep < onboardingSequence.length - 1) {
+            currentOnboardingStep++;
+            updateOnboardingStep();
+        } else {
+            // Last step, finish onboarding
+            appState.onboardingCompleted = true;
+            saveUserData();
+            hideModal(onboardingModal);
+            showNotification("Setup complete! Welcome to AuraLearn.", false);
+            loadView('dashboard');
+        }
+    }
+
+    function skipOnboarding() {
+        if (window.confirm("Are you sure you want to skip the setup? You can configure these settings later in the Settings section.")) {
+            appState.onboardingCompleted = true;
+            saveUserData();
+            hideModal(onboardingModal);
+            loadView('dashboard');
+            showNotification("Onboarding skipped. You can complete setup in settings.", false);
+        }
+    }
+
+    // Data Export/Import Functions
+    function exportAllData() {
+        const data = JSON.stringify(mockData, null, 2); // Pretty print JSON
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const now = new Date();
+        const fileName = `auralearn_backup_${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}.json`;
+        a.download = fileName;
+        document.body.appendChild(a); // Required for Firefox
+        a.click();
+        document.body.removeChild(a); // Clean up
+        URL.revokeObjectURL(url);
+        mockData.user.lastExportDate = now.toISOString();
+        saveUserData();
+        showNotification("Data exported successfully!");
+        checkBackupReminder();
+    }
+
+    function importAllData(event) {
+        const file = event.target.files[0];
+        if (!file) {
+            showNotification("No file selected.", true);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedData = JSON.parse(e.target.result);
+
+                // Basic validation for critical properties
+                if (!importedData.user || !importedData.flashcards || !importedData.subjects) {
+                    throw new Error("Invalid data format. Missing core sections.");
+                }
+
+                // Confirm overwrite
+                if (!window.confirm("Importing data will OVERWRITE all your current AuraLearn data. Are you sure you want to proceed?")) {
+                    return;
+                }
+
+                // Assign imported data to mockData, ensuring Dates are re-parsed
+                mockData.user = importedData.user;
+                mockData.subjects = importedData.subjects;
+                mockData.flashcards = (importedData.flashcards || []).map(f => ({
+                    ...f,
+                    lastReviewed: f.lastReviewed ? new Date(f.lastReviewed) : null,
+                    nextReview: f.nextReview ? new Date(f.nextReview) : null
+                }));
+                mockData.aiMaterials = importedData.aiMaterials || [];
+                mockData.glossary = importedData.glossary || [];
+                mockData.mindMaps = importedData.mindMaps || [];
+                mockData.calendarEvents = (importedData.calendarEvents || []).map(event => ({
+                    ...event,
+                    date: event.date ? new Date(event.date) : null
+                }));
+
+                // Ensure all user properties are present after import, using initialUserData as default
+                for (const key in initialUserData) {
+                    if (mockData.user[key] === undefined) {
+                        if (typeof initialUserData[key] === 'object' && initialUserData[key] !== null) {
+                            mockData.user[key] = JSON.parse(JSON.stringify(initialUserData[key]));
+                        } else {
+                            mockData.user[key] = initialUserData[key];
+                        }
+                    }
+                }
+
+
+                saveUserData(); // Re-save the imported data to localStorage
+                showNotification("Data imported successfully! Reloading application...", false);
+                setTimeout(() => window.location.reload(), 1000); // Reload to apply changes fully
+            } catch (error) {
+                console.error("Error importing data:", error);
+                showNotification(`Failed to import data: ${error.message}. Please ensure it's a valid AuraLearn JSON file.`, true);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // --- Analytics Chart Functions ---
+    let masteryChartInstance = null;
+    let activityChartInstance = null;
+    let growthChartInstance = null;
+
+    function renderAnalyticsCharts() {
+        // Mastery Distribution Chart
+        const masteryCtx = document.getElementById('masteryChart').getContext('2d');
+        const masteredCount = mockData.flashcards.filter(f => f.wasMastered).length;
+        const learningCount = mockData.flashcards.length - masteredCount;
+
+        if (masteryChartInstance) masteryChartInstance.destroy();
+        masteryChartInstance = new Chart(masteryCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Mastered Flashcards', 'Learning Flashcards'],
+                datasets: [{
+                    data: [masteredCount, learningCount],
+                    backgroundColor: [
+                        getComputedStyle(document.body).getPropertyValue('--text-green'),
+                        getComputedStyle(document.body).getPropertyValue('--accent-blue')
+                    ],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: getComputedStyle(document.body).getPropertyValue('--text-primary')
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Flashcard Mastery Distribution',
+                        color: getComputedStyle(document.body).getPropertyValue('--text-primary')
+                    }
+                }
+            }
+        });
+
+        // Weekly Study Activity Chart
+        const activityCtx = document.getElementById('activityChart').getContext('2d');
+        const dailyLogs = mockData.user.dailyStudyLogs || []; // Ensure it's an array
+        const labels = dailyLogs.map(log => new Date(log.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
+        const data = dailyLogs.map(log => log.flashcardsReviewed);
+
+        if (activityChartInstance) activityChartInstance.destroy();
+        activityChartInstance = new Chart(activityCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Flashcards Reviewed Daily',
+                    data: data,
+                    backgroundColor: getComputedStyle(document.body).getPropertyValue('--accent-blue'),
+                    borderColor: getComputedStyle(document.body).getPropertyValue('--accent-blue-hover'),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Daily Flashcards Reviewed (Last 7 Days)',
+                        color: getComputedStyle(document.body).getPropertyValue('--text-primary')
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: getComputedStyle(document.body).getPropertyValue('--text-secondary')
+                        },
+                        grid: {
+                            color: getComputedStyle(document.body).getPropertyValue('--border-color')
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: getComputedStyle(document.body).getPropertyValue('--text-secondary')
+                        },
+                        grid: {
+                            color: getComputedStyle(document.body).getPropertyValue('--border-color')
+                        }
+                    }
+                }
+            }
+        });
+
+        // Knowledge Growth Over Time Chart
+        const growthCtx = document.getElementById('growthChart').getContext('2d');
+        const monthlyLogs = mockData.user.monthlyMasteryLogs || []; // Ensure it's an array
+        const growthLabels = monthlyLogs.map(log => log.monthYear);
+        const growthData = monthlyLogs.map(log => log.masteredFlashcards);
+
+        if (growthChartInstance) growthChartInstance.destroy();
+        growthChartInstance = new Chart(growthCtx, {
+            type: 'line',
+            data: {
+                labels: growthLabels,
+                datasets: [{
+                    label: 'Total Mastered Flashcards',
+                    data: growthData,
+                    borderColor: getComputedStyle(document.body).getPropertyValue('--text-green'),
+                    tension: 0.3,
+                    fill: true,
+                    backgroundColor: 'rgba(34, 197, 94, 0.2)', // Green with transparency
+                    pointBackgroundColor: getComputedStyle(document.body).getPropertyValue('--text-green')
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Mastered Flashcards Over Time (Last 7 Months)',
+                        color: getComputedStyle(document.body).getPropertyValue('--text-primary')
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: getComputedStyle(document.body).getPropertyValue('--text-secondary')
+                        },
+                        grid: {
+                            color: getComputedStyle(document.body).getPropertyValue('--border-color')
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: getComputedStyle(document.body).getPropertyValue('--text-secondary')
+                        },
+                        grid: {
+                            color: getComputedStyle(document.body).getPropertyValue('--border-color')
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     /**
-     * Saves all relevant mockData to localStorage.
-     * Converts Date objects to ISO strings for proper storage.
+     * Updates daily study log for analytics.
      */
-    function saveUserData() {
-        try {
-            localStorage.setItem('auralearn_user', JSON.stringify(mockData.user));
-            localStorage.setItem('auralearn_flashcards', JSON.stringify(mockData.flashcards.map(f => ({ // Renamed
-                ...f,
-                lastReviewed: f.lastReviewed.toISOString(),
-                nextReview: f.nextReview.toISOString()
-            }))));
-            localStorage.setItem('auralearn_subjects', JSON.stringify(mockData.subjects));
-            localStorage.setItem('auralearn_ai_materials', JSON.stringify(mockData.aiMaterials));
-            localStorage.setItem('auralearn_glossary', JSON.stringify(mockData.glossary));
-            localStorage.setItem('auralearn_mind_maps', JSON.stringify(mockData.mindMaps));
-            localStorage.setItem('auralearn_calendar_events', JSON.stringify(mockData.calendarEvents.map(event => ({
-                ...event,
-                date: event.date.toISOString()
-            }))));
-        } catch (e) {
-            console.error("Error saving to localStorage:", e);
-            if (e.name === 'QuotaExceededError') {
-                showNotification('Local storage limit exceeded! Please export your data and clear some space.', true);
-            } else {
-                showNotification('An error occurred while saving data.', true);
+    function updateDailyStudyLog() {
+        const today = new Date();
+        const todayDateString = today.toISOString().split('T')[0];
+        const lastLog = mockData.user.dailyStudyLogs[mockData.user.dailyStudyLogs.length - 1];
+
+        if (!lastLog || lastLog.date !== todayDateString) {
+            mockData.user.dailyStudyLogs.push({
+                date: todayDateString,
+                flashcardsReviewed: appState.studySession.flashcardsReviewedInSession || 0
+            });
+        } else {
+            lastLog.flashcardsReviewed = (lastLog.flashcardsReviewed || 0) + (appState.studySession.flashcardsReviewedInSession || 0);
+        }
+
+        // Keep only last 7 days of logs
+        if (mockData.user.dailyStudyLogs.length > 7) {
+            mockData.user.dailyStudyLogs = mockData.user.dailyStudyLogs.slice(-7);
+        }
+        saveUserData();
+    }
+
+    /**
+     * Updates monthly mastery log for analytics.
+     */
+    function updateMonthlyMasteryLog() {
+        const todayInit = new Date();
+        const currentMonthYearInit = `${todayInit.getFullYear()}-${todayInit.getMonth() + 1}`;
+        // Ensure monthlyMasteryLogs is an array before accessing length
+        const lastMonthLogInit = (mockData.user.monthlyMasteryLogs && mockData.user.monthlyMasteryLogs.length > 0) ?
+            mockData.user.monthlyMasteryLogs[mockData.user.monthlyMasteryLogs.length - 1] : null;
+
+        if (!lastMonthLogInit || lastMonthLogInit.monthYear !== currentMonthYearInit) {
+            mockData.user.monthlyMasteryLogs.push({
+                date: todayInit.toISOString().split('T')[0],
+                monthYear: currentMonthYearInit,
+                masteredFlashcards: mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length // Renamed
+            });
+            if (mockData.user.monthlyMasteryLogs.length > 7) {
+                mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs.slice(-7);
+            }
+            saveUserData();
+        } else {
+            lastMonthLogInit.masteredFlashcards = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
+        }
+
+        saveUserData(); // Ensure the latest state is saved
+    }
+
+
+    // --- Event Listeners ---
+
+    // Navigation
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadView(e.currentTarget.dataset.view);
+        });
+    });
+
+    // Mobile menu
+    if (mobileMenuButton && mobileSidebarContainer && mobileSidebar) {
+        mobileMenuButton.addEventListener('click', () => {
+            mobileSidebarContainer.classList.remove('hidden');
+            setTimeout(() => {
+                mobileSidebar.classList.add('translate-x-0');
+            }, 10);
+        });
+    }
+
+    if (closeMenuButton && mobileSidebarContainer && mobileSidebar) {
+        closeMenuButton.addEventListener('click', () => {
+            mobileSidebar.classList.remove('translate-x-0');
+            setTimeout(() => {
+                mobileSidebarContainer.classList.add('hidden');
+            }, 300);
+        });
+    }
+
+    // Theme selection
+    // Delegated event listener for theme buttons to handle dynamic rendering
+    document.addEventListener('click', (event) => {
+        if (event.target.closest('.theme-btn')) {
+            const themeBtn = event.target.closest('.theme-btn');
+            const themeName = themeBtn.dataset.theme;
+            if (themeName) {
+                setTheme(themeName);
             }
         }
+    });
+
+    // Study Session
+    startReviewBtn.addEventListener('click', () => startStudySession(false)); // Start normal review
+    studyWeakFlashcardsBtn.addEventListener('click', () => startStudySession(true)); // Start weak flashcards review
+    showAnswerBtn.addEventListener('click', showAnswer);
+    recallButtons.forEach(button => {
+        button.addEventListener('click', (e) => handleRecall(parseInt(e.currentTarget.dataset.rating)));
+    });
+
+    // Quick Add Flashcard
+    quickAddFlashcardBtnDashboard.addEventListener('click', () => {
+        populateSubjectSelect(quickAddSubjectSelect); // Populate dropdown before showing
+        showModal(quickAddFlashcardModal);
+    });
+    quickAddFlashcardBtnLibrary.addEventListener('click', () => {
+        populateSubjectSelect(quickAddSubjectSelect); // Populate dropdown before showing
+        showModal(quickAddFlashcardModal);
+    });
+    closeQuickAddModalBtn.addEventListener('click', () => hideModal(quickAddFlashcardModal));
+    addFlashcardBtn.addEventListener('click', addFlashcard);
+
+    toggleNewSubjectInputBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent form submission if button is inside a form
+        newSubjectInput.classList.toggle('hidden');
+        if (!newSubjectInput.classList.contains('hidden')) {
+            toggleNewSubjectInputBtn.textContent = 'Hide New Subject Field';
+            quickAddSubjectSelect.value = ''; // Clear selection when new subject input is shown
+            newSubjectInput.focus();
+        } else {
+            toggleNewSubjectInputBtn.textContent = 'Add New Subject';
+        }
+    });
+
+    // Calendar Events
+    prevMonthBtn.addEventListener('click', () => {
+        const newDate = new Date(appState.calendar.currentDate);
+        newDate.setMonth(newDate.getMonth() - 1);
+        renderCalendar(newDate);
+    });
+    nextMonthBtn.addEventListener('click', () => {
+        const newDate = new Date(appState.calendar.currentDate);
+        newDate.setMonth(newDate.getMonth() + 1);
+        renderCalendar(newDate);
+    });
+    addEventBtn.addEventListener('click', () => openEventModal());
+    closeEventModalBtn.addEventListener('click', () => hideModal(addEditEventModal));
+    saveEventBtn.addEventListener('click', saveEvent);
+    deleteEventBtn.addEventListener('click', deleteEvent);
+
+    // Learning Goals
+    addGoalBtn.addEventListener('click', () => showModal(addGoalModal));
+    closeAddGoalModalBtn.addEventListener('click', () => hideModal(addGoalModal));
+    createGoalBtn.addEventListener('click', createLearningGoal);
+
+    // Detail Modal
+    closeDetailModalBtn.addEventListener('click', () => hideModal(detailModal));
+
+    // Subject Detail Modal
+    closeSubjectDetailModalBtn.addEventListener('click', () => hideModal(subjectDetailModal));
+
+    // Reflection Modal
+    closeReflectionModalBtn.addEventListener('click', () => {
+        hideModal(reflectionModal);
+        loadView('dashboard'); // Go to dashboard after reflection
+    });
+    saveReflectionBtn.addEventListener('click', () => {
+        // In a real app, you might save the reflection text here
+        showNotification("Reflection saved!");
+        hideModal(reflectionModal);
+        loadView('dashboard');
+    });
+
+    // Settings
+    saveUsernameBtn.addEventListener('click', saveSettings);
+    saveIntervalsBtn.addEventListener('click', saveSettings);
+
+    // AI Learning Studio
+    aiInputModeToggle.addEventListener('change', toggleAiInputMode);
+    generateAiNotesBtn.addEventListener('click', () => generateAiContent('notes'));
+    generateNotesFlashcardsBtn.addEventListener('click', () => generateAiContent('flashcards'));
+    generateQuizBtn.addEventListener('click', () => generateAiContent('quiz'));
+    extractKeywordsBtn.addEventListener('click', () => generateAiContent('keywords'));
+    predictExamQuestionsBtn.addEventListener('click', () => generateAiContent('exam-questions'));
+    summarizeContentBtn.addEventListener('click', () => generateAiContent('summary'));
+
+    // AI Quiz Modal
+    quizSubmitAnswerBtn.addEventListener('click', submitQuizAnswer);
+    closeQuizModalBtn.addEventListener('click', () => hideModal(quizModal));
+    quizRetakeBtn.addEventListener('click', retakeQuiz);
+    quizReviewAnswersBtn.addEventListener('click', reviewQuizAnswers);
+    quizBackToResultsBtn.addEventListener('click', backToQuizResults);
+
+    // Handle Quiz Settings Visibility
+    generateQuizBtn.addEventListener('click', () => {
+        quizSettingsContainer.classList.remove('hidden');
+        aiInputContentLabel.textContent = "Enter a topic for the AI to generate a quiz:";
+        aiInputContent.placeholder = "e.g., 'React Hooks', 'European History'";
+        aiInputModeToggle.checked = true; // Force topic mode for quizzes
+        appState.aiInputMode = 'topic';
+    });
+    // Ensure quiz settings are hidden when other AI generation buttons are clicked
+    [generateAiNotesBtn, generateNotesFlashcardsBtn, extractKeywordsBtn, predictExamQuestionsBtn, summarizeContentBtn].forEach(btn => {
+        btn.addEventListener('click', () => {
+            quizSettingsContainer.classList.add('hidden');
+        });
+    });
+
+
+    // Mind Map
+    mindMapAddNodeBtn.addEventListener('click', addNode);
+    mindMapClearAllBtn.addEventListener('click', clearMindMap);
+    mindMapSaveBtn.addEventListener('click', saveMindMap);
+    mindMapLoadSelect.addEventListener('change', loadMindMap);
+    if (mindMapCanvas) {
+        mindMapCanvas.addEventListener('mousedown', handleMouseDown);
+        mindMapCanvas.addEventListener('mousemove', handleMouseMove);
+        mindMapCanvas.addEventListener('mouseup', handleMouseUp);
+        mindMapCanvas.addEventListener('dblclick', handleDblClick);
+        mindMapCanvas.addEventListener('wheel', handleMouseWheel); // For zoom
+        // Touch events
+        mindMapCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+        mindMapCanvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+        mindMapCanvas.addEventListener('touchend', handleTouchEnd);
+
+        // Initial resize
+        resizeMindMapCanvas();
+        // Listen for window resize to make canvas responsive
+        window.addEventListener('resize', resizeMindMapCanvas);
     }
 
-    // --- Initial Application Setup on Load ---
-    window.onerror = function(message, source, lineno, colno, error) {
-        console.error("Global JavaScript Error:", { message, source, lineno, colno, error });
-        showNotification('An unexpected error occurred. Check console for details.', true);
-    };
 
-    applyTheme(appState.currentTheme);
+    // Glossary Search
+    glossarySearchInput.addEventListener('input', renderGlossary);
 
-    // Initialize/ensure user properties for existing users in localStorage
-    // If a property doesn't exist in localStorage.user, use the initialUserData default
-    mockData.user.dailyStudyLogs = mockData.user.dailyStudyLogs || initialUserData.dailyStudyLogs;
-    mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs || initialUserData.monthlyMasteryLogs;
-    mockData.user.achievements = mockData.user.achievements || initialUserData.achievements;
-    mockData.user.lastExportDate = mockData.user.lastExportDate || initialUserData.lastExportDate;
-    mockData.user.dailyChallengeCount = mockData.user.dailyChallengeCount || initialUserData.dailyChallengeCount;
-    mockData.user.lastChallengeClaimDate = mockData.user.lastChallengeClaimDate || initialUserData.lastChallengeClaimDate;
-    mockData.user.srsIntervals = mockData.user.srsIntervals || initialUserData.srsIntervals;
-    mockData.user.srsFactors = mockData.user.srsFactors || initialUserData.srsFactors;
-    mockData.user.onboardingCompleted = typeof mockData.user.onboardingCompleted === 'boolean' ? mockData.user.onboardingCompleted : false;
+    // Learning Hub Tabs
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            renderLearningHubContent(e.currentTarget.dataset.category);
+        });
+    });
+
+    // Global Search
+    globalSearchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            performGlobalSearch();
+        }
+    });
+    closeSearchResultsModalBtn.addEventListener('click', () => hideModal(searchResultsModal));
+
+    // Daily Challenge Claim Button
+    claimChallengeBtn.addEventListener('click', () => {
+        const today = new Date().toDateString();
+        if (mockData.user.dailyChallengeProgress >= 5 && mockData.user.lastChallengeClaimDate !== today) {
+            mockData.user.streak++; // Increment streak upon successful challenge claim
+            mockData.user.dailyChallengeCount = (mockData.user.dailyChallengeCount || 0) + 1; // Increment challenge count
+            mockData.user.lastChallengeClaimDate = today; // Mark as claimed today
+            saveUserData();
+            showNotification("Daily challenge reward claimed! Streak updated.", false);
+            updateDailyChallengeProgress(); // Update UI
+            updateDashboard(); // Refresh dashboard data
+            checkAchievements(); // Check if new achievements unlocked
+        } else if (mockData.user.lastChallengeClaimDate === today) {
+            showNotification("You've already claimed today's reward!", true);
+        } else {
+            showNotification("Complete the challenge first!", true);
+        }
+    });
+
+    // Onboarding
+    onboardingNextBtn.addEventListener('click', goToNextOnboardingStep);
+    onboardingSkipBtn.addEventListener('click', skipOnboarding);
+
+    // Data Export/Import
+    exportDataBtn.addEventListener('click', exportAllData);
+    importDataBtn.addEventListener('click', () => importDataInput.click()); // Trigger file input click
+    importDataInput.addEventListener('change', importAllData);
+
+    // Init App
+    // Ensure all data is loaded and merged from localStorage (if exists) or initialized
+    // This needs to happen BEFORE any other functions that depend on mockData or appState run.
+
+    // Load current theme from appState and apply
+    setTheme(appState.currentTheme);
 
 
-    // Check and update monthly mastery logs
+    // Initial setup of daily/monthly logs on DOMContentLoaded if they haven't been updated for today/this month
+    // This is crucial to ensure these arrays exist and have a current entry for ongoing tracking.
     const todayInit = new Date();
+    const currentDayStringInit = todayInit.toISOString().split('T')[0];
     const currentMonthYearInit = `${todayInit.getFullYear()}-${todayInit.getMonth() + 1}`;
-    const lastMonthLogInit = mockData.user.monthlyMasteryLogs[mockData.user.monthlyMasteryLogs.length - 1];
 
-    if (!lastMonthLogInit || lastMonthLogInit.monthYear !== currentMonthYearInit) {
+    // Update daily study log for today if needed
+    let lastDailyLogInit = mockData.user.dailyStudyLogs[mockData.user.dailyStudyLogs.length - 1];
+    if (!lastDailyLogInit || lastDailyLogInit.date !== currentDayStringInit) {
+        mockData.user.dailyStudyLogs.push({ date: currentDayStringInit, flashcardsReviewed: 0 });
+        // Keep only last 7 days of logs
+        if (mockData.user.dailyStudyLogs.length > 7) {
+            mockData.user.dailyStudyLogs = mockData.user.dailyStudyLogs.slice(-7);
+        }
+    }
+
+    // Update monthly mastery log for current month if needed
+    let lastMonthlyLogInit = mockData.user.monthlyMasteryLogs[mockData.user.monthlyMasteryLogs.length - 1];
+    if (!lastMonthlyLogInit || lastMonthlyLogInit.monthYear !== currentMonthYearInit) {
         mockData.user.monthlyMasteryLogs.push({
             date: todayInit.toISOString().split('T')[0],
             monthYear: currentMonthYearInit,
-            masteredFlashcards: mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length // Renamed
+            masteredFlashcards: mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length
         });
         if (mockData.user.monthlyMasteryLogs.length > 7) {
             mockData.user.monthlyMasteryLogs = mockData.user.monthlyMasteryLogs.slice(-7);
         }
-        saveUserData();
-    } else {
-        lastMonthLogInit.masteredFlashcards = mockData.flashcards.filter(f => f.repetitions >= 3 && f.easeFactor >= 2.0).length; // Renamed
     }
+    saveUserData(); // Save initial log state if changed
 
     // Now, determine if onboarding should be shown based on the loaded state
     if (!appState.onboardingCompleted) {
@@ -3661,7 +3726,26 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         // If onboarding completed, just render the app
         usernameInput.value = mockData.user.name;
-        checkAchievements(); // Check achievements on load to update initial state
-        render();
+        checkAchievements(); // Check achievements initially
+        loadView(appState.currentView); // Load the last saved view
+        renderSoundscapes(); // Render soundscape buttons
+        populateMindMapLoadSelect(); // Populate mind map dropdown
+        if (appState.currentView === 'mind-map') {
+            // Load the most recently saved map if available, otherwise initialize empty
+            if (mockData.mindMaps.length > 0) {
+                mindData = JSON.parse(JSON.stringify(mockData.mindMaps[mockData.mindMaps.length - 1].data)); // Deep copy last map
+            }
+            drawMindMap(); // Draw mind map if this is the initial view
+        }
     }
 });
+
+// Polyfill for crypto.randomUUID for older browsers (optional, but good for robustness)
+if (typeof crypto.randomUUID === 'undefined') {
+    crypto.randomUUID = function() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    };
+}
