@@ -599,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Gemini API configuration (placeholder - Canvas will provide this at runtime)
-    const apiKey = ""; // Keep this empty, Canvas provides it at runtime
+    const apiKey = "AIzaSyAy9O8ICJ7kcWTAyPkc1qfHeGWX95wjUxc"; // Keep this empty, Canvas provides it at runtime
 
     // --- Helper Functions ---
 
