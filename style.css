@@ -1,14 +1,44 @@
-/* Base styles using Inter font */
+/* ===== START: NEW LAYOUT CODE ===== */
+
+/* Lock the viewport to prevent the main browser scrollbar */
 html, body {
-    height: 100%; /* Ensure html and body take full height */
+    height: 100%;
+    width: 100%;
+    overflow: hidden; /* This is intentional here */
     margin: 0;
     padding: 0;
 }
-body { 
-    font-family: 'Inter', 
-    sans-serif;  /* Body overflow hidden as main handles it */ 
-     }
 
+/* Make the body a theme-aware background */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* The app container will fill the entire viewport */
+#app-container {
+    display: flex;
+    flex-direction: row; /* Forcing desktop view for this test */
+    height: 100%;
+    width: 100%;
+}
+
+aside {
+    width: 250px;
+    flex-shrink: 0; /* Prevent the sidebar from shrinking */
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    padding: 1.5rem;
+}
+
+main {
+    flex-grow: 1; /* Allow main to fill the remaining space */
+    overflow-y: auto; /* This makes ONLY the main area scrollable */
+    padding: 1.5rem;
+}
+
+/* ===== END: NEW LAYOUT CODE ===== */
 
 /* Theme Variables - Default Light */
 .theme-light {
@@ -346,32 +376,6 @@ body {
 .text-red-600 { color: var(--notification-error-text); } /* Ensure consistency for red text */
 .text-orange-500 { color: var(--text-orange); }
 
-/* General layout */
-#app-container {
-    display: flex;
-    min-height: 100vh;
-}
-
-aside {
-    width: 250px;
-    flex-shrink: 0;
-    background-color: var(--bg-secondary);
-    border-right: 1px solid var(--border-color);
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    border-top-left-radius: 1rem;
-    border-bottom-left-radius: 1rem;
-}
-
-main {
-    flex-grow: 1;
-    padding: 1.5rem;
-    background-color: var(--bg-primary);
-    overflow-y: auto;
-    border-top-right-radius: 1rem;
-    border-bottom-right-radius: 1rem;
-}
 
 .nav-item {
     display: flex;
