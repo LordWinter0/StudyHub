@@ -587,6 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
         aiInputMode: 'text',
         currentQuiz: null,
         quizSession: { isActive: false, questions: [], currentIndex: 0, score: 0, selectedAnswer: null, answers: [] },
+        // tutorial-related state variables
         currentTutorial: null,
         currentTutorialStep: 0,
         activeSoundscapeAudio: null,
@@ -610,7 +611,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Gemini API configuration (placeholder - Canvas will provide this at runtime)
-    const apiKey = "AIzaSyAy9O8ICJ7kcWTAyPkc1qfHeGWX95wjUxc";
+    const apiKey = ""; // This will be automatically populated by the Canvas environment
 
     // --- Helper Functions ---
 
@@ -1360,7 +1361,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         detailTitle.textContent = material.title;
-        detailContentText.innerHTML = material.content;
+        detailContentText.innerHTML = marked.parse(material.content); // Ensure Markdown parsing
         detailContentText.classList.remove('hidden');
         detailLoading.classList.add('hidden');
         showModal(detailModal);
@@ -1908,7 +1909,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 // For other actions, just display the content
-                aiOutputContentDisplay.innerHTML = marked.parse(generatedContent); // Use marked.js for Markdown
+                // Check if marked is defined before using it
+                if (typeof marked !== 'undefined') {
+                    aiOutputContentDisplay.innerHTML = marked.parse(generatedContent); // Use marked.js for Markdown
+                } else {
+                    aiOutputContentDisplay.textContent = generatedContent; // Fallback to plain text if marked is not loaded
+                }
                 aiGeneratedOutput.classList.remove('hidden');
 
                 // Save non-quiz, non-flashcard generated content as AI Material
@@ -2407,16 +2413,20 @@ document.addEventListener('DOMContentLoaded', () => {
             // For example, in a button click handler for playing sound, or a general document click.
             // Since this function is called inside pomodoro, it likely won't have direct user gesture.
             // If Tone.js isn't already started, the rawContext might be null.
-            if (!Tone.context || Tone.context.state !== 'running') {
-                // Attempt to start context if not running.
-                // This might not work in all environments without a direct user gesture.
-                Tone.start().then(() => {
+            if (typeof Tone !== 'undefined') { // Check if Tone is defined
+                if (!Tone.context || Tone.context.state !== 'running') {
+                    // Attempt to start context if not running.
+                    // This might not work in all environments without a direct user gesture.
+                    Tone.start().then(() => {
+                        const synth = new Tone.Synth().toDestination();
+                        synth.triggerAttackRelease("C4", "8n");
+                    }).catch(e => console.warn("Tone.js start failed on chime:", e));
+                } else {
                     const synth = new Tone.Synth().toDestination();
                     synth.triggerAttackRelease("C4", "8n");
-                }).catch(e => console.warn("Tone.js start failed on chime:", e));
+                }
             } else {
-                const synth = new Tone.Synth().toDestination();
-                synth.triggerAttackRelease("C4", "8n");
+                console.warn("Tone.js library not loaded. Cannot play chime sound.");
             }
         } catch (error) {
             console.error("Error playing sound with Tone.js:", error);
@@ -2471,7 +2481,11 @@ document.addEventListener('DOMContentLoaded', () => {
         showModal(detailModal);
 
         if (item.details) {
-            detailContentText.innerHTML = marked.parse(item.details);
+            if (typeof marked !== 'undefined') {
+                detailContentText.innerHTML = marked.parse(item.details);
+            } else {
+                detailContentText.textContent = item.details; // Fallback
+            }
             detailContentText.classList.remove('hidden');
             detailLoading.classList.add('hidden');
         } else {
@@ -2499,7 +2513,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     result.candidates[0].content && result.candidates[0].content.parts &&
                     result.candidates[0].content.parts.length > 0) {
                     item.details = result.candidates[0].content.parts[0].text; // Update item details
-                    detailContentText.innerHTML = marked.parse(item.details);
+                    if (typeof marked !== 'undefined') {
+                        detailContentText.innerHTML = marked.parse(item.details);
+                    } else {
+                        detailContentText.textContent = item.details; // Fallback
+                    }
                     saveUserData(); // Save updated mockData with new details
                     detailContentText.classList.remove('hidden');
                     detailLoading.classList.add('hidden');
@@ -2784,6 +2802,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             saveUserData();
             populateMindMapLoadSelect(); // Update the load dropdown
+            // Set flag for achievement
+            mockData.user.savedFirstMindMap = true;
+            checkAchievements();
         } else {
             showNotification("Mind map not saved. A name is required.", true);
         }
@@ -3527,6 +3548,249 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    // --- Tutorial Functions ---
+    let activeTutorialTour = null;
+
+    // Define your tutorial tours and their steps here
+    const tutorialTours = {
+        'app-overview': {
+            title: "AuraLearn App Overview",
+            steps: [
+                {
+                    title: "Welcome to AuraLearn!",
+                    content: "Discover how AuraLearn helps you master knowledge and boost productivity. This quick tour will guide you through the main features. Click 'Next' to begin!",
+                    targetElement: null // No specific element highlighted
+                },
+                {
+                    title: "The Sidebar Navigation",
+                    content: "On the left, you'll find your main navigation. Click on any item (Dashboard, Calendar, Library, etc.) to switch views.",
+                    targetElement: 'aside' // Target the sidebar
+                },
+                {
+                    title: "Your Dashboard",
+                    content: "This is your personalized hub. See your daily queue, study streak, upcoming events, and daily challenges at a glance.",
+                    targetElement: 'view-dashboard' // Target the dashboard view
+                },
+                {
+                    title: "Intelligent AI Learning Studio",
+                    content: "Generate notes, flashcards, quizzes, and more using AI. Just provide text or a topic!",
+                    targetElement: 'view-ai-learning' // Target the AI Learning view
+                },
+                {
+                    title: "Master Your Knowledge with Flashcards",
+                    content: "The Library is where all your 'Flashcards' are stored, organized by subject. Use them for spaced repetition.",
+                    targetElement: 'view-library' // Target the Library view
+                },
+                {
+                    title: "Mind Maps for Visual Learning",
+                    content: "Create and save interactive mind maps to organize your thoughts and visualize connections between concepts.",
+                    targetElement: 'view-mind-map' // Target the Mind Map view
+                },
+                {
+                    title: "Track Your Progress (Analytics & Achievements)",
+                    content: "Monitor your study habits, mastery scores, and unlock achievements as you progress in your learning journey.",
+                    targetElement: 'view-analytics' // Can point to analytics or achievements view
+                },
+                {
+                    title: "Settings & Customization",
+                    content: "Adjust your spaced repetition intervals, theme, and user profile here to tailor AuraLearn to your needs.",
+                    targetElement: 'view-settings' // Target the settings view
+                },
+                {
+                    title: "Ready to Learn?",
+                    content: "That concludes the quick tour! You can find more detailed guides in the 'Tutorial' section. Happy learning!",
+                    targetElement: null
+                }
+            ]
+        },
+        // Detailed Guides can also be structured as tours or have specific content
+        'srs-deep-dive': {
+            title: "Deep Dive: Spaced Repetition System (SRS)",
+            isDetailedGuide: true,
+            steps: [
+                {
+                    heading: "Main Info",
+                    content: "Spaced Repetition is a learning technique where you review material at increasing intervals over time. The goal is to revisit information just as you're about to forget it, which dramatically improves long-term retention compared to cramming."
+                },
+                {
+                    heading: "How AuraLearn's SRS Works",
+                    content: "<ul><li><strong>Recall Rating:</strong> After reviewing a flashcard, you rate your recall: Forgot (0), Struggled (1), Good (2), Perfect (3).</li><li><strong>Ease Factor:</strong> This factor (initially 2.5) adjusts based on your rating. Perfect recall increases it, while poor recall decreases it.</li><li><strong>Interval Calculation:</strong> The next review interval is calculated using your last interval, ease factor, and the number of repetitions. For example:<ul><li><strong>Forgot (0):</strong> Review in a few hours.</li><li><strong>Struggled (1):</strong> Review in 1 day.</li><li><strong>Good (2):</strong> Next interval = Previous Interval * Ease Factor.</li><li><strong>Perfect (3):</strong> Next interval = Previous Interval * Ease Factor.</li></ul></li></ul>"
+                },
+                {
+                    heading: "Conclusion",
+                    content: "This adaptive system ensures that concepts you find easy are reviewed less often, freeing up time for more challenging material."
+                }
+            ]
+        },
+        'customizing-ai': {
+            title: "Customizing AI Generation",
+            isDetailedGuide: true,
+            steps: [
+                {
+                    heading: "Main Info",
+                    content: "The AI Learning Studio is powerful, but good input leads to great output."
+                },
+                {
+                    heading: "Tips for Getting the Best Results from AI Learning Studio",
+                    content: "<ul><li><strong>Be Specific:</strong> The more precise your prompt or input text, the better the AI can understand your needs.</li><li><strong>Topic Mode vs. Text Mode:</strong><ul><li><strong>Topic Mode:</strong> Use for broad subjects (e.g., \"Quantum Physics\", \"History of Ancient Rome\"). The AI will generate general knowledge.</li><li><strong>Text Mode:</strong> Use when you have specific content (e.g., lecture notes, an article snippet) you want the AI to process directly.</li></ul></li><li><strong>Assign Subjects:</strong> Always assign generated content to a relevant subject. This is crucial for flashcards to appear in your Library under the correct category.</li><li><strong>Iterate:</strong> If the first output isn't perfect, try rephrasing your input or generating a different type of material.</li><li><strong>Edit Output:</strong> Don't treat AI output as final. It's a starting point! Use it as a draft and refine it to perfectly suit your learning style and needs.</li></ul>"
+                },
+                {
+                    heading: "Conclusion",
+                    content: "By providing clear instructions and refining outputs, you can maximize the AI's effectiveness as a study aid."
+                }
+            ]
+        },
+        'goal-setting': {
+            title: "Effective Goal Setting",
+            isDetailedGuide: true,
+            steps: [
+                {
+                    heading: "Main Info",
+                    content: "Goals help you stay motivated and track progress in your learning journey."
+                },
+                {
+                    heading: "Using the SMART Framework for Learning Goals",
+                    content: "<ul><li><strong>Specific:</strong> Clearly define what you want to achieve. (e.g., \"Master 50 new JavaScript flashcards\" instead of \"Learn JavaScript\").</li><li><strong>Measurable:</strong> Ensure your goal can be tracked. AuraLearn helps with this by tracking mastered flashcards and study time.</li><li><strong>Achievable:</strong> Set realistic goals that challenge you but are not impossible.</li><li><strong>Relevant:</strong> Your goals should align with your broader academic or personal development objectives.</li><li><strong>Time-bound:</strong> Give your goal a clear end date. This creates urgency.</li></ul>"
+                },
+                {
+                    heading: "How to Set Goals in AuraLearn",
+                    content: "Go to the **Analytics** view and click \"**+ Add Goal**\" to set your objectives."
+                },
+                {
+                    heading: "Conclusion",
+                    content: "Setting SMART goals will provide clear direction and motivate consistent effort."
+                }
+            ]
+        },
+        'data-management': {
+            title: "Data Backup & Import",
+            isDetailedGuide: true,
+            steps: [
+                {
+                    heading: "Main Info",
+                    content: "AuraLearn stores all your data locally in your browser's storage. While convenient, it's a good practice to back up your data regularly."
+                },
+                {
+                    heading: "How to Export Your Data",
+                    content: "In the **Settings** view, click the \"**Export Data**\" button. This will download a JSON file containing all your user profile, flashcards, subjects, AI materials, glossary, and mind maps. *Recommendation: Store this file in a safe place, like cloud storage (Google Drive, Dropbox) or an external hard drive.*"
+                },
+                {
+                    heading: "How to Import Your Data",
+                    content: "To restore your data, go to **Settings** and click \"**Import Data**\". Select the JSON file you previously exported. **Warning:** Importing data will replace your current AuraLearn data. Only import data you trust and intend to use. *This method does not merge data; it overwrites.*"
+                },
+                {
+                    heading: "Conclusion",
+                    content: "Regular backups ensure your hard work and learning progress are never lost!"
+                }
+            ]
+        },
+        'dashboard': { // Matches mockData.tutorialContent.dashboard
+            title: "Dashboard Overview",
+            steps: mockData.tutorialContent.dashboard.steps.map(step => ({
+                title: step.heading,
+                content: step.content,
+                targetElement: step.highlightElementId
+            }))
+        },
+        'library': { // Matches mockData.tutorialContent.library
+            title: "Library & Flashcards",
+            steps: mockData.tutorialContent.library.steps.map(step => ({
+                title: step.heading,
+                content: step.content,
+                targetElement: step.highlightElementId
+            }))
+        },
+        'ai-learning': { // Matches mockData.tutorialContent.ai-learning
+            title: "AI Learning Studio",
+            steps: mockData.tutorialContent['ai-learning'].steps.map(step => ({
+                title: step.heading,
+                content: step.content,
+                targetElement: step.highlightElementId
+            }))
+        },
+        'focus-tools': { // Matches mockData.tutorialContent.focus-tools
+            title: "Focus Tools",
+            steps: mockData.tutorialContent['focus-tools'].steps.map(step => ({
+                title: step.heading,
+                content: step.content,
+                targetElement: step.highlightElementId
+            }))
+        }
+    };
+
+
+    /**
+     * Starts a specific tutorial tour.
+     * @param {string} tourId - The ID of the tutorial tour to start.
+     */
+    function startTutorialTour(tourId) {
+        if (!tutorialTours[tourId]) {
+            showNotification('Tutorial tour not found.', true);
+            return;
+        }
+        appState.currentTutorial = tutorialTours[tourId];
+        appState.currentTutorialStep = 0;
+        showTutorialStep(appState.currentTutorialStep);
+        showModal(tutorialStepModal);
+        // Ensure the tutorial view is loaded when a tour starts from elsewhere (e.g., onboarding)
+        if (appState.currentView !== 'tutorial') {
+            loadView('tutorial');
+        }
+    }
+
+    /**
+     * Displays a specific step of the active tutorial.
+     * @param {number} stepIndex - The index of the step to display.
+     */
+    function showTutorialStep(stepIndex) {
+        if (!appState.currentTutorial || stepIndex < 0 || stepIndex >= appState.currentTutorial.steps.length) {
+            hideModal(tutorialStepModal);
+            appState.currentTutorial = null;
+            appState.currentTutorialStep = 0;
+            // Remove all highlights when tutorial ends or closes
+            document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+            return;
+        }
+
+        const step = appState.currentTutorial.steps[stepIndex];
+        tutorialStepTitle.textContent = step.title;
+
+        // Use marked.js for Markdown parsing if available
+        if (typeof marked !== 'undefined') {
+            tutorialStepContent.innerHTML = marked.parse(step.content);
+        } else {
+            tutorialStepContent.textContent = step.content; // Fallback to plain text
+        }
+
+        appState.currentTutorialStep = stepIndex;
+
+        // Update navigation buttons
+        tutorialPrevBtn.classList.toggle('hidden', appState.currentTutorialStep === 0);
+        tutorialNextBtn.classList.toggle('hidden', appState.currentTutorialStep >= appState.currentTutorial.steps.length - 1);
+        tutorialFinishBtn.classList.toggle('hidden', appState.currentTutorialStep < appState.currentTutorial.steps.length - 1);
+
+        // Highlight target element if specified
+        document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight')); // Clear previous highlights
+        if (step.targetElement) {
+            const target = document.getElementById(step.targetElement) || document.querySelector(step.targetElement);
+            if (target) {
+                target.classList.add('tutorial-highlight');
+                // Ensure the target element is visible in the main content area
+                const mainContent = document.querySelector('main');
+                if (mainContent) {
+                    const rect = target.getBoundingClientRect();
+                    const mainRect = mainContent.getBoundingClientRect();
+
+                    // Check if element is outside the visible main area
+                    if (rect.top < mainRect.top || rect.bottom > mainRect.bottom || rect.left < mainRect.left || rect.right > mainRect.right) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }
+        }
+    }
+
+
     // --- Event Listeners ---
 
     // Navigation
@@ -3645,9 +3909,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // AI Learning Studio
     aiInputModeToggle.addEventListener('change', toggleAiInputMode);
-    generateAiNotesBtn.addEventListener('click', () => generateAiContent('notes'));
+    generateAiNotesBtn.addEventListener('click', () => {
+        generateAiContent('notes');
+        mockData.user.generatedFirstNotes = true; // Set achievement flag
+        checkAchievements();
+    });
     generateNotesFlashcardsBtn.addEventListener('click', () => generateAiContent('flashcards'));
-    generateQuizBtn.addEventListener('click', () => generateAiContent('quiz'));
+    generateQuizBtn.addEventListener('click', () => {
+        generateAiContent('quiz');
+        mockData.user.completedFirstQuiz = true; // Set achievement flag
+        checkAchievements();
+    });
     extractKeywordsBtn.addEventListener('click', () => generateAiContent('keywords'));
     predictExamQuestionsBtn.addEventListener('click', () => generateAiContent('exam-questions'));
     summarizeContentBtn.addEventListener('click', () => generateAiContent('summary'));
@@ -3685,7 +3957,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mindMapCanvas.addEventListener('mousemove', handleMouseMove);
         mindMapCanvas.addEventListener('mouseup', handleMouseUp);
         mindMapCanvas.addEventListener('dblclick', handleDblClick);
-        mindMapCanvas.addEventListener('wheel', handleMouseWheel); // For zoom
+        mindMapCanvas.addEventListener('wheel', handleMouseWheel, { passive: false }); // For zoom
         // Touch events
         mindMapCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
         mindMapCanvas.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -3743,6 +4015,68 @@ document.addEventListener('DOMContentLoaded', () => {
     exportDataBtn.addEventListener('click', exportAllData);
     importDataBtn.addEventListener('click', () => importDataInput.click()); // Trigger file input click
     importDataInput.addEventListener('change', importAllData);
+
+    // Tutorial Tour & Detailed Guides event listeners
+    tutorialTourButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tourId = button.dataset.tour;
+            if (tourId) {
+                startTutorialTour(tourId);
+            } else {
+                showNotification('No tutorial tour specified for this button.', true);
+            }
+        });
+    });
+
+    tutorialDetailedGuideItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const guideId = item.dataset.guide;
+            // Assuming detailed guides are also part of tutorialTours for consistent display
+            if (tutorialTours[guideId]) {
+                startTutorialTour(guideId);
+            } else {
+                // Fallback or specific handling if not structured as a full tour
+                showNotification(`Detailed guide for "${item.textContent.trim()}" is not yet implemented or structured as a full tour.`, true);
+                // Optionally, load content directly into detailModal if it's just raw HTML/text
+                // showLearningHubDetail(mockData.tutorialContent[guideId]); // Example if you structure it this way
+            }
+        });
+    });
+
+    tutorialPrevBtn.addEventListener('click', () => {
+        if (appState.currentTutorial && appState.currentTutorialStep > 0) {
+            showTutorialStep(appState.currentTutorialStep - 1);
+        }
+    });
+
+    tutorialNextBtn.addEventListener('click', () => {
+        if (appState.currentTutorial && appState.currentTutorialStep < appState.currentTutorial.steps.length - 1) {
+            showTutorialStep(appState.currentTutorialStep + 1);
+        } else if (appState.currentTutorial && appState.currentTutorialStep === appState.currentTutorial.steps.length - 1) {
+            hideModal(tutorialStepModal);
+            appState.currentTutorial = null;
+            appState.currentTutorialStep = 0;
+            document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+            showNotification("Tutorial tour completed!");
+        }
+    });
+
+    tutorialFinishBtn.addEventListener('click', () => {
+        hideModal(tutorialStepModal);
+        appState.currentTutorial = null;
+        appState.currentTutorialStep = 0;
+        document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+        showNotification("Tutorial tour completed!");
+    });
+
+    closeTutorialStepModalBtn.addEventListener('click', () => {
+        hideModal(tutorialStepModal);
+        appState.currentTutorial = null;
+        appState.currentTutorialStep = 0;
+        document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+        showNotification("Tutorial tour closed.");
+    });
+
 
     // Init App
     // Ensure all data is loaded and merged from localStorage (if exists) or initialized
