@@ -4,826 +4,1464 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AuraLearn: Intelligent Learning Architect</title>
-    <!-- Tailwind CSS CDN for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN for analytics charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Link to your custom CSS file -->
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="theme-light">
-    <div id="app-container" class="flex h-screen">
-        <!-- Sidebar Navigation -->
-        <aside id="sidebar" class="w-64 bg-secondary border-r border-border-color flex-shrink-0 flex-col hidden md:flex">
-            <div class="p-4 border-b border-border-color">
-                <h1 class="text-2xl font-bold text-primary">AuraLearn</h1>
-                <p class="text-xs text-secondary">Intelligent Learning Architect</p>
-            </div>
-            <nav class="flex-grow p-4">
-                <ul class="space-y-2">
-                    <li><a href="#" data-view="dashboard" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">🏠</span>Dashboard</a></li>
-                    <li><a href="#" data-view="calendar" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">📅</span>Calendar</a></li> <!-- New Calendar Link -->
-                    <li><a href="#" data-view="library" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">📚</span>Library</a></li>
-                    <li><a href="#" data-view="ai-learning" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">✨</span>AI Learning</a></li>
-                    <li><a href="#" data-view="mind-map" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">🗺️</span>Mind Map</a></li>
-                    <li><a href="#" data-view="glossary" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">📖</span>Glossary</a></li>
-                    <li><a href="#" data-view="analytics" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">📊</span>Analytics</a></li>
-                    <li><a href="#" data-view="achievements" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">🏅</span>Achievements</a></li>
-                    <li><a href="#" data-view="focus" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">🎧</span>Focus Tools</a></li>
-                    <li><a href="#" data-view="learning-hub" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">🧠</span>Learning Hub</a></li>
-                    <li><a href="#" data-view="settings" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">⚙️</span>Settings</a></li>
-                    <li><a href="#" data-view="tutorial" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <span class="w-6 h-6 mr-3">💡</span>Tutorial</a></li>
-                </ul>
-            </nav>
-            <div class="p-4 border-t border-border-color">
-                <div class="flex items-center">
-                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold mr-3">U</div>
-                    <div>
-                        <p class="font-semibold text-primary" id="sidebar-username">User</p>
-                        <a href="#" data-view="settings" class="nav-item text-sm text-accent-blue hover:underline">Settings</a>
-                    </div>
-                </div>
-            </div>
-        </aside>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
-        <!-- Mobile Header -->
-        <header class="md:hidden bg-secondary border-b border-border-color p-4 flex justify-between items-center w-full fixed top-0 z-20">
+    <style>
+        /* Base styles using Inter font */
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Theme Variables - Default Light */
+        .theme-light {
+            --bg-primary: #f8fafc; /* Slate 50 */
+            --bg-secondary: #ffffff; /* White */
+            --text-primary: #0f172a; /* Slate 900 */
+            --text-secondary: #64748b; /* Slate 500 */
+            --border-color: #e2e8f0; /* Slate 200 */
+            --accent-blue: #2563eb; /* Blue 600 */
+            --accent-blue-hover: #1d4ed8; /* Blue 700 */
+            --nav-active-bg: #e2e8f0; /* Slate 200 */
+            --nav-active-text: #0f172a; /* Slate 900 */
+            --card-front-bg: #ffffff;
+            --card-back-bg: #ffffff;
+            --input-bg: #ffffff;
+            --input-text: #0f172a;
+            --placeholder-text: #94a3b8; /* Slate 400 */
+            --notification-bg: #e0f2f7; /* Cyan 50 */
+            --notification-text: #0e7490; /* Cyan 700 */
+            --notification-error-bg: #fee2e2; /* Red 100 */
+            --notification-error-text: #dc2626; /* Red 600 */
+            --button-primary-bg: #2563eb;
+            --button-primary-text: #ffffff;
+            --button-primary-hover-bg: #1d4ed8;
+            --text-green: #22c55e; /* Green 500 */
+            --text-orange: #f97316; /* Orange 500 */
+            --connection-color: #64748b; /* Slate 500 for mind map connections */
+            --node-bg: #cbd5e1; /* Slate 300 for mind map nodes */
+            --node-border: #94a3b8; /* Slate 400 */
+            --node-selected-border: #2563eb; /* Accent blue */
+            --node-text: #0f172a; /* Slate 900 */
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --modal-bg: #ffffff;
+        }
+
+        /* Dark Theme */
+        .theme-dark {
+            --bg-primary: #1e293b; /* Slate 800 */
+            --bg-secondary: #334155; /* Slate 700 */
+            --text-primary: #f8fafc; /* Slate 50 */
+            --text-secondary: #94a3b8; /* Slate 400 */
+            --border-color: #475569; /* Slate 600 */
+            --accent-blue: #60a5fa; /* Blue 400 */
+            --accent-blue-hover: #3b82f6; /* Blue 500 */
+            --nav-active-bg: #475569; /* Slate 600 */
+            --nav-active-text: #f8fafc; /* Slate 50 */
+            --card-front-bg: #334155;
+            --card-back-bg: #334155;
+            --input-bg: #334155;
+            --input-text: #f8fafc;
+            --placeholder-text: #64748b;
+            --notification-bg: #0f172a; /* Slate 900 */
+            --notification-text: #60a5fa; /* Blue 400 */
+            --notification-error-bg: #dc2626; /* Red 600 */
+            --notification-error-text: #f8fafc; /* Slate 50 */
+            --button-primary-bg: #60a5fa;
+            --button-primary-text: #1e293b;
+            --button-primary-hover-bg: #3b82f6;
+            --text-green: #4ade80; /* Green 400 */
+            --text-orange: #fb923c; /* Orange 400 */
+            --connection-color: #94a3b8;
+            --node-bg: #475569;
+            --node-border: #64748b;
+            --node-selected-border: #60a5fa;
+            --node-text: #f8fafc;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.7);
+            --modal-bg: #334155;
+        }
+
+        /* Vibrant Theme */
+        .theme-vibrant {
+            --bg-primary: #ecfeff; /* Cyan 50 */
+            --bg-secondary: #ffffff; /* White */
+            --text-primary: #083344; /* Cyan 950 */
+            --text-secondary: #0e7490; /* Cyan 700 */
+            --border-color: #a5f3fc; /* Cyan 200 */
+            --accent-blue: #06b6d4; /* Cyan 500 */
+            --accent-blue-hover: #0891b2; /* Cyan 600 */
+            --nav-active-bg: #a5f3fc; /* Cyan 200 */
+            --nav-active-text: #083344; /* Cyan 950 */
+            --card-front-bg: #ffffff;
+            --card-back-bg: #ffffff;
+            --input-bg: #ffffff;
+            --input-text: #083344;
+            --placeholder-text: #22d3ee; /* Cyan 400 */
+            --notification-bg: #cffafe; /* Cyan 100 */
+            --notification-text: #0e7490; /* Cyan 700 */
+            --notification-error-bg: #fecaca; /* Red 200 */
+            --notification-error-text: #ef4444; /* Red 500 */
+            --button-primary-bg: #06b6d4;
+            --button-primary-text: #ffffff;
+            --button-primary-hover-bg: #0891b2;
+            --text-green: #10b981; /* Emerald 500 */
+            --text-orange: #f59e0b; /* Amber 500 */
+            --connection-color: #0e7490;
+            --node-bg: #67e8f9; /* Cyan 400 */
+            --node-border: #22d3ee; /* Cyan 500 */
+            --node-selected-border: #06b6d4; /* Accent cyan */
+            --node-text: #083344;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --modal-bg: #ffffff;
+        }
+
+        /* Forest Green Theme */
+        .theme-forest-green {
+            --bg-primary: #f0fdf4; /* Emerald 50 */
+            --bg-secondary: #dcfce7; /* Emerald 100 */
+            --text-primary: #064e3b; /* Emerald 900 */
+            --text-secondary: #047857; /* Emerald 700 */
+            --border-color: #a7f3d0; /* Emerald 200 */
+            --accent-blue: #10b981; /* Emerald 600 */
+            --accent-blue-hover: #059669; /* Emerald 700 */
+            --nav-active-bg: #a7f3d0; /* Emerald 200 */
+            --nav-active-text: #064e3b; /* Emerald 900 */
+            --card-front-bg: #ecfdf5;
+            --card-back-bg: #ecfdf5;
+            --input-bg: #dcfce7;
+            --input-text: #064e3b;
+            --placeholder-text: #34d399; /* Emerald 400 */
+            --notification-bg: #d1fae5; /* Green 100 */
+            --notification-text: #065f46; /* Green 700 */
+            --notification-error-bg: #fecaca; /* Red 200 */
+            --notification-error-text: #ef4444; /* Red 500 */
+            --button-primary-bg: #10b981;
+            --button-primary-text: #ffffff;
+            --button-primary-hover-bg: #059669;
+            --text-green: #22c55e;
+            --text-orange: #f97316;
+            --connection-color: #047857;
+            --node-bg: #34d399;
+            --node-border: #10b981;
+            --node-selected-border: #059669;
+            --node-text: #064e3b;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --modal-bg: #ffffff;
+        }
+
+        /* Ocean Blue Theme */
+        .theme-ocean-blue {
+            --bg-primary: #eff6ff; /* Blue 50 */
+            --bg-secondary: #dbeafe; /* Blue 100 */
+            --text-primary: #1e3a8a; /* Blue 900 */
+            --text-secondary: #2563eb; /* Blue 600 */
+            --border-color: #bfdbfe; /* Blue 200 */
+            --accent-blue: #3b82f6; /* Blue 500 */
+            --accent-blue-hover: #2563eb; /* Blue 600 */
+            --nav-active-bg: #bfdbfe; /* Blue 200 */
+            --nav-active-text: #1e3a8a; /* Blue 900 */
+            --card-front-bg: #e0f2fe;
+            --card-back-bg: #e0f2fe;
+            --input-bg: #dbeafe;
+            --input-text: #1e3a8a;
+            --placeholder-text: #60a5fa; /* Blue 400 */
+            --notification-bg: #e0f2fe; /* Light Blue 100 */
+            --notification-text: #1d4ed8; /* Blue 700 */
+            --notification-error-bg: #fecaca; /* Red 200 */
+            --notification-error-text: #ef4444; /* Red 500 */
+            --button-primary-bg: #3b82f6;
+            --button-primary-text: #ffffff;
+            --button-primary-hover-bg: #2563eb;
+            --text-green: #22c55e;
+            --text-orange: #f97316;
+            --connection-color: #2563eb;
+            --node-bg: #60a5fa;
+            --node-border: #3b82f6;
+            --node-selected-border: #2563eb;
+            --node-text: #1e3a8a;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --modal-bg: #ffffff;
+        }
+
+
+        /* Apply variables */
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .text-primary { color: var(--text-primary); }
+        .text-secondary { color: var(--text-secondary); }
+        .bg-primary { background-color: var(--bg-primary); }
+        .bg-secondary { background-color: var(--bg-secondary); }
+        .border-border-color { border-color: var(--border-color); }
+        .accent-blue { color: var(--accent-blue); }
+        .bg-accent-blue { background-color: var(--accent-blue); }
+        .hover\:bg-accent-blue-hover:hover { background-color: var(--accent-blue-hover); }
+        .nav-item-active {
+            background-color: var(--nav-active-bg);
+            color: var(--nav-active-text);
+        }
+        .flashcard-front, .flashcard-back {
+            background-color: var(--card-front-bg);
+        }
+        .input-themed {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border-color: var(--border-color);
+        }
+        .input-themed::placeholder {
+            color: var(--placeholder-text);
+        }
+        .list-item-themed {
+            background-color: var(--bg-secondary);
+            border-color: var(--border-color);
+        }
+        .hover\:list-item-themed:hover {
+            background-color: var(--nav-active-bg);
+        }
+        .notification-toast {
+            background-color: var(--notification-bg);
+            color: var(--notification-text);
+        }
+        .notification-toast.error {
+            background-color: var(--notification-error-bg);
+            color: var(--notification-error-text);
+        }
+        .button-primary {
+            background-color: var(--button-primary-bg);
+            color: var(--button-primary-text);
+        }
+        .button-primary:hover {
+            background-color: var(--button-primary-hover-bg);
+        }
+        .text-green-600 { color: var(--text-green); }
+        .text-orange-500 { color: var(--text-orange); }
+
+        /* General layout */
+        #app-container {
+            display: flex;
+            min-height: 100vh;
+            border-radius: 1rem; /* Rounded corners for the whole app */
+            overflow: hidden;
+        }
+
+        aside {
+            width: 250px;
+            flex-shrink: 0;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border-top-left-radius: 1rem;
+            border-bottom-left-radius: 1rem;
+        }
+
+        main {
+            flex-grow: 1;
+            padding: 1.5rem;
+            background-color: var(--bg-primary);
+            overflow-y: auto;
+            border-top-right-radius: 1rem;
+            border-bottom-right-radius: 1rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .nav-item:hover:not(.nav-item-active) {
+            background-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .flashcard-container {
+            width: 100%;
+            height: 350px;
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            border-radius: 0.75rem; /* Rounded corners for flashcards */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .flashcard-container.flipped .flashcard {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            overflow-y: auto;
+        }
+
+        .flashcard-front {
+            background-color: var(--card-front-bg);
+            color: var(--text-primary);
+        }
+
+        .flashcard-back {
+            background-color: var(--card-back-bg);
+            color: var(--text-primary);
+            transform: rotateY(180deg);
+        }
+
+        .quiz-option-btn, .soundscape-btn {
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background-color 0.2s, border-color 0.2s;
+            border-radius: 0.5rem;
+        }
+
+        .quiz-option-btn:hover, .soundscape-btn:hover {
+            background-color: var(--nav-active-bg);
+            border-color: var(--accent-blue);
+        }
+
+        .quiz-option-btn.selected {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px var(--accent-blue);
+        }
+
+        .quiz-option-btn.correct {
+            background-color: #d1fae5; /* Green 100 */
+            border-color: #34d399; /* Green 500 */
+            color: #065f46; /* Green 900 */
+        }
+
+        .quiz-option-btn.incorrect {
+            background-color: #fee2e2; /* Red 100 */
+            border-color: #ef4444; /* Red 500 */
+            color: #991b1b; /* Red 900 */
+        }
+
+        /* Modal styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-overlay-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--modal-bg);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Notification Toast */
+        .notification-toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            z-index: 1001;
+            font-weight: 500;
+        }
+        .notification-toast.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Calendar Styling */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day-cell {
+            padding: 0.5rem;
+            aspect-ratio: 1 / 1; /* Make cells square */
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-day-cell:hover:not(.inactive) {
+            background-color: var(--nav-active-bg);
+            border-color: var(--accent-blue);
+        }
+
+        .calendar-day-cell.inactive {
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            opacity: 0.6;
+            cursor: not-allowed;
+            border-color: var(--border-color);
+        }
+
+        .calendar-day-cell.today {
+            background-color: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .calendar-day-cell.today .calendar-day-number {
+            color: white;
+        }
+
+        .calendar-day-cell.selected-day:not(.today) {
+            border: 2px solid var(--accent-blue);
+            box-shadow: 0 0 0 2px var(--accent-blue);
+        }
+
+        .calendar-day-number {
+            font-weight: 600;
+            color: var(--text-primary);
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            font-size: 0.875rem; /* text-sm */
+        }
+
+        .calendar-event-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-top: 0.25rem;
+            font-size: 0.625rem; /* text-xs */
+            color: var(--text-secondary);
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .calendar-event-marker {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .calendar-event-item.event-type-assignment .calendar-event-marker { background-color: #ef4444; /* Red */ }
+        .calendar-event-item.event-type-exam .calendar-event-marker { background-color: #f97316; /* Orange */ }
+        .calendar-event-item.event-type-study .calendar-event-marker { background-color: #22c55e; /* Green */ }
+        .calendar-event-item.event-type-other .calendar-event-marker { background-color: #6366f1; /* Indigo */ }
+
+        /* Event List for Day */
+        .events-for-day-list li {
+            position: relative;
+        }
+        .events-for-day-list li.event-type-assignment .calendar-event-marker { background-color: #ef4444; }
+        .events-for-day-list li.event-type-exam .calendar-event-marker { background-color: #f97316; }
+        .events-for-day-list li.event-type-study .calendar-event-marker { background-color: #22c55e; }
+        .events-for-day-list li.event-type-other .calendar-event-marker { background-color: #6366f1; }
+
+        /* Mind Map Canvas */
+        #mind-map-canvas {
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            border-radius: 0.75rem;
+            width: 100%;
+            height: 500px; /* Or adjust as needed */
+            touch-action: none; /* Prevent browser touch actions like scrolling */
+        }
+
+        /* Achievements */
+        .achievement-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .achievement-card .icon {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+        }
+        .achievement-card h4 {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .achievement-card p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .achievement-card.locked {
+            filter: grayscale(80%);
+            opacity: 0.7;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            aside {
+                display: none; /* Hide sidebar by default on smaller screens */
+            }
+            main {
+                flex-grow: 1;
+                border-radius: 0; /* No rounded corners for main if sidebar is hidden */
+            }
+            .mobile-header {
+                display: flex; /* Show mobile header */
+            }
+            #app-container {
+                border-radius: 0;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            aside {
+                display: flex; /* Show sidebar on larger screens */
+            }
+            .mobile-header {
+                display: none; /* Hide mobile header */
+            }
+        }
+
+        /* Mobile Sidebar specific styles */
+        #mobile-sidebar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-overlay-bg);
+            z-index: 1000;
+        }
+        #mobile-sidebar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Hide scrollbar for entire app, but allow content to scroll if needed */
+        body {
+            overflow: hidden; /* Hide main body scrollbar */
+        }
+        main {
+            overflow-y: auto; /* Allow scrolling within the main content area */
+        }
+
+        /* Custom styles for theme buttons in settings */
+        .theme-btn[data-theme="light"] { background-color: #f8fafc; color: #0f172a; }
+        .theme-btn[data-theme="dark"] { background-color: #1e293b; color: #f8fafc; }
+        .theme-btn[data-theme="vibrant"] { background-color: #06b6d4; color: #ffffff; }
+        .theme-btn[data-theme="forest-green"] { background-color: #10b981; color: #ffffff; }
+        .theme-btn[data-theme="ocean-blue"] { background-color: #3b82f6; color: #ffffff; }
+    </style>
+</head>
+<body class="bg-primary text-primary antialiased">
+    <!-- Main Application Container -->
+    <div id="app-container" class="flex flex-col lg:flex-row min-h-screen w-full mx-auto shadow-lg rounded-2xl">
+
+        <!-- Mobile Header (Visible on smaller screens) -->
+        <header class="mobile-header lg:hidden flex items-center justify-between p-4 bg-secondary border-b border-border-color rounded-t-2xl">
             <h1 class="text-xl font-bold text-primary">AuraLearn</h1>
-            <button id="menu-button" class="p-2"><span class="text-2xl">☰</span></button>
+            <button id="menu-button" class="p-2 rounded-md hover:bg-border-color text-primary">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
         </header>
 
-        <!-- Mobile Sidebar -->
-        <div id="mobile-sidebar-container" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden modal">
-            <aside id="mobile-sidebar" class="w-64 bg-secondary h-full flex-shrink-0 flex-col flex transition-transform transform -translate-x-full">
-                 <div class="p-4 border-b border-border-color flex justify-between items-center">
-                    <div><h1 class="text-2xl font-bold text-primary">AuraLearn</h1><p class="text-xs text-secondary">Intelligent Learning Architect</p></div>
-                    <button id="close-menu-button" class="p-2"><span class="text-2xl">&times;</span></button>
+        <!-- Mobile Sidebar (Hidden by default, shown via menu button) -->
+        <div id="mobile-sidebar-container" class="hidden">
+            <aside id="mobile-sidebar" class="w-64 bg-secondary p-6 shadow-xl fixed h-full z-50 rounded-r-2xl">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-2xl font-bold text-primary">AuraLearn</h2>
+                    <button id="close-menu-button" class="p-2 rounded-md hover:bg-border-color text-primary">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
                 </div>
-                 <nav class="flex-grow p-4">
-                    <ul class="space-y-2">
-                        <li><a href="#" data-view="dashboard" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">🏠</span>Dashboard</a></li>
-                        <li><a href="#" data-view="calendar" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">📅</span>Calendar</a></li> <!-- New Mobile Calendar Link -->
-                        <li><a href="#" data-view="library" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">📚</span>Library</a></li>
-                        <li><a href="#" data-view="ai-learning" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">✨</span>AI Learning</a></li>
-                        <li><a href="#" data-view="mind-map" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">🗺️</span>Mind Map</a></li>
-                        <li><a href="#" data-view="glossary" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">📖</span>Glossary</a></li>
-                        <li><a href="#" data-view="analytics" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">📊</span>Analytics</a></li>
-                        <li><a href="#" data-view="achievements" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">🏅</span>Achievements</a></li>
-                        <li><a href="#" data-view="focus" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">🎧</span>Focus Tools</a></li>
-                        <li><a href="#" data-view="learning-hub" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">🧠</span>Learning Hub</a></li>
-                        <li><a href="#" data-view="settings" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">⚙️</span>Settings</a></li>
-                        <li><a href="#" data-view="tutorial" class="nav-item flex items-center p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <span class="w-6 h-6 mr-3">💡</span>Tutorial</a></li>
-                    </ul>
+                <nav class="flex-grow">
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="dashboard">
+                        <i class="fas fa-home fa-lg"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="calendar">
+                        <i class="fas fa-calendar-alt fa-lg"></i>
+                        <span>Calendar</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="library">
+                        <i class="fas fa-book-open fa-lg"></i>
+                        <span>Library</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="ai-learning">
+                        <i class="fas fa-robot fa-lg"></i>
+                        <span>AI Learning Studio</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="mind-map">
+                        <i class="fas fa-brain fa-lg"></i>
+                        <span>Mind Map</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="glossary">
+                        <i class="fas fa-file-alt fa-lg"></i>
+                        <span>Glossary</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="analytics">
+                        <i class="fas fa-chart-line fa-lg"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="achievements">
+                        <i class="fas fa-trophy fa-lg"></i>
+                        <span>Achievements</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="focus">
+                        <i class="fas fa-lightbulb fa-lg"></i>
+                        <span>Focus Tools</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="learning-hub">
+                        <i class="fas fa-graduation-cap fa-lg"></i>
+                        <span>Learning Hub</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="settings">
+                        <i class="fas fa-cog fa-lg"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="tutorial">
+                        <i class="fas fa-question-circle fa-lg"></i>
+                        <span>Tutorial</span>
+                    </a>
                 </nav>
-                <div class="p-4 border-t border-border-color">
-                     <div class="flex items-center">
-                        <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold mr-3">U</div>
-                        <div>
-                            <p class="font-semibold text-primary" id="sidebar-username-mobile">User</p>
-                            <a href="#" data-view="settings" class="nav-item text-sm text-accent-blue hover:underline">Settings</a>
-                        </div>
-                    </div>
+                <div class="mt-8 pt-4 border-t border-border-color">
+                    <p class="text-sm text-secondary">Logged in as:</p>
+                    <p id="sidebar-username-mobile" class="font-semibold text-primary"></p>
                 </div>
             </aside>
         </div>
 
-        <main class="flex-grow p-4 sm:p-6 lg:p-8 overflow-y-auto pt-20 md:pt-6">
-            <div class="fixed top-4 right-4 z-40 md:static md:mb-6 md:flex md:justify-end">
-                <input type="text" id="global-search-input" placeholder="Search atoms or learning hub..." class="p-2 border border-border-color rounded-lg shadow-sm w-48 md:w-64 bg-input-bg text-input-text focus:outline-none focus:ring-2 focus:ring-accent-blue">
+        <!-- Desktop Sidebar (Always visible on larger screens) -->
+        <aside class="hidden lg:flex w-64 bg-secondary p-6 flex-col justify-between rounded-l-2xl">
+            <div>
+                <h2 class="text-2xl font-bold text-primary mb-8">AuraLearn</h2>
+                <nav>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="dashboard">
+                        <i class="fas fa-home fa-lg"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="calendar">
+                        <i class="fas fa-calendar-alt fa-lg"></i>
+                        <span>Calendar</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="library">
+                        <i class="fas fa-book-open fa-lg"></i>
+                        <span>Library</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="ai-learning">
+                        <i class="fas fa-robot fa-lg"></i>
+                        <span>AI Learning Studio</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="mind-map">
+                        <i class="fas fa-brain fa-lg"></i>
+                        <span>Mind Map</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="glossary">
+                        <i class="fas fa-file-alt fa-lg"></i>
+                        <span>Glossary</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="analytics">
+                        <i class="fas fa-chart-line fa-lg"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="achievements">
+                        <i class="fas fa-trophy fa-lg"></i>
+                        <span>Achievements</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="focus">
+                        <i class="fas fa-lightbulb fa-lg"></i>
+                        <span>Focus Tools</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="learning-hub">
+                        <i class="fas fa-graduation-cap fa-lg"></i>
+                        <span>Learning Hub</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="settings">
+                        <i class="fas fa-cog fa-lg"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#" class="nav-item flex items-center gap-3" data-view="tutorial">
+                        <i class="fas fa-question-circle fa-lg"></i>
+                        <span>Tutorial</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="mt-8 pt-4 border-t border-border-color">
+                <p class="text-sm text-secondary">Logged in as:</p>
+                <p id="sidebar-username" class="font-semibold text-primary"></p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow p-6 sm:p-8 md:p-10 rounded-r-2xl overflow-y-auto">
+            <!-- Global Search Bar -->
+            <div class="mb-6">
+                <input type="text" id="global-search-input" placeholder="Search flashcards, notes, concepts..."
+                    class="w-full p-3 rounded-lg border border-border-color input-themed focus:outline-none focus:ring-2 focus:ring-accent-blue">
             </div>
 
-            <!-- Dashboard View -->
-            <div id="view-dashboard" class="space-y-8">
-                <div id="backup-reminder" class="bg-yellow-100 text-yellow-800 p-3 rounded-lg border border-yellow-200 text-center hidden">
-                    <p class="text-sm">Don't forget to <a href="#" data-view="settings" class="font-semibold underline">export your data</a> regularly for backup!</p>
-                </div>
-                <div>
-                    <h2 class="text-3xl font-bold text-primary">Welcome back, <span id="dashboard-username">User</span>!</h2>
-                    <p class="text-secondary mt-1">Here's your learning snapshot for today, highlighting key progress and ready actions.</p>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                        <h3 class="text-sm font-medium text-secondary">Daily Learning Queue</h3>
-                        <p class="text-3xl font-bold text-primary mt-2" id="daily-queue-count">0 Atoms</p>
-                        <p class="text-xs text-secondary mt-1">Ready for optimal review</p>
-                    </div>
-                    <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                        <h3 class="text-sm font-medium text-secondary">Current Learning Streak</h3>
-                        <p class="text-3xl font-bold text-primary mt-2" id="current-streak">🔥 0 Days</p>
-                        <p class="text-xs text-secondary mt-1">Consistency builds mastery!</p>
-                    </div>
-                    <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                        <h3 class="text-sm font-medium text-secondary">Total Atoms Mastered</h3>
-                        <p class="text-3xl font-bold text-primary mt-2" id="total-mastered-atoms">0</p>
-                        <p class="text-xs text-secondary mt-1">Knowledge that sticks</p>
-                    </div>
-                    <!-- New: Upcoming Events Card -->
-                    <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                        <h3 class="text-sm font-medium text-secondary">Upcoming Events (7 Days)</h3>
-                        <p class="text-3xl font-bold text-primary mt-2" id="upcoming-events-count">0</p>
-                        <p class="text-xs text-secondary mt-1">Assignments, exams & more</p>
-                    </div>
-                </div>
-                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3">
-                        <h3 class="text-xl font-bold text-primary">Today's Intelligent Review</h3>
-                        <div class="flex flex-col sm:flex-row gap-2">
-                             <button id="quick-add-atom-btn-dashboard" class="bg-accent-blue text-white text-sm font-semibold py-1.5 px-3 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                                + Quick Add Atom
-                            </button>
-                            <button id="study-weak-atoms-btn" class="bg-orange-500 text-white text-sm font-semibold py-1.5 px-3 rounded-lg hover:bg-orange-600 transition-all shadow-md">
-                                Study Weak Atoms (0)
-                            </button>
-                        </div>
-                    </div>
-                    <p class="text-secondary mt-1">Your personalized, prioritized list based on AuraLearn's Spaced Repetition algorithm.</p>
-                    <ul id="daily-queue-list" class="mt-4 space-y-3"></ul>
-                    <button id="start-review-btn" class="mt-6 w-full bg-accent-blue text-white font-semibold py-3 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md hover:shadow-lg">
-                        Start Daily Review (0 items)
-                    </button>
-                </div>
+            <!-- View: Dashboard -->
+            <section id="view-dashboard" class="view-section">
+                <h1 class="text-3xl font-bold mb-6 text-primary">Welcome Back, <span id="dashboard-username"></span>!</h1>
 
-                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                    <h3 class="text-xl font-bold text-primary mb-4">Recommended for You</h3>
-                    <p class="text-secondary mb-4">Based on your learning patterns, here are some atoms AuraLearn recommends you focus on next.</p>
-                    <div id="recommended-atoms-list" class="space-y-3">
-                        <p class="text-secondary text-center">No recommendations yet. Start importing content!</p>
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="p-5 bg-secondary rounded-xl shadow-sm border border-border-color">
+                        <p class="text-sm text-secondary">Daily Flashcards Due</p>
+                        <p id="daily-queue-count" class="text-2xl font-bold text-primary mt-1">0 Flashcards</p>
+                    </div>
+                    <div class="p-5 bg-secondary rounded-xl shadow-sm border border-border-color">
+                        <p class="text-sm text-secondary">Current Study Streak</p>
+                        <p id="current-streak" class="text-2xl font-bold text-primary mt-1">🔥 0 Days</p>
+                    </div>
+                    <div class="p-5 bg-secondary rounded-xl shadow-sm border border-border-color">
+                        <p class="text-sm text-secondary">Total Flashcards Mastered</p>
+                        <p id="total-mastered-atoms" class="text-2xl font-bold text-primary mt-1">0</p>
+                    </div>
+                    <div class="p-5 bg-secondary rounded-xl shadow-sm border border-border-color">
+                        <p class="text-sm text-secondary">Upcoming Events (7 days)</p>
+                        <p id="upcoming-events-count" class="text-2xl font-bold text-primary mt-1">0</p>
                     </div>
                 </div>
 
-                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                    <h3 class="text-xl font-bold text-primary mb-4">Daily Challenge</h3>
-                    <p class="text-secondary mb-4" id="daily-challenge-text">Review 5 atoms to complete today's challenge!</p>
-                    <div class="w-full bg-border-color rounded-full h-2.5">
-                        <div id="daily-challenge-progress" class="bg-green-500 h-2.5 rounded-full" style="width: 0%;"></div>
-                    </div>
-                    <p id="daily-challenge-status" class="text-secondary text-sm mt-2 text-center">0/5 Atoms Reviewed</p>
-                    <button id="claim-challenge-btn" class="mt-4 w-full bg-green-600 text-white font-semibold py-2 rounded-lg hover:bg-green-700 transition-all hidden">Claim Reward!</button>
-                </div>
-            </div>
-
-            <!-- Calendar View (New) -->
-            <div id="view-calendar" class="hidden space-y-6">
-                <div>
-                    <h2 class="text-3xl font-bold text-primary">Learning Calendar</h2>
-                    <p class="text-secondary mt-1">Organize your assignments, exams, and study sessions.</p>
-                </div>
-                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                    <div class="flex justify-between items-center mb-4">
-                        <button id="prev-month-btn" class="p-2 rounded-lg hover:bg-border-color text-primary font-semibold">&lt; Prev</button>
-                        <h3 id="current-month-year" class="text-xl font-bold text-primary"></h3>
-                        <button id="next-month-btn" class="p-2 rounded-lg hover:bg-border-color text-primary font-semibold">Next &gt;</button>
-                    </div>
-                    <div class="grid grid-cols-7 gap-px text-center font-semibold text-sm text-secondary mb-2">
-                        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-                    </div>
-                    <div id="calendar-grid" class="grid grid-cols-7 gap-px calendar-grid-container">
-                        <!-- Calendar days will be rendered here -->
-                    </div>
-                    <button id="add-event-btn" class="mt-6 w-full bg-accent-blue text-white font-semibold py-3 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                        + Add New Event
-                    </button>
-                    <div id="selected-day-events" class="mt-8 space-y-3">
-                        <h4 class="text-xl font-bold text-primary mb-3">Events for <span id="selected-day-display">Today</span></h4>
-                        <ul id="events-list-for-day" class="space-y-2">
-                            <li class="text-secondary text-center">No events for this day.</li>
+                <!-- Daily Review & Challenge -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
+                        <h2 class="text-2xl font-bold text-primary mb-4">Daily Review</h2>
+                        <ul id="daily-queue-list" class="space-y-3">
+                            <!-- Flashcards will be injected here by JS -->
                         </ul>
+                        <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                            <button id="start-review-btn" class="button-primary px-5 py-3 rounded-lg font-semibold flex-grow">Start Daily Review</button>
+                            <button id="quick-add-atom-btn-dashboard" class="bg-blue-100 text-accent-blue px-5 py-3 rounded-lg font-semibold hover:bg-blue-200 transition-colors flex-grow">
+                                <i class="fas fa-plus mr-2"></i>Quick Add Flashcard
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Library View -->
-            <div id="view-library" class="hidden space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                    <div>
-                        <h2 class="text-3xl font-bold text-primary">Knowledge Library</h2>
-                        <p class="text-secondary mt-1">Manage and expand your personal learning content. Import documents and let AuraLearn's AI help structure your knowledge.</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button id="quick-add-atom-btn-library" class="bg-accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            + Quick Add Atom
-                        </button>
+                    <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
+                        <h2 class="text-2xl font-bold text-primary mb-4">Daily Challenge</h2>
+                        <p id="daily-challenge-text" class="text-secondary mb-3">Review 5 Flashcards to complete today's challenge!</p>
+                        <div class="w-full bg-border-color rounded-full h-3 mb-2">
+                            <div id="daily-challenge-progress" class="bg-accent-blue h-3 rounded-full" style="width: 0%;"></div>
+                        </div>
+                        <p id="daily-challenge-status" class="text-sm text-secondary mb-4">0/5 Flashcards Reviewed</p>
+                        <button id="claim-challenge-btn" class="button-primary px-5 py-3 rounded-lg font-semibold w-full hidden">Claim Reward!</button>
+                        <button id="study-weak-atoms-btn" class="bg-orange-100 text-orange-500 px-5 py-3 rounded-lg font-semibold w-full mt-3 hover:bg-orange-200 transition-colors">Study Weak Flashcards</button>
                     </div>
                 </div>
-                <div id="library-content" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                     <h3 class="text-xl font-bold text-primary mb-4">Subjects (Flashcards)</h3>
-                     <div id="subject-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
-                     <p id="empty-library-message" class="text-secondary text-center mt-8 hidden">
-                        Your library is empty! Click "Quick Add Atom" or use the "AI Learning" section to add your first learning materials.
+
+                <!-- Recommended Flashcards -->
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8">
+                    <h2 class="text-2xl font-bold text-primary mb-4">Recommended for You</h2>
+                    <div id="recommended-atoms-list" class="space-y-3">
+                        <!-- Recommended Flashcards will be injected here by JS -->
+                    </div>
+                </div>
+
+                <!-- Backup Reminder -->
+                <div id="backup-reminder" class="bg-yellow-100 text-yellow-800 p-4 rounded-lg flex items-center justify-between shadow-sm hidden">
+                    <p class="text-sm font-medium">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        It's been a while since your last data backup. Remember to export your data in settings!
                     </p>
+                    <button class="text-yellow-800 text-sm font-semibold py-1 px-3 rounded-md hover:bg-yellow-200 transition-colors" onclick="navigate('settings')">Go to Settings</button>
                 </div>
 
-                <!-- AI Materials Section -->
-                <div id="ai-materials-section" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mt-6">
-                    <h3 class="text-xl font-bold text-primary mb-4">AI-Generated Materials</h3>
-                    <div id="ai-materials-list" class="space-y-4">
-                        <p id="empty-ai-materials-message" class="text-secondary text-center">No AI-generated materials yet. Go to 'AI Learning' to create some!</p>
+            </section>
+
+            <!-- View: Calendar -->
+            <section id="view-calendar" class="view-section hidden">
+                <h1 class="text-3xl font-bold mb-6 text-primary">Your Calendar & Events</h1>
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <button id="prev-month-btn" class="p-2 rounded-full hover:bg-border-color text-primary"><i class="fas fa-chevron-left"></i></button>
+                        <h2 id="current-month-year" class="text-xl font-semibold text-primary">June 2025</h2>
+                        <button id="next-month-btn" class="p-2 rounded-full hover:bg-border-color text-primary"><i class="fas fa-chevron-right"></i></button>
                     </div>
-                </div>
-            </div>
-
-            <!-- AI Learning View -->
-            <div id="view-ai-learning" class="hidden space-y-8">
-                <div>
-                    <h2 class="text-3xl font-bold text-primary">AI Learning Studio</h2>
-                    <p class="text-secondary mt-1">Generate notes, quizzes, keywords, and exam questions using AI based on your custom input.</p>
-                </div>
-
-                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color space-y-4">
-                    <h3 class="text-xl font-bold text-primary mb-4">Content Input</h3>
-                    <div class="flex items-center space-x-2 mb-2">
-                        <input type="checkbox" id="ai-input-mode-toggle" class="form-checkbox h-4 w-4 text-accent-blue rounded">
-                        <label for="ai-input-mode-toggle" class="text-primary text-sm font-semibold">Generate from Topic Name</label>
+                    <div class="grid grid-cols-7 text-center font-semibold text-secondary mb-4">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
                     </div>
-                    <label for="ai-input-content" class="block text-primary text-sm font-semibold mb-2" id="ai-input-content-label">Provide text, a topic, or questions for the AI to process.</label>
-                    <textarea id="ai-input-content" class="w-full h-40 p-3 border border-border-color rounded-lg text-primary" placeholder="Enter text, a topic, or specific questions here... e.g., 'Explain blockchain technology', 'Summarize World War 2 causes', or 'Quiz me on React hooks'." rows="6"></textarea>
-
-                    <div>
-                        <label for="ai-content-subject-select" class="block text-primary text-sm font-semibold mb-2">Assign to Subject (Optional for categorization, required for Flashcards):</label>
-                        <select id="ai-content-subject-select" class="w-full p-3 border border-border-color rounded-lg bg-input-bg text-input-text">
-                            <option value="">Select or Add New Subject</option>
-                        </select>
-                        <input type="text" id="ai-content-new-subject-input" class="w-full mt-2 p-3 border border-border-color rounded-lg text-primary hidden" placeholder="New Subject Name">
-                        <button id="toggle-ai-content-new-subject-input" class="text-accent-blue text-sm mt-2 hover:underline">Add New Subject</button>
+                    <div id="calendar-grid" class="calendar-grid mb-6">
+                        <!-- Calendar days will be injected here by JS -->
                     </div>
 
-                    <div class="flex flex-wrap gap-3 mt-6 justify-center sm:justify-start">
-                        <button id="generate-ai-notes-btn" class="bg-accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            Generate AI Notes
-                        </button>
-                        <button id="generate-notes-flashcards-btn" class="bg-accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            Generate Flashcards
-                        </button>
-                        <button id="generate-quiz-btn" class="bg-accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            Generate Quiz
-                        </button>
-                        <button id="extract-keywords-btn" class="bg-accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            Extract Keywords
-                        </button>
-                        <button id="predict-exam-questions-btn" class="bg-accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            Predict Exam Questions
-                        </button>
-                        <button id="summarize-content-btn" class="bg-accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            Summarize Content
-                        </button>
-                    </div>
-                    <p id="ai-generation-status" class="text-secondary text-sm mt-4 text-center hidden">Processing AI...</p>
-                </div>
-
-                <div id="ai-generated-output" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color hidden">
-                    <h3 class="text-xl font-bold text-primary mb-4" id="ai-output-title">Generated Content</h3>
-                    <div id="ai-output-content-display" class="space-y-4 text-secondary formatted-ai-content">
-                        <!-- AI generated content will be displayed here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mind Map View (New) -->
-            <div id="view-mind-map" class="hidden space-y-6">
-                <div>
-                    <h2 class="text-3xl font-bold text-primary">Mind Map</h2>
-                    <p class="text-secondary mt-1">Visualize and connect your concepts. Click to add nodes, drag to move, click to connect.</p>
-                </div>
-                <div class="bg-secondary p-4 rounded-xl shadow-sm border border-border-color flex flex-col items-stretch">
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <button id="mind-map-add-node-btn" class="bg-accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            Add Node
-                        </button>
-                        <button id="mind-map-clear-all-btn" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-all shadow-md">
-                            Clear All
-                        </button>
-                        <input type="text" id="mind-map-node-text-input" placeholder="Node Text (click to add)" class="flex-grow p-2 border border-border-color rounded-lg text-primary max-w-xs">
-                        <button id="mind-map-save-btn" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-all shadow-md">
-                            Save Map
-                        </button>
-                        <select id="mind-map-load-select" class="p-2 border border-border-color rounded-lg bg-input-bg text-input-text max-w-[150px]">
-                            <option value="">Load Map</option>
-                        </select>
-                    </div>
-                    <canvas id="mind-map-canvas" class="bg-gray-100 rounded-lg border border-border-color w-full h-[600px] cursor-grab"></canvas>
-                    <p class="text-sm text-secondary mt-2">Hint: Double-click a node to edit text. Click once on a node to select, click another to connect. Drag nodes to move them.</p>
-                </div>
-            </div>
-
-            <!-- Glossary View (New) -->
-            <div id="view-glossary" class="hidden space-y-6">
-                <div>
-                    <h2 class="text-3xl font-bold text-primary">Glossary</h2>
-                    <p class="text-secondary mt-1">Your personal dictionary of key terms and definitions, extracted from your learning materials.</p>
-                </div>
-                <div id="glossary-content" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                    <input type="text" id="glossary-search-input" placeholder="Search glossary..." class="w-full p-2 border border-border-color rounded-lg mb-4 bg-input-bg text-input-text">
-                    <div id="glossary-list" class="space-y-3">
-                        <p id="empty-glossary-message" class="text-secondary text-center">Your glossary is currently empty. Use the AI Learning Studio to "Extract Keywords" from your notes!</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Analytics View -->
-            <div id="view-analytics" class="hidden space-y-8">
-                 <div>
-                    <h2 class="text-3xl font-bold text-primary">Learning Analytics</h2>
-                    <p class="text-secondary mt-1">Visualize your progress, identify trends, and gain deep insights into your study habits and knowledge retention.</p>
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                        <h3 class="font-semibold text-primary">Mastery Breakdown</h3>
-                        <div class="chart-container mt-4"><canvas id="masteryChart"></canvas></div>
-                        <p class="text-secondary text-sm mt-3">Distribution of your knowledge atoms by their current mastery level.</p>
-                    </div>
-                    <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                        <h3 class="font-semibold text-primary">Study Activity (Last 7 Days)</h3>
-                        <div class="chart-container mt-4"><canvas id="activityChart"></canvas></div>
-                        <p class="text-secondary text-sm mt-3">Hours spent on active learning, broken down by day.</p>
-                    </div>
-                </div>
-                 <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                    <h3 class="font-semibold text-primary">Knowledge Growth Over Time</h3>
-                     <div class="chart-container mt-4"><canvas id="growthChart"></canvas></div>
-                     <p class="text-secondary text-sm mt-3">Cumulative total of knowledge atoms you've mastered over the past six months.</p>
-                </div>
-                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-primary">Learning Goals</h3>
-                        <button id="add-goal-btn" class="bg-accent-blue text-white text-sm font-semibold py-1.5 px-3 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            + Add Goal
+                        <h3 class="text-xl font-bold text-primary">Events for <span id="selected-day-display">Today</span></h3>
+                        <button id="add-event-btn" class="button-primary px-4 py-2 rounded-lg font-semibold text-sm">
+                            <i class="fas fa-plus mr-2"></i>Add Event
                         </button>
                     </div>
-                    <div id="goals-list" class="space-y-4">
-                        <p id="empty-goals-message" class="text-secondary text-center hidden">No goals set yet. Click "Add Goal" to create your first objective!</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Achievements View -->
-            <div id="view-achievements" class="hidden space-y-6">
-                <div>
-                    <h2 class="text-3xl font-bold text-primary">Achievements</h2>
-                    <p class="text-secondary mt-1">Celebrate your progress and unlock badges as you master new skills!</p>
-                </div>
-                <div id="achievements-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    <p id="empty-achievements-message" class="text-secondary text-center col-span-full">No achievements unlocked yet. Keep learning!</p>
-                </div>
-            </div>
-
-            <!-- Study View (Flashcards) -->
-            <div id="view-study" class="hidden">
-                 <div class="max-w-3xl mx-auto text-center">
-                    <h2 class="text-2xl font-bold text-primary">Study Session</h2>
-                    <p class="text-secondary text-sm">AI-Powered Quizzes & Flashcards</p>
-                    <p id="study-progress-text" class="text-secondary mt-1">Atom 1 of 15</p>
-                    <div class="w-full bg-border-color rounded-full h-2.5 mt-4">
-                        <div id="study-progress-bar" class="bg-accent-blue h-2.5 rounded-full" style="width: 7%"></div>
-                    </div>
-                </div>
-                <div class="mt-8 perspective-1000">
-                    <div id="flashcard-container" class="flip-card relative w-full max-w-2xl mx-auto h-80">
-                        <div id="flashcard-front" class="flip-card-front absolute w-full h-full p-8 rounded-2xl shadow-lg border border-border-color flex flex-col justify-center items-center text-center">
-                            <p class="text-xs text-secondary mb-2" id="card-subject-front"></p>
-                            <p class="text-xl md:text-2xl font-medium text-primary" id="card-question"></p>
-                            <button id="show-answer-btn" class="absolute bottom-6 bg-primary text-white font-semibold py-2 px-6 rounded-lg hover:bg-slate-900 transition-all">Show Answer</button>
-                        </div>
-                        <div id="flashcard-back" class="flip-card-back absolute w-full h-full p-8 rounded-2xl shadow-lg border border-border-color flex flex-col justify-center items-center text-center">
-                            <p class="text-xs text-secondary mb-2" id="card-subject-back"></p>
-                            <p class="text-lg font-medium mb-6 text-primary" id="card-answer"></p>
-                            <div class="absolute bottom-6 w-full px-6">
-                                <p class="text-sm text-secondary mb-3">How well did you recall this?</p>
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    <button data-rating="0" class="recall-btn bg-red-100 text-red-700 hover:bg-red-200 p-3 rounded-lg font-semibold transition-all">Forgot</button>
-                                    <button data-rating="1" class="recall-btn bg-orange-100 text-orange-700 hover:bg-orange-200 p-3 rounded-lg font-semibold transition-all">Struggled</button>
-                                    <button data-rating="2" class="recall-btn bg-yellow-100 text-yellow-700 hover:bg-yellow-200 p-3 rounded-lg font-semibold transition-all">Good</button>
-                                    <button data-rating="3" class="recall-btn bg-green-100 text-green-700 hover:bg-green-200 p-3 rounded-lg font-semibold transition-all">Perfect</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Focus Tools View -->
-            <div id="view-focus" class="hidden space-y-8">
-                <div>
-                    <h2 class="text-3xl font-bold text-primary">Focus Tools</h2>
-                    <p class="text-secondary mt-1">Optimize your environment for deep concentration and effective learning sessions.</p>
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                        <h3 class="font-semibold text-primary mb-4">Smart Focus Timer (Pomodoro)</h3>
-                        <div class="text-center">
-                            <p id="pomodoro-timer" class="text-6xl font-bold text-primary">25:00</p>
-                            <p id="pomodoro-status" class="text-secondary mt-2">Time to focus!</p>
-                            <div class="flex justify-center gap-4 mt-6">
-                                <button id="pomodoro-start" class="bg-accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:bg-accent-blue-hover transition-all">Start</button>
-                                <button id="pomodoro-pause" class="bg-border-color text-primary font-semibold py-2 px-6 rounded-lg hover:bg-slate-300 transition-all">Pause</button>
-                                <button id="pomodoro-reset" class="bg-red-500 text-white font-semibold py-2 px-6 rounded-lg hover:bg-red-600 transition-all">Reset</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                        <h3 class="font-semibold text-primary mb-4">Ambient Soundscapes</h3>
-                        <div id="soundscapes" class="grid grid-cols-2 gap-4"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Learning Hub View -->
-            <div id="view-learning-hub" class="hidden space-y-6">
-                <div>
-                    <h2 class="text-3xl font-bold text-primary">Learning Hub</h2>
-                    <p class="text-secondary mt-1">Explore science-backed study techniques, memorization strategies, and understand common cognitive biases to supercharge your learning process.</p>
-                </div>
-                <div class="flex space-x-4 border-b border-border-color pb-2 overflow-x-auto whitespace-nowrap">
-                    <button data-category="auralearnBasics" class="tab-button text-primary font-semibold py-2 px-4 rounded-t-lg hover:bg-border-color">AuraLearn Basics</button>
-                    <button data-category="techniques" class="tab-button text-primary font-semibold py-2 px-4 rounded-t-lg bg-accent-blue text-white">Study Techniques</button>
-                    <button data-category="memorization" class="tab-button text-primary font-semibold py-2 px-4 rounded-t-lg hover:bg-border-color">Memorization</button>
-                    <button data-category="biases" class="tab-button text-primary font-semibold py-2 px-4 rounded-t-lg hover:bg-border-color">Cognitive Biases</button>
-                    <button data-category="productivity" class="tab-button text-primary font-semibold py-2 px-4 rounded-t-lg hover:bg-border-color">Productivity & Habits</button>
-                    <button data-category="examPrep" class="tab-button text-primary font-semibold py-2 px-4 rounded-t-lg hover:bg-border-color">Exam Prep</button>
-                    <button data-category="advanced" class="tab-button text-primary font-semibold py-2 px-4 rounded-t-lg hover:bg-border-color">Advanced Strategies</button>
-                </div>
-                <div id="learning-hub-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            </div>
-
-            <!-- Settings View -->
-            <div id="view-settings" class="hidden space-y-6">
-                <div>
-                    <h2 class="text-3xl font-bold text-primary">Settings</h2>
-                    <p class="text-secondary mt-1">Personalize your AuraLearn experience.</p>
-                </div>
-                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color space-y-4">
-                    <h3 class="text-xl font-bold text-primary">User Profile</h3>
-                    <div class="flex items-center gap-4">
-                        <label for="username-input" class="text-primary font-semibold">Username:</label>
-                        <input type="text" id="username-input" class="flex-grow p-3 border border-border-color rounded-lg" value="User">
-                        <button id="save-username-btn" class="bg-accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:bg-accent-blue-hover transition-all">Save</button>
-                    </div>
-                    <!-- Data Backup/Export/Import Section -->
-                    <h3 class="text-xl font-bold text-primary mt-6">Data Management</h3>
-                    <div class="flex gap-4">
-                        <button id="export-data-btn" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-all">
-                            Export Data
-                        </button>
-                        <input type="file" id="import-data-input" accept=".json" class="hidden">
-                        <button id="import-data-btn" class="bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-600 transition-all">
-                            Import Data
-                        </button>
-                    </div>
-                </div>
-                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color space-y-4">
-                    <h3 class="text-xl font-bold text-primary">Themes</h3>
-                    <p class="text-secondary">Choose your preferred visual theme for the app.</p>
-                    <div class="flex gap-4">
-                        <button data-theme="light" class="theme-btn border-2 border-accent-blue p-3 rounded-lg text-primary font-semibold hover:opacity-80 transition-opacity">Light</button>
-                        <button data-theme="dark" class="theme-btn border-2 border-border-color p-3 rounded-lg text-primary font-semibold hover:opacity-80 transition-opacity">Dark</button>
-                        <button data-theme="vibrant" class="theme-btn border-2 border-border-color p-3 rounded-lg text-primary font-semibold hover:opacity-80 transition-opacity">Vibrant</button>
-                    </div>
-                </div>
-                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color space-y-4">
-                    <h3 class="text-xl font-bold text-primary">Spaced Repetition Intervals (Days)</h3>
-                    <p class="text-secondary">Customize how often atoms are reviewed based on recall.</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label for="interval-perfect" class="block text-primary text-sm font-semibold mb-2">Perfect Recall:</label>
-                            <input type="number" id="interval-perfect" class="w-full p-3 border border-border-color rounded-lg" value="7">
-                        </div>
-                        <div>
-                            <label for="interval-good" class="block text-primary text-sm font-semibold mb-2">Good Recall:</label>
-                            <input type="number" id="interval-good" class="w-full p-3 border border-border-color rounded-lg" value="3">
-                        </div>
-                        <div>
-                            <label for="interval-struggled" class="block text-primary text-sm font-semibold mb-2">Struggled Recall:</label>
-                            <input type="number" id="interval-struggled" class="w-full p-3 border border-border-color rounded-lg" value="1">
-                        </div>
-                        <div>
-                            <label for="interval-forgot" class="block text-primary text-sm font-semibold mb-2">Forgot Recall (Hours for first review, then days):</label>
-                            <input type="number" id="interval-forgot" class="w-full p-3 border border-border-color rounded-lg" value="0.25">
-                        </div>
-                    </div>
-                    <button id="save-intervals-btn" class="mt-4 w-full bg-accent-blue text-white font-semibold py-2 rounded-lg hover:bg-accent-blue-hover transition-all">Save Intervals</button>
-                </div>
-            </div>
-
-            <!-- Tutorial View -->
-            <div id="view-tutorial" class="hidden space-y-6">
-                <div>
-                    <h2 class="text-3xl font-bold text-primary">AuraLearn Tutorial</h2>
-                    <p class="text-secondary mt-1">Learn how to make the most of AuraLearn's features with these guided tours and explanations.</p>
-                </div>
-                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                    <h3 class="text-xl font-bold text-primary mb-4">Quick Tours</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <button data-tour="dashboard" class="tutorial-tour-btn bg-accent-blue text-white font-semibold py-3 px-4 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            Dashboard Tour
-                        </button>
-                        <button data-tour="library" class="tutorial-tour-btn bg-accent-blue text-white font-semibold py-3 px-4 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            Library & Flashcards Tour
-                        </button>
-                        <button data-tour="ai-learning" class="tutorial-tour-btn bg-accent-blue text-white font-semibold py-3 px-4 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            AI Learning Studio Tour
-                        </button>
-                        <button data-tour="focus-tools" class="tutorial-tour-btn bg-accent-blue text-white font-semibold py-3 px-4 rounded-lg hover:bg-accent-blue-hover transition-all shadow-md">
-                            Focus Tools Tour
-                        </button>
-                    </div>
-                </div>
-                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
-                    <h3 class="text-xl font-bold text-primary mb-4">Detailed Guides</h3>
-                    <ul class="space-y-3">
-                        <li class="p-3 rounded-lg border list-item-themed hover:list-item-themed cursor-pointer" data-guide="srs-deep-dive">
-                            <h4 class="font-semibold text-primary">Deep Dive: Spaced Repetition</h4>
-                            <p class="text-sm text-secondary">Understand the science and how AuraLearn's SRS works.</p>
-                        </li>
-                        <li class="p-3 rounded-lg border list-item-themed hover:list-item-themed cursor-pointer" data-guide="customizing-ai">
-                            <h4 class="font-semibold text-primary">Customizing AI Generation</h4>
-                            <p class="text-sm text-secondary">Tips for getting the best results from AI Learning Studio.</p>
-                        </li>
-                        <li class="p-3 rounded-lg border list-item-themed hover:list-item-themed cursor-pointer" data-guide="goal-setting">
-                            <h4 class="font-semibold text-primary">Effective Goal Setting</h4>
-                            <p class="text-sm text-secondary">Strategies for creating and achieving your learning goals.</p>
-                        </li>
-                        <li class="p-3 rounded-lg border list-item-themed hover:list-item-themed cursor-pointer" data-guide="data-management">
-                            <h4 class="font-semibold text-primary">Data Backup & Import</h4>
-                            <p class="text-sm text-secondary">How to export and import your learning data.</p>
-                        </li>
+                    <ul id="events-list-for-day" class="space-y-3 events-for-day-list">
+                        <!-- Events for selected day will be injected here by JS -->
                     </ul>
                 </div>
-            </div>
+            </section>
 
-            <!-- Modals (kept at the end for z-index and overlay) -->
+            <!-- View: Library -->
+            <section id="view-library" class="view-section hidden">
+                <h1 class="text-3xl font-bold mb-6 text-primary">Your Learning Library</h1>
 
-            <!-- Detail Modal (for Learning Hub, Recommended Atoms, AI Material Display) -->
-            <div id="detail-modal" class="fixed inset-0 hidden modal z-50">
-                <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-2xl mx-auto overflow-y-auto max-h-[90vh]">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold text-primary" id="detail-title"></h3>
-                        <button id="close-detail-modal" class="text-secondary text-2xl hover:text-primary">&times;</button>
-                    </div>
-                    <div class="space-y-4 text-secondary" id="detail-content">
-                         <div id="detail-content-text" class="formatted-ai-content"></div>
-                         <p id="detail-loading" class="text-center text-accent-blue hidden">Generating detailed explanation...</p>
-                    </div>
+                <div class="mb-8">
+                    <button id="quick-add-atom-btn-library" class="button-primary px-5 py-3 rounded-lg font-semibold w-full sm:w-auto">
+                        <i class="fas fa-plus mr-2"></i>Quick Add Flashcard
+                    </button>
                 </div>
-            </div>
 
-            <!-- Subject Detail Modal (for Library Subject clicks) -->
-            <div id="subject-detail-modal" class="fixed inset-0 hidden modal z-50">
-                <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-2xl mx-auto overflow-y-auto max-h-[90vh]">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold text-primary" id="subject-detail-title"></h3>
-                        <button id="close-subject-detail-modal" class="text-secondary text-2xl hover:text-primary">&times;</button>
-                    </div>
-                    <div id="subject-atoms-list" class="space-y-4 text-secondary">
-                        <!-- List of atoms for the subject will go here -->
-                    </div>
+                <h2 class="text-2xl font-bold text-primary mb-4">Your Subjects</h2>
+                <div id="empty-library-message" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color text-center text-secondary hidden">
+                    <p class="mb-3">No subjects created yet. Start by adding your first flashcard!</p>
+                    <button class="bg-accent-blue text-white px-4 py-2 rounded-lg hover:bg-accent-blue-hover transition-colors font-semibold" onclick="document.getElementById('quick-add-atom-btn-library').click()">Add First Flashcard</button>
                 </div>
-            </div>
-
-            <!-- Onboarding Modal (initial app setup) -->
-            <div id="onboarding-modal" class="fixed inset-0 modal z-50">
-                <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-lg mx-auto text-center">
-                    <h3 class="text-3xl font-bold text-primary mb-4">Welcome to AuraLearn!</h3>
-                    <p class="text-secondary mb-6" id="onboarding-text">Let's set up your personalized learning journey. This quick tour will help AuraLearn understand your goals.</p>
-                    <div id="onboarding-steps" class="space-y-4">
-                        <div id="step-1">
-                            <h4 class="font-semibold text-primary mb-2">What are your primary learning goals?</h4>
-                            <textarea id="goal-input" class="w-full h-24 p-3 border border-border-color rounded-lg text-primary" placeholder="E.g., Pass my calculus exam, Learn web development basics, Understand cognitive psychology deeply..."></textarea>
-                        </div>
-                        <div id="step-2" class="hidden">
-                            <h4 class="font-semibold text-primary mb-2">How much time can you dedicate to learning per week?</h4>
-                            <input type="number" id="time-input" class="w-full p-3 border border-border-color rounded-lg text-primary" placeholder="Hours per week">
-                        </div>
-                        <div id="step-3" class="hidden">
-                            <h4 class="font-semibold text-primary mb-2">What subjects are you currently focusing on?</h4>
-                            <input type="text" id="subjects-input" class="w-full p-3 border border-border-color rounded-lg text-primary" placeholder="Comma-separated, e.g., Math, Science, History">
-                        </div>
-                    </div>
-                    <button id="onboarding-next-btn" class="mt-8 bg-accent-blue text-white font-semibold py-3 px-8 rounded-lg hover:bg-accent-blue-hover transition-all">Next</button>
-                    <button id="onboarding-skip-btn" class="mt-4 text-secondary hover:text-primary transition-colors">Skip for now</button>
+                <div id="subject-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+                    <!-- Subjects will be injected here by JS -->
                 </div>
-            </div>
 
-            <!-- Quick Add Atom Modal -->
-            <div id="quick-add-atom-modal" class="fixed inset-0 hidden modal z-50">
-                <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-md mx-auto">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold text-primary">Quick Add Learning Atom</h3>
-                        <button id="close-quick-add-modal" class="text-secondary text-2xl hover:text-primary">&times;</button>
+                <h2 class="text-2xl font-bold text-primary mb-4" id="ai-materials-section">AI-Generated Materials</h2>
+                <div id="empty-ai-materials-message" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color text-center text-secondary hidden">
+                    <p class="mb-3">No AI-generated materials yet. Head over to the AI Learning Studio to create some!</p>
+                    <button class="bg-accent-blue text-white px-4 py-2 rounded-lg hover:bg-accent-blue-hover transition-colors font-semibold" onclick="navigate('ai-learning')">Go to AI Learning Studio</button>
+                </div>
+                <div id="ai-materials-list" class="space-y-3">
+                    <!-- AI Materials will be injected here by JS -->
+                </div>
+            </section>
+
+            <!-- View: AI Learning Studio -->
+            <section id="view-ai-learning" class="view-section hidden">
+                <h1 class="text-3xl font-bold mb-6 text-primary">AI Learning Studio</h1>
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
+                    <div class="flex items-center justify-between mb-4">
+                        <label for="ai-input-mode-toggle" class="text-primary font-semibold">Input Mode:</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="" id="ai-input-mode-toggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-border-color peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-accent-blue rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border-color after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-blue"></div>
+                            <span class="ml-3 text-sm font-medium text-primary">Topic / Text</span>
+                        </label>
                     </div>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="quick-add-subject" class="block text-primary text-sm font-semibold mb-2">Subject:</label>
-                            <select id="quick-add-subject" class="w-full p-3 border border-border-color rounded-lg bg-input-bg text-input-text">
+
+                    <label for="ai-input-content" id="ai-input-content-label" class="block text-primary text-sm font-semibold mb-2">Provide text, a topic, or questions for the AI to process:</label>
+                    <textarea id="ai-input-content" rows="6" class="w-full p-3 border rounded-lg resize-y input-themed"
+                        placeholder="Enter text, a topic, or specific questions here... e.g., 'Explain blockchain technology', 'Summarize World War 2 causes', or 'Quiz me on React hooks'."></textarea>
+
+                    <div class="mt-4">
+                        <label for="ai-content-subject-select" class="block text-primary text-sm font-semibold mb-2">Assign to Subject (for flashcards/notes):</label>
+                        <div class="flex gap-2">
+                            <select id="ai-content-subject-select" class="flex-grow p-2 border rounded-lg bg-input-bg text-input-text">
                                 <option value="">Select or Add New Subject</option>
                             </select>
-                            <input type="text" id="new-subject-input" class="w-full mt-2 p-3 border border-border-color rounded-lg text-primary hidden" placeholder="New Subject Name">
-                            <button id="toggle-new-subject-input" class="text-accent-blue text-sm mt-2 hover:underline">Add New Subject</button>
-                        </div>
-                        <div>
-                            <label for="quick-add-question" class="block text-primary text-sm font-semibold mb-2">Question/Concept:</label>
-                            <textarea id="quick-add-question" class="w-full h-24 p-3 border border-border-color rounded-lg text-primary" placeholder="What is the capital of France?"></textarea>
-                        </div>
-                        <div>
-                            <label for="quick-add-answer" class="block text-primary text-sm font-semibold mb-2">Answer/Explanation:</label>
-                            <textarea id="quick-add-answer" class="w-full h-24 p-3 border border-border-color rounded-lg text-primary" placeholder="Paris."></textarea>
+                            <input type="text" id="ai-content-new-subject-input" placeholder="New subject name" class="p-2 border rounded-lg hidden flex-grow input-themed">
+                            <button id="toggle-ai-content-new-subject-input" class="bg-blue-100 text-accent-blue px-4 py-2 rounded-lg font-semibold text-sm hover:bg-blue-200 transition-colors">Add New Subject</button>
                         </div>
                     </div>
-                    <button id="add-atom-btn" class="mt-6 w-full bg-accent-blue text-white font-semibold py-3 rounded-lg hover:bg-accent-blue-hover transition-all">
-                        Add Atom
-                    </button>
-                </div>
-            </div>
 
-            <!-- Add Goal Modal -->
-            <div id="add-goal-modal" class="fixed inset-0 hidden modal z-50">
-                <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-md mx-auto">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold text-primary">Add New Learning Goal</h3>
-                        <button id="close-add-goal-modal" class="text-secondary text-2xl hover:text-primary">&times;</button>
-                    </div>
-                    <div class="space-y-4">
+                    <!-- NEW: Quiz Settings Container -->
+                    <div id="quiz-settings-container" class="hidden bg-gray-50 p-4 rounded-lg border border-border-color mt-4 space-y-3">
+                        <h4 class="font-semibold text-primary">Quiz Settings</h4>
                         <div>
-                            <label for="goal-name-input" class="block text-primary text-sm font-semibold mb-2">Goal Name:</label>
-                            <input type="text" id="goal-name-input" class="w-full p-3 border border-border-color rounded-lg text-primary" placeholder="e.g., Master JavaScript Basics">
+                            <label for="quiz-question-count-input" class="block text-primary text-sm font-semibold mb-2">Number of Questions:</label>
+                            <input type="number" id="quiz-question-count-input" class="w-full p-2 border border-border-color rounded-lg input-themed" value="5" min="1" max="15">
                         </div>
                         <div>
-                            <label for="goal-target-type" class="block text-primary text-sm font-semibold mb-2">Target Type:</label>
-                            <select id="goal-target-type" class="w-full p-3 border border-border-color rounded-lg bg-input-bg text-input-text">
-                                <option value="atoms">Master X Atoms</option>
-                                <option value="time">Study X Hours</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="goal-target-value" class="block text-primary text-sm font-semibold mb-2">Target Value:</label>
-                            <input type="number" id="goal-target-value" class="w-full p-3 border border-border-color rounded-lg text-primary" placeholder="e.g., 50 or 20">
-                        </div>
-                        <div>
-                            <label for="goal-end-date" class="block text-primary text-sm font-semibold mb-2">End Date:</label>
-                            <input type="date" id="goal-end-date" class="w-full p-3 border border-border-color rounded-lg text-primary">
-                        </div>
-                    </div>
-                    <button id="create-goal-btn" class="mt-6 w-full bg-accent-blue text-white font-semibold py-3 rounded-lg hover:bg-accent-blue-hover transition-all">
-                        Create Goal
-                    </button>
-                </div>
-            </div>
-
-            <!-- Add/Edit Event Modal (New) -->
-            <div id="add-edit-event-modal" class="fixed inset-0 hidden modal z-50">
-                <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-md mx-auto">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold text-primary" id="event-modal-title">Add New Event</h3>
-                        <button id="close-event-modal" class="text-secondary text-2xl hover:text-primary">&times;</button>
-                    </div>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="event-title-input" class="block text-primary text-sm font-semibold mb-2">Event Title:</label>
-                            <input type="text" id="event-title-input" class="w-full p-3 border border-border-color rounded-lg text-primary" placeholder="e.g., Math Homework Due">
-                        </div>
-                        <div>
-                            <label for="event-date-input" class="block text-primary text-sm font-semibold mb-2">Date:</label>
-                            <input type="date" id="event-date-input" class="w-full p-3 border border-border-color rounded-lg text-primary">
-                        </div>
-                        <div>
-                            <label for="event-time-input" class="block text-primary text-sm font-semibold mb-2">Time (Optional):</label>
-                            <input type="time" id="event-time-input" class="w-full p-3 border border-border-color rounded-lg text-primary">
-                        </div>
-                        <div>
-                            <label for="event-notes-input" class="block text-primary text-sm font-semibold mb-2">Notes (Optional):</label>
-                            <textarea id="event-notes-input" class="w-full h-24 p-3 border border-border-color rounded-lg text-primary" placeholder="Any extra details..."></textarea>
-                        </div>
-                        <div>
-                            <label for="event-type-select" class="block text-primary text-sm font-semibold mb-2">Type:</label>
-                            <select id="event-type-select" class="w-full p-3 border border-border-color rounded-lg bg-input-bg text-input-text">
-                                <option value="assignment">Assignment</option>
-                                <option value="exam">Exam</option>
-                                <option value="study">Study Session</option>
-                                <option value="other">Other</option>
+                            <label for="quiz-difficulty-select" class="block text-primary text-sm font-semibold mb-2">Difficulty:</label>
+                            <select id="quiz-difficulty-select" class="w-full p-2 border border-border-color rounded-lg bg-input-bg text-input-text">
+                                <option value="easy">Easy</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="hard">Hard</option>
                             </select>
                         </div>
                     </div>
-                    <div class="flex justify-end gap-3 mt-6">
-                        <button id="delete-event-btn" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-all hidden">Delete</button>
-                        <button id="save-event-btn" class="bg-accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:bg-accent-blue-hover transition-all">Save Event</button>
+
+
+                    <div class="flex flex-wrap gap-3 mt-6 justify-center sm:justify-start">
+                        <button id="generate-ai-notes-btn" class="button-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Generate Notes</button>
+                        <button id="generate-notes-flashcards-btn" class="button-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Generate Flashcards</button>
+                        <button id="generate-quiz-btn" class="button-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Generate Quiz</button>
+                        <button id="extract-keywords-btn" class="button-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Extract Keywords</button>
+                        <button id="predict-exam-questions-btn" class="button-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Predict Exam Questions</button>
+                        <button id="summarize-content-btn" class="button-primary px-4 py-2 rounded-lg font-semibold flex-grow sm:flex-grow-0">Summarize Content</button>
+                    </div>
+
+                    <p id="ai-generation-status" class="text-center text-secondary mt-4 hidden">Generating... Please wait...</p>
+
+                    <div id="ai-generated-output" class="bg-primary p-5 rounded-xl shadow-sm border border-border-color mt-8 hidden">
+                        <h3 id="ai-output-title" class="text-xl font-bold text-primary mb-4">Generated Content</h3>
+                        <div id="ai-output-content-display" class="text-secondary prose max-w-none">
+                            <!-- AI generated content will be displayed here -->
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-
-            <!-- Reflection Modal -->
-            <div id="reflection-modal" class="fixed inset-0 hidden modal z-50">
-                <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-md mx-auto">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold text-primary">Reflect on Your Session</h3>
-                        <button id="close-reflection-modal" class="text-secondary text-2xl hover:text-primary">&times;</button>
+            <!-- View: Mind Map -->
+            <section id="view-mind-map" class="view-section hidden">
+                <h1 class="text-3xl font-bold mb-6 text-primary">Interactive Mind Map</h1>
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
+                    <div class="flex flex-wrap gap-3 mb-4 items-end">
+                        <div>
+                            <label for="mind-map-node-text-input" class="block text-primary text-sm font-semibold mb-1">New Node Text:</label>
+                            <input type="text" id="mind-map-node-text-input" placeholder="Enter node text" class="p-2 border rounded-lg input-themed">
+                        </div>
+                        <button id="mind-map-add-node-btn" class="button-primary px-4 py-2 rounded-lg font-semibold">Add Node</button>
+                        <button id="mind-map-clear-all-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600">Clear All</button>
+                        <button id="mind-map-save-btn" class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600">Save Map</button>
+                        <select id="mind-map-load-select" class="p-2 border rounded-lg bg-input-bg text-input-text">
+                            <option value="">Load Map</option>
+                            <!-- Options will be populated by JS -->
+                        </select>
                     </div>
-                    <p class="text-secondary mb-4">What was most challenging or insightful in this study session?</p>
-                    <textarea id="reflection-text" class="w-full h-32 p-3 border border-border-color rounded-lg text-primary" placeholder="Type your thoughts here..."></textarea>
-                    <button id="save-reflection-btn" class="mt-6 w-full bg-accent-blue text-white font-semibold py-3 rounded-lg hover:bg-accent-blue-hover transition-all">
-                        Save Reflection
+                    <canvas id="mind-map-canvas" class="w-full h-[500px]"></canvas>
+                    <p class="text-xs text-secondary mt-4">
+                        Drag nodes to move. Click a node, then another to connect. Double-click a node to edit text.
+                    </p>
+                </div>
+            </section>
+
+            <!-- View: Glossary -->
+            <section id="view-glossary" class="view-section hidden">
+                <h1 class="text-3xl font-bold mb-6 text-primary">Your Glossary</h1>
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
+                    <input type="text" id="glossary-search-input" placeholder="Search terms..." class="w-full p-3 rounded-lg border input-themed mb-6">
+                    <div id="empty-glossary-message" class="text-center text-secondary hidden">
+                        <p>Your glossary is empty. Extract keywords using the AI Learning Studio!</p>
+                    </div>
+                    <div id="glossary-list" class="space-y-4">
+                        <!-- Glossary terms will be injected here by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Analytics -->
+            <section id="view-analytics" class="view-section hidden">
+                <h1 class="text-3xl font-bold mb-6 text-primary">Your Progress & Analytics</h1>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color flex flex-col items-center justify-center">
+                        <h2 class="text-xl font-bold text-primary mb-4">Flashcard Mastery Distribution</h2>
+                        <div class="w-full max-w-xs h-64 flex items-center justify-center">
+                            <canvas id="masteryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color flex flex-col items-center justify-center">
+                        <h2 class="text-xl font-bold text-primary mb-4">Study Activity (Last 7 Days)</h2>
+                        <div class="w-full h-64 flex items-center justify-center">
+                            <canvas id="activityChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-span-full bg-secondary p-6 rounded-xl shadow-sm border border-border-color flex flex-col items-center justify-center">
+                        <h2 class="text-xl font-bold text-primary mb-4">Knowledge Growth Over Time</h2>
+                        <div class="w-full h-64 flex items-center justify-center">
+                            <canvas id="growthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-primary">Your Learning Goals</h2>
+                    <button id="add-goal-btn" class="button-primary px-4 py-2 rounded-lg font-semibold text-sm">
+                        <i class="fas fa-plus mr-2"></i>Add Goal
                     </button>
                 </div>
-            </div>
-
-            <!-- Global Search Results Modal -->
-            <div id="search-results-modal" class="fixed inset-0 hidden modal z-50">
-                <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-2xl mx-auto overflow-y-auto max-h-[90vh]">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold text-primary">Search Results</h3>
-                        <button id="close-search-results-modal" class="text-secondary text-2xl hover:text-primary">&times;</button>
-                    </div>
-                    <div id="search-results-content" class="space-y-4 text-secondary">
-                        <!-- Search results will be dynamically inserted here -->
-                    </div>
+                <div id="empty-goals-message" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color text-center text-secondary hidden">
+                    <p>No learning goals set yet. Set a goal to track your long-term progress!</p>
                 </div>
-            </div>
+                <div id="goals-list" class="space-y-4">
+                    <!-- Goals will be injected here by JS -->
+                </div>
+            </section>
 
-            <!-- Quiz Modal -->
-            <div id="quiz-modal" class="fixed inset-0 hidden modal z-50">
-                <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-3xl mx-auto overflow-y-auto max-h-[90vh]">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold text-primary" id="quiz-title">Quiz Title</h3>
-                        <button id="close-quiz-modal" class="text-secondary text-2xl hover:text-primary">&times;</button>
+            <!-- View: Achievements -->
+            <section id="view-achievements" class="view-section hidden">
+                <h1 class="text-3xl font-bold mb-6 text-primary">Your Achievements</h1>
+                <div id="empty-achievements-message" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color text-center text-secondary hidden">
+                    <p>No achievements unlocked yet. Keep learning and reviewing to earn your first badge!</p>
+                </div>
+                <div id="achievements-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Achievements will be injected here by JS -->
+                </div>
+            </section>
+
+            <!-- View: Study Session -->
+            <section id="view-study" class="view-section hidden flex flex-col items-center justify-center min-h-[calc(100vh-100px)]">
+                <div class="w-full mb-6 text-center">
+                    <div class="w-full bg-border-color rounded-full h-2.5">
+                        <div id="study-progress-bar" class="bg-accent-blue h-2.5 rounded-full" style="width: 0%;"></div>
                     </div>
-                    <div id="quiz-content" class="space-y-4 text-secondary">
-                        <div id="quiz-question-container" class="mb-6">
-                            <p class="text-lg font-semibold text-primary mb-4" id="quiz-question-text"></p>
-                            <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <!-- Options will be inserted here -->
+                    <p id="study-progress-text" class="text-sm text-secondary mt-2">Flashcard 0 of 0</p>
+                </div>
+
+                <div id="flashcard-container" class="flashcard-container w-full max-w-md mx-auto">
+                    <div class="flashcard">
+                        <div class="flashcard-face flashcard-front rounded-xl">
+                            <p class="text-sm font-medium text-secondary mb-2" id="card-subject-front">Subject</p>
+                            <h3 id="card-question" class="text-2xl font-semibold text-primary mb-4 break-words"></h3>
+                            <button id="show-answer-btn" class="button-primary px-6 py-3 rounded-lg font-semibold mt-4 shadow-md">Show Answer</button>
+                        </div>
+                        <div class="flashcard-face flashcard-back rounded-xl">
+                            <p class="text-sm font-medium text-secondary mb-2" id="card-subject-back">Subject</p>
+                            <h3 class="text-2xl font-semibold text-primary mb-4 break-words">Answer:</h3>
+                            <p id="card-answer" class="text-lg text-primary mb-6 break-words"></p>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
+                                <button class="recall-btn px-4 py-2 rounded-lg font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors" data-rating="0">Forgot</button>
+                                <button class="recall-btn px-4 py-2 rounded-lg font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors" data-rating="1">Struggled</button>
+                                <button class="recall-btn px-4 py-2 rounded-lg font-semibold bg-yellow-500 text-white hover:bg-yellow-600 transition-colors" data-rating="2">Good</button>
+                                <button class="recall-btn px-4 py-2 rounded-lg font-semibold bg-green-500 text-white hover:bg-green-600 transition-colors" data-rating="3">Perfect</button>
                             </div>
-                            <button id="quiz-submit-answer-btn" class="mt-6 w-full bg-accent-blue text-white font-semibold py-3 rounded-lg hover:bg-accent-blue-hover transition-all">
-                                Submit Answer
-                            </button>
-                            <p id="quiz-feedback" class="mt-4 text-center font-semibold hidden"></p>
-                        </div>
-                        <div id="quiz-results-container" class="hidden text-center">
-                            <h3 class="text-2xl font-bold text-primary mb-4">Quiz Complete!</h3>
-                            <p class="text-xl font-bold text-primary mb-4" id="quiz-score-display"></p>
-                            <button id="quiz-retake-btn" class="bg-accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:bg-accent-blue-hover transition-all">Retake Quiz</button>
-                            <button id="quiz-review-answers-btn" class="ml-4 bg-border-color text-primary font-semibold py-2 px-6 rounded-lg hover:bg-slate-300 transition-all">Review Answers</button>
-                        </div>
-                        <div id="quiz-review-detail-container" class="hidden">
-                            <h4 class="text-xl font-bold text-primary mb-4">Review Your Answers</h4>
-                            <div id="quiz-review-list" class="space-y-4">
-                                <!-- Reviewed questions will be inserted here -->
-                            </div>
-                            <button id="quiz-back-to-results-btn" class="mt-6 bg-border-color text-primary font-semibold py-2 px-6 rounded-lg hover:bg-slate-300 transition-all">Back to Results</button>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-             <!-- Tutorial Step Modal -->
-            <div id="tutorial-step-modal" class="fixed inset-0 hidden modal z-50">
-                <div class="bg-secondary p-8 rounded-xl shadow-2xl border border-border-color w-full max-w-lg mx-auto overflow-y-auto max-h-[90vh]">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold text-primary" id="tutorial-step-title"></h3>
-                        <button id="close-tutorial-step-modal" class="text-secondary text-2xl hover:text-primary">&times;</button>
-                    </div>
-                    <div id="tutorial-step-content" class="space-y-4 text-secondary">
-                        <!-- Tutorial content will be displayed here -->
-                    </div>
-                    <div class="flex justify-between mt-8">
-                        <button id="tutorial-prev-btn" class="bg-border-color text-primary font-semibold py-2 px-4 rounded-lg hover:bg-slate-300 transition-all hidden">Previous</button>
-                        <button id="tutorial-next-btn" class="bg-accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:bg-accent-blue-hover transition-all">Next</button>
-                        <button id="tutorial-finish-btn" class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-all hidden">Finish Tutorial</button>
+            <!-- View: Focus Tools -->
+            <section id="view-focus" class="view-section hidden">
+                <h1 class="text-3xl font-bold mb-6 text-primary">Focus Tools</h1>
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8 text-center">
+                    <h2 class="text-2xl font-bold text-primary mb-4">Pomodoro Timer</h2>
+                    <div class="text-6xl font-mono font-bold text-accent-blue mb-4" id="pomodoro-timer">25:00</div>
+                    <p id="pomodoro-status" class="text-secondary mb-6">Time to focus!</p>
+                    <div class="flex justify-center gap-4">
+                        <button id="pomodoro-start" class="button-primary px-6 py-3 rounded-lg font-semibold">Start</button>
+                        <button id="pomodoro-pause" class="bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600">Pause</button>
+                        <button id="pomodoro-reset" class="bg-gray-400 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-500">Reset</button>
                     </div>
                 </div>
-            </div>
+
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
+                    <h2 class="text-2xl font-bold text-primary mb-4">Ambient Soundscapes</h2>
+                    <div id="soundscapes" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <!-- Soundscape buttons injected by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Learning Hub -->
+            <section id="view-learning-hub" class="view-section hidden">
+                <h1 class="text-3xl font-bold mb-6 text-primary">Learning Hub: Master Your Learning</h1>
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8">
+                    <div class="flex flex-wrap gap-2 mb-6 border-b border-border-color pb-4">
+                        <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="auralearnBasics">AuraLearn Basics</button>
+                        <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="techniques">Learning Techniques</button>
+                        <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="memorization">Memorization</button>
+                        <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="biases">Cognitive Biases</button>
+                        <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="productivity">Productivity</button>
+                        <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="examPrep">Exam Prep</button>
+                        <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="advanced">Advanced Concepts</button>
+                    </div>
+                    <div id="learning-hub-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Learning content will be injected here by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Settings -->
+            <section id="view-settings" class="view-section hidden">
+                <h1 class="text-3xl font-bold mb-6 text-primary">Settings</h1>
+
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8">
+                    <h2 class="text-2xl font-bold text-primary mb-4">User Profile</h2>
+                    <div class="mb-4">
+                        <label for="username-input" class="block text-primary text-sm font-semibold mb-2">Your Name:</label>
+                        <input type="text" id="username-input" class="w-full p-3 border rounded-lg input-themed" placeholder="Enter your name">
+                    </div>
+                    <button id="save-username-btn" class="button-primary px-5 py-2 rounded-lg font-semibold">Save Name</button>
+                </div>
+
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8">
+                    <h2 class="text-2xl font-bold text-primary mb-4">Spaced Repetition Intervals</h2>
+                    <p class="text-secondary text-sm mb-4">Adjust the intervals (in days) for flashcard review based on your recall rating.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="interval-perfect" class="block text-primary text-sm font-semibold mb-2">Perfect Recall (Days):</label>
+                            <input type="number" id="interval-perfect" class="w-full p-3 border rounded-lg input-themed" value="7" min="0.1" step="0.1">
+                        </div>
+                        <div>
+                            <label for="interval-good" class="block text-primary text-sm font-semibold mb-2">Good Recall (Days):</label>
+                            <input type="number" id="interval-good" class="w-full p-3 border rounded-lg input-themed" value="3" min="0.1" step="0.1">
+                        </div>
+                        <div>
+                            <label for="interval-struggled" class="block text-primary text-sm font-semibold mb-2">Struggled (Days):</label>
+                            <input type="number" id="interval-struggled" class="w-full p-3 border rounded-lg input-themed" value="1" min="0.1" step="0.1">
+                        </div>
+                        <div>
+                            <label for="interval-forgot" class="block text-primary text-sm font-semibold mb-2">Forgot (Days):</label>
+                            <input type="number" id="interval-forgot" class="w-full p-3 border rounded-lg input-themed" value="0.25" min="0.1" step="0.1">
+                        </div>
+                    </div>
+                    <button id="save-intervals-btn" class="button-primary px-5 py-2 rounded-lg font-semibold">Save Intervals</button>
+                </div>
+
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8">
+                    <h2 class="text-2xl font-bold text-primary mb-4">Themes</h2>
+                    <p class="text-secondary text-sm mb-4">Personalize your AuraLearn experience.</p>
+                    <div class="flex flex-wrap gap-4">
+                        <button data-theme="light" class="theme-btn border-2 border-border-color p-3 rounded-lg text-primary font-semibold hover:opacity-80 transition-opacity">Light</button>
+                        <button data-theme="dark" class="theme-btn border-2 border-border-color p-3 rounded-lg text-primary font-semibold hover:opacity-80 transition-opacity">Dark</button>
+                        <button data-theme="vibrant" class="theme-btn border-2 border-border-color p-3 rounded-lg text-primary font-semibold hover:opacity-80 transition-opacity">Vibrant</button>
+                        <button data-theme="forest-green" class="theme-btn border-2 border-border-color p-3 rounded-lg text-primary font-semibold hover:opacity-80 transition-opacity">Forest Green</button>
+                        <button data-theme="ocean-blue" class="theme-btn border-2 border-border-color p-3 rounded-lg text-primary font-semibold hover:opacity-80 transition-opacity">Ocean Blue</button>
+                    </div>
+                </div>
+
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
+                    <h2 class="text-2xl font-bold text-primary mb-4">Data Management</h2>
+                    <p class="text-secondary text-sm mb-4">Export your data for backup or import previously saved data.</p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button id="export-data-btn" class="button-primary px-5 py-2 rounded-lg font-semibold">Export Data</button>
+                        <input type="file" id="import-data-input" accept=".json" class="hidden">
+                        <button id="import-data-btn" class="bg-gray-400 text-white px-5 py-2 rounded-lg font-semibold hover:bg-gray-500">Import Data</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Tutorial -->
+            <section id="view-tutorial" class="view-section hidden">
+                <h1 class="text-3xl font-bold mb-6 text-primary">AuraLearn Tutorial & Guide</h1>
+                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
+                    <h2 class="text-2xl font-bold text-primary mb-4">Interactive Tours</h2>
+                    <p class="text-secondary mb-4">Take a quick tour of key features to get started.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                        <button class="button-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="dashboard">Dashboard Tour</button>
+                        <button class="button-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="library">Library & Flashcards Tour</button>
+                        <button class="button-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="ai-learning">AI Learning Studio Tour</button>
+                        <button class="button-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="focus-tools">Focus Tools Tour</button>
+                    </div>
+
+                    <h2 class="text-2xl font-bold text-primary mb-4">Detailed Guides</h2>
+                    <p class="text-secondary mb-4">Dive deeper into specific concepts and features.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-primary p-4 rounded-lg border border-border-color cursor-pointer hover:bg-border-color transition-colors" data-guide="srs-deep-dive">
+                            <h3 class="font-semibold text-primary">Deep Dive: Spaced Repetition System (SRS)</h3>
+                            <p class="text-sm text-secondary">Understand how AuraLearn optimizes your memory.</p>
+                        </div>
+                        <div class="bg-primary p-4 rounded-lg border border-border-color cursor-pointer hover:bg-border-color transition-colors" data-guide="customizing-ai">
+                            <h3 class="font-semibold text-primary">Customizing AI Generation</h3>
+                            <p class="text-sm text-secondary">Tips for getting the best results from the AI Studio.</p>
+                        </div>
+                        <div class="bg-primary p-4 rounded-lg border border-border-color cursor-pointer hover:bg-border-color transition-colors" data-guide="goal-setting">
+                            <h3 class="font-semibold text-primary">Effective Goal Setting</h3>
+                            <p class="text-sm text-secondary">Learn how to set and achieve your learning goals.</p>
+                        </div>
+                        <div class="bg-primary p-4 rounded-lg border border-border-color cursor-pointer hover:bg-border-color transition-colors" data-guide="data-management">
+                            <h3 class="font-semibold text-primary">Data Backup & Import</h3>
+                            <p class="text-sm text-secondary">Keep your learning progress safe and sound.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
-    <!-- Notification Toast Element -->
-    <div id="notification-toast" class="hidden"></div>
+    <!-- Modals -->
 
-    <!-- Link to your JavaScript file -->
-    <script src="script.js" defer></script>
+    <!-- Global Search Results Modal -->
+    <div id="search-results-modal" class="modal-overlay hidden">
+        <div class="modal-content w-full max-w-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-primary">Search Results</h3>
+                <button id="close-search-results-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <div id="search-results-content" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                <!-- Results will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Add Flashcard Modal -->
+    <div id="quick-add-atom-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-primary">Quick Add Flashcard</h3>
+                <button id="close-quick-add-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <div class="mb-4">
+                <label for="quick-add-subject" class="block text-primary text-sm font-semibold mb-2">Subject:</label>
+                <div class="flex gap-2">
+                    <select id="quick-add-subject" class="flex-grow p-2 border rounded-lg bg-input-bg text-input-text">
+                        <option value="">Select or Add New Subject</option>
+                    </select>
+                    <input type="text" id="new-subject-input" placeholder="New subject name" class="p-2 border rounded-lg hidden flex-grow input-themed">
+                    <button id="toggle-new-subject-input" class="bg-blue-100 text-accent-blue px-4 py-2 rounded-lg font-semibold text-sm hover:bg-blue-200 transition-colors">Add New Subject</button>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="quick-add-question" class="block text-primary text-sm font-semibold mb-2">Question/Concept:</label>
+                <textarea id="quick-add-question" rows="3" class="w-full p-3 border rounded-lg resize-y input-themed" placeholder="e.g., 'What is the capital of France?'"></textarea>
+            </div>
+            <div class="mb-6">
+                <label for="quick-add-answer" class="block text-primary text-sm font-semibold mb-2">Answer/Explanation:</label>
+                <textarea id="quick-add-answer" rows="5" class="w-full p-3 border rounded-lg resize-y input-themed" placeholder="e.g., 'Paris'"></textarea>
+            </div>
+            <button id="add-atom-btn" class="button-primary px-5 py-2 rounded-lg font-semibold w-full">Add Flashcard</button>
+        </div>
+    </div>
+
+    <!-- Add/Edit Event Modal -->
+    <div id="add-edit-event-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="event-modal-title" class="text-xl font-bold text-primary">Add New Event</h3>
+                <button id="close-event-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <div class="mb-4">
+                <label for="event-title-input" class="block text-primary text-sm font-semibold mb-2">Event Title:</label>
+                <input type="text" id="event-title-input" class="w-full p-3 border rounded-lg input-themed" placeholder="e.g., 'Physics Exam'">
+            </div>
+            <div class="mb-4">
+                <label for="event-date-input" class="block text-primary text-sm font-semibold mb-2">Date:</label>
+                <input type="date" id="event-date-input" class="w-full p-3 border rounded-lg input-themed">
+            </div>
+            <div class="mb-4">
+                <label for="event-time-input" class="block text-primary text-sm font-semibold mb-2">Time (Optional):</label>
+                <input type="time" id="event-time-input" class="w-full p-3 border rounded-lg input-themed">
+            </div>
+            <div class="mb-4">
+                <label for="event-type-select" class="block text-primary text-sm font-semibold mb-2">Event Type:</label>
+                <select id="event-type-select" class="w-full p-3 border rounded-lg bg-input-bg text-input-text">
+                    <option value="assignment">Assignment</option>
+                    <option value="exam">Exam</option>
+                    <option value="study">Study Session</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="mb-6">
+                <label for="event-notes-input" class="block text-primary text-sm font-semibold mb-2">Notes (Optional):</label>
+                <textarea id="event-notes-input" rows="3" class="w-full p-3 border rounded-lg resize-y input-themed" placeholder="Any additional details..."></textarea>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button id="delete-event-btn" class="bg-red-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-600 hidden">Delete</button>
+                <button id="save-event-btn" class="button-primary px-5 py-2 rounded-lg font-semibold">Save Event</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Add Goal Modal -->
+    <div id="add-goal-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-primary">Set New Learning Goal</h3>
+                <button id="close-add-goal-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <div class="mb-4">
+                <label for="goal-name-input" class="block text-primary text-sm font-semibold mb-2">Goal Name:</label>
+                <input type="text" id="goal-name-input" class="w-full p-3 border rounded-lg input-themed" placeholder="e.g., 'Master Python Fundamentals'">
+            </div>
+            <div class="mb-4">
+                <label for="goal-target-type" class="block text-primary text-sm font-semibold mb-2">Target Type:</label>
+                <select id="goal-target-type" class="w-full p-3 border rounded-lg bg-input-bg text-input-text">
+                    <option value="flashcards">Mastered Flashcards</option>
+                    <option value="time">Study Time (Hours/Week)</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="goal-target-value" class="block text-primary text-sm font-semibold mb-2">Target Value:</label>
+                <input type="number" id="goal-target-value" class="w-full p-3 border rounded-lg input-themed" placeholder="e.g., 100 or 5">
+            </div>
+            <div class="mb-6">
+                <label for="goal-end-date" class="block text-primary text-sm font-semibold mb-2">End Date:</label>
+                <input type="date" id="goal-end-date" class="w-full p-3 border rounded-lg input-themed">
+            </div>
+            <button id="create-goal-btn" class="button-primary px-5 py-2 rounded-lg font-semibold w-full">Create Goal</button>
+        </div>
+    </div>
+
+    <!-- Detail Modal (for Learning Hub, AI Materials, Flashcards) -->
+    <div id="detail-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="detail-title" class="text-xl font-bold text-primary">Detail Title</h3>
+                <button id="close-detail-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <div id="detail-loading" class="text-center text-secondary py-8">
+                <i class="fas fa-spinner fa-spin text-4xl"></i>
+                <p class="mt-4">Loading details...</p>
+            </div>
+            <div id="detail-content-text" class="text-secondary prose max-w-none text-base">
+                <!-- Detailed content will be injected here by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Detail Modal -->
+    <div id="subject-detail-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="subject-detail-title" class="text-xl font-bold text-primary">Subject Flashcards</h3>
+                <button id="close-subject-detail-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <div id="subject-atoms-list" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                <!-- Flashcards for the selected subject will be injected here by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Reflection Modal -->
+    <div id="reflection-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-primary">Session Reflection</h3>
+                <button id="close-reflection-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <p class="text-secondary mb-4">How do you feel about your study session today? What went well, what was challenging?</p>
+            <textarea id="reflection-text" rows="6" class="w-full p-3 border rounded-lg resize-y input-themed" placeholder="Write your thoughts here..."></textarea>
+            <button id="save-reflection-btn" class="button-primary px-5 py-2 rounded-lg font-semibold w-full mt-4">Save Reflection</button>
+        </div>
+    </div>
+
+    <!-- Onboarding Modal -->
+    <div id="onboarding-modal" class="modal-overlay hidden">
+        <div class="modal-content text-center">
+            <h3 class="text-2xl font-bold text-primary mb-4">Welcome to AuraLearn!</h3>
+            <p id="onboarding-text" class="text-lg text-secondary mb-6">Let's set up your personalized learning journey.</p>
+
+            <div id="onboarding-steps-container">
+                <!-- Step 1 -->
+                <div id="step-1" class="onboarding-step space-y-4">
+                    <label for="goal-input" class="block text-primary text-base font-semibold">What are your primary learning goals?</label>
+                    <input type="text" id="goal-input" class="w-full p-3 border rounded-lg input-themed" placeholder="e.g., 'Pass my final exams', 'Learn web development'">
+                </div>
+                <!-- Step 2 -->
+                <div id="step-2" class="onboarding-step space-y-4 hidden">
+                    <label for="time-input" class="block text-primary text-base font-semibold">How much time can you dedicate to learning each week (in hours)?</label>
+                    <input type="number" id="time-input" class="w-full p-3 border rounded-lg input-themed" value="5" min="0" placeholder="e.g., 5">
+                </div>
+                <!-- Step 3 -->
+                <div id="step-3" class="onboarding-step space-y-4 hidden">
+                    <label for="subjects-input" class="block text-primary text-base font-semibold">What subjects or areas are you currently focusing on? (comma-separated)</label>
+                    <input type="text" id="subjects-input" class="w-full p-3 border rounded-lg input-themed" placeholder="e.g., 'Mathematics, History, English Literature'">
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-4 mt-8">
+                <button id="onboarding-next-btn" class="button-primary px-6 py-3 rounded-lg font-semibold">Next</button>
+                <button id="onboarding-skip-btn" class="bg-gray-400 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-500">Skip</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quiz-modal" class="modal-overlay hidden">
+        <div class="modal-content max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="quiz-title" class="text-xl font-bold text-primary">Quiz Title</h3>
+                <button id="close-quiz-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
+            </div>
+
+            <!-- Quiz Question Container -->
+            <div id="quiz-question-container">
+                <p id="quiz-question-text" class="text-lg text-primary font-semibold mb-6"></p>
+                <div id="quiz-options" class="grid grid-cols-1 gap-3 mb-6">
+                    <!-- Options injected here by JS -->
+                </div>
+                <p id="quiz-feedback" class="text-center font-semibold mb-4 hidden"></p>
+                <button id="quiz-submit-answer-btn" class="button-primary px-5 py-2 rounded-lg font-semibold w-full">Submit Answer</button>
+            </div>
+
+            <!-- Quiz Results Container -->
+            <div id="quiz-results-container" class="text-center hidden">
+                <h3 class="text-2xl font-bold text-primary mb-4">Quiz Complete!</h3>
+                <p id="quiz-score-display" class="text-xl font-semibold text-accent-blue mb-6">You scored: 0 / 0</p>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button id="quiz-retake-btn" class="button-primary px-5 py-2 rounded-lg font-semibold">Retake Quiz</button>
+                    <button id="quiz-review-answers-btn" class="bg-gray-400 text-white px-5 py-2 rounded-lg font-semibold hover:bg-gray-500">Review Answers</button>
+                </div>
+            </div>
+
+            <!-- Quiz Review Detail Container -->
+            <div id="quiz-review-detail-container" class="hidden">
+                <h3 class="text-xl font-bold text-primary mb-4">Review Your Answers</h3>
+                <div id="quiz-review-list" class="space-y-4 max-h-80 overflow-y-auto pr-2">
+                    <!-- Review items injected here by JS -->
+                </div>
+                <button id="quiz-back-to-results-btn" class="button-primary px-5 py-2 rounded-lg font-semibold w-full mt-6">Back to Results</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Step Modal (for interactive tours and detailed guides) -->
+    <div id="tutorial-step-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="tutorial-step-title" class="text-xl font-bold text-primary">Tutorial Step</h3>
+                <button id="close-tutorial-step-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            <div id="tutorial-step-content" class="text-secondary prose max-w-none text-base">
+                <!-- Content will be injected here by JS -->
+            </div>
+            <div class="flex justify-between mt-6">
+                <button id="tutorial-prev-btn" class="bg-gray-400 text-white px-5 py-2 rounded-lg font-semibold hover:bg-gray-500 hidden">Previous</button>
+                <button id="tutorial-next-btn" class="button-primary px-5 py-2 rounded-lg font-semibold ml-auto">Next</button>
+                <button id="tutorial-finish-btn" class="button-primary px-5 py-2 rounded-lg font-semibold ml-auto hidden">Finish Tour</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Global Notification Toast -->
+    <div id="notification-toast" class="notification-toast hidden">
+        This is a notification message.
+    </div>
+
+    <!-- Script -->
+    <script src="script.js"></script>
 </body>
 </html>
