@@ -11,12 +11,747 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
-    <!-- Linking to external style.css for better organization -->
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Base styles using Inter font */
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Theme Variables - Default Light */
+        .theme-light {
+            --bg-primary: #f8fafc; /* Slate 50 */
+            --bg-secondary: #ffffff; /* White */
+            --text-primary: #0f172a; /* Slate 900 */
+            --text-secondary: #64748b; /* Slate 500 */
+            --border-color: #e2e8f0; /* Slate 200 */
+            --accent-blue: #2563eb; /* Blue 600 */
+            --accent-blue-hover: #1d4ed8; /* Blue 700 */
+            --nav-active-bg: #e2e8f0; /* Slate 200 */
+            --nav-active-text: #0f172a; /* Slate 900 */
+            --card-front-bg: #ffffff;
+            --card-back-bg: #ffffff;
+            --input-bg: #ffffff;
+            --input-text: #0f172a;
+            --placeholder-text: #94a3b8; /* Slate 400 */
+            --notification-bg: #e0f2f7; /* Cyan 50 */
+            --notification-text: #0e7490; /* Cyan 700 */
+            --notification-error-bg: #fee2e2; /* Red 100 */
+            --notification-error-text: #dc2626; /* Red 600 */
+            --button-primary-bg: #2563eb;
+            --button-primary-text: #ffffff;
+            --button-primary-hover-bg: #1d4ed8;
+            --text-green: #22c55e; /* Green 500 */
+            --text-orange: #f97316; /* Orange 500 */
+            --connection-color: #64748b; /* Slate 500 for mind map connections */
+            --node-bg: #cbd5e1; /* Slate 300 for mind map nodes */
+            --node-border: #94a3b8; /* Slate 400 */
+            --node-selected-border: #2563eb; /* Accent blue */
+            --node-text: #0f172a; /* Slate 900 */
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --modal-bg: #ffffff;
+            --pomodoro-bg: #dbeafe; /* Light Blue 100 */
+        }
+
+        /* Dark Theme */
+        .theme-dark {
+            --bg-primary: #1e293b; /* Slate 800 */
+            --bg-secondary: #334155; /* Slate 700 */
+            --text-primary: #f8fafc; /* Slate 50 */
+            --text-secondary: #94a3b8; /* Slate 400 */
+            --border-color: #475569; /* Slate 600 */
+            --accent-blue: #60a5fa; /* Blue 400 */
+            --accent-blue-hover: #3b82f6; /* Blue 500 */
+            --nav-active-bg: #475569; /* Slate 600 */
+            --nav-active-text: #f8fafc; /* Slate 50 */
+            --card-front-bg: #334155;
+            --card-back-bg: #334155;
+            --input-bg: #334155;
+            --input-text: #f8fafc;
+            --placeholder-text: #64748b;
+            --notification-bg: #0f172a; /* Slate 900 */
+            --notification-text: #60a5fa; /* Blue 400 */
+            --notification-error-bg: #dc2626; /* Red 600 */
+            --notification-error-text: #f8fafc; /* Slate 50 */
+            --button-primary-bg: #60a5fa;
+            --button-primary-text: #1e293b;
+            --button-primary-hover-bg: #3b82f6;
+            --text-green: #4ade80; /* Green 400 */
+            --text-orange: #fb923c; /* Orange 400 */
+            --connection-color: #94a3b8;
+            --node-bg: #475569;
+            --node-border: #64748b;
+            --node-selected-border: #60a5fa;
+            --node-text: #f8fafc;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.7);
+            --modal-bg: #334155;
+            --pomodoro-bg: #1f2937; /* Gray 800 */
+        }
+
+        /* Vibrant Theme */
+        .theme-vibrant {
+            --bg-primary: #ecfeff; /* Cyan 50 */
+            --bg-secondary: #ffffff; /* White */
+            --text-primary: #083344; /* Cyan 950 */
+            --text-secondary: #0e7490; /* Cyan 700 */
+            --border-color: #a5f3fc; /* Cyan 200 */
+            --accent-blue: #06b6d4; /* Cyan 500 */
+            --accent-blue-hover: #0891b2; /* Cyan 600 */
+            --nav-active-bg: #a5f3fc; /* Cyan 200 */
+            --nav-active-text: #083344; /* Cyan 950 */
+            --card-front-bg: #ffffff;
+            --card-back-bg: #ffffff;
+            --input-bg: #ffffff;
+            --input-text: #083344;
+            --placeholder-text: #22d3ee; /* Cyan 400 */
+            --notification-bg: #cffafe; /* Cyan 100 */
+            --notification-text: #0e7490; /* Cyan 700 */
+            --notification-error-bg: #fecaca; /* Red 200 */
+            --notification-error-text: #ef4444; /* Red 500 */
+            --button-primary-bg: #06b6d4;
+            --button-primary-text: #ffffff;
+            --button-primary-hover-bg: #0891b2;
+            --text-green: #10b981; /* Emerald 500 */
+            --text-orange: #f59e0b; /* Amber 500 */
+            --connection-color: #0e7490;
+            --node-bg: #67e8f9; /* Cyan 400 */
+            --node-border: #22d3ee; /* Cyan 500 */
+            --node-selected-border: #06b6d4; /* Accent cyan */
+            --node-text: #083344;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --modal-bg: #ffffff;
+            --pomodoro-bg: #22d3ee; /* Cyan 500 */
+        }
+
+        /* Forest Green Theme */
+        .theme-forest-green {
+            --bg-primary: #f0fdf4; /* Emerald 50 */
+            --bg-secondary: #dcfce7; /* Emerald 100 */
+            --text-primary: #064e3b; /* Emerald 900 */
+            --text-secondary: #047857; /* Emerald 700 */
+            --border-color: #a7f3d0; /* Emerald 200 */
+            --accent-blue: #10b981; /* Emerald 600 */
+            --accent-blue-hover: #059669; /* Emerald 700 */
+            --nav-active-bg: #a7f3d0; /* Emerald 200 */
+            --nav-active-text: #064e3b; /* Emerald 900 */
+            --card-front-bg: #ecfdf5;
+            --card-back-bg: #ecfdf5;
+            --input-bg: #dcfce7;
+            --input-text: #064e3b;
+            --placeholder-text: #34d399; /* Emerald 400 */
+            --notification-bg: #d1fae5; /* Green 100 */
+            --notification-text: #065f46; /* Green 700 */
+            --notification-error-bg: #fecaca; /* Red 200 */
+            --notification-error-text: #ef4444; /* Red 500 */
+            --button-primary-bg: #10b981;
+            --button-primary-text: #ffffff;
+            --button-primary-hover-bg: #059669;
+            --text-green: #22c55e;
+            --text-orange: #f97316;
+            --connection-color: #047857;
+            --node-bg: #34d399;
+            --node-border: #10b981;
+            --node-selected-border: #059669;
+            --node-text: #064e3b;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --modal-bg: #ffffff;
+            --pomodoro-bg: #a7f3d0; /* Emerald 200 */
+        }
+
+        /* Ocean Blue Theme */
+        .theme-ocean-blue {
+            --bg-primary: #eff6ff; /* Blue 50 */
+            --bg-secondary: #dbeafe; /* Blue 100 */
+            --text-primary: #1e3a8a; /* Blue 900 */
+            --text-secondary: #2563eb; /* Blue 600 */
+            --border-color: #bfdbfe; /* Blue 200 */
+            --accent-blue: #3b82f6; /* Blue 500 */
+            --accent-blue-hover: #2563eb; /* Blue 600 */
+            --nav-active-bg: #bfdbfe; /* Blue 200 */
+            --nav-active-text: #1e3a8a; /* Blue 900 */
+            --card-front-bg: #e0f2fe;
+            --card-back-bg: #e0f2fe;
+            --input-bg: #dbeafe;
+            --input-text: #1e3a8a;
+            --placeholder-text: #60a5fa; /* Blue 400 */
+            --notification-bg: #e0f2fe; /* Light Blue 100 */
+            --notification-text: #1d4ed8; /* Blue 700 */
+            --notification-error-bg: #fecaca; /* Red 200 */
+            --notification-error-text: #ef4444; /* Red 500 */
+            --button-primary-bg: #3b82f6;
+            --button-primary-text: #ffffff;
+            --button-primary-hover-bg: #2563eb;
+            --text-green: #22c55e;
+            --text-orange: #f97316;
+            --connection-color: #2563eb;
+            --node-bg: #60a5fa;
+            --node-border: #3b82f6;
+            --node-selected-border: #2563eb;
+            --node-text: #1e3a8a;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --modal-bg: #ffffff;
+            --pomodoro-bg: #bfdbfe; /* Blue 200 */
+        }
+
+        /* Warm Sunset Theme */
+        .theme-warm-sunset {
+            --bg-primary: #fff7ed; /* Orange 50 */
+            --bg-secondary: #fed7aa; /* Orange 200 */
+            --text-primary: #7c2d12; /* Orange 900 */
+            --text-secondary: #ea580c; /* Orange 600 */
+            --border-color: #fdba74; /* Orange 300 */
+            --accent-blue: #f97316; /* Orange 500 */
+            --accent-blue-hover: #e3a008; /* Yellow 600 */
+            --nav-active-bg: #fdba74; /* Orange 300 */
+            --nav-active-text: #7c2d12; /* Orange 900 */
+            --card-front-bg: #ffedd5;
+            --card-back-bg: #ffedd5;
+            --input-bg: #fed7aa;
+            --input-text: #7c2d12;
+            --placeholder-text: #fdb074; /* Orange 400 */
+            --notification-bg: #fff1e5; /* Orange 100 */
+            --notification-text: #ea580c; /* Orange 600 */
+            --notification-error-bg: #fecaca; /* Red 200 */
+            --notification-error-text: #ef4444; /* Red 500 */
+            --button-primary-bg: #f97316;
+            --button-primary-text: #ffffff;
+            --button-primary-hover-bg: #e3a008;
+            --text-green: #22c55e;
+            --text-orange: #fb923c;
+            --connection-color: #ea580c;
+            --node-bg: #fdb074;
+            --node-border: #f97316;
+            --node-selected-border: #e3a008;
+            --node-text: #7c2d12;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --modal-bg: #fff7ed;
+            --pomodoro-bg: #fdba74; /* Orange 300 */
+        }
+
+        /* Cool Breeze Theme */
+        .theme-cool-breeze {
+            --bg-primary: #f0f9ff; /* Sky 50 */
+            --bg-secondary: #e0f2fe; /* Sky 100 */
+            --text-primary: #072540; /* Sky 950 */
+            --text-secondary: #0c4a6e; /* Sky 800 */
+            --border-color: #bae6fd; /* Sky 200 */
+            --accent-blue: #0284c7; /* Sky 600 */
+            --accent-blue-hover: #0369a1; /* Sky 700 */
+            --nav-active-bg: #bae6fd; /* Sky 200 */
+            --nav-active-text: #072540; /* Sky 950 */
+            --card-front-bg: #f0f9ff;
+            --card-back-bg: #f0f9ff;
+            --input-bg: #e0f2fe;
+            --input-text: #072540;
+            --placeholder-text: #38bdf8; /* Sky 500 */
+            --notification-bg: #e0f2fe; /* Sky 100 */
+            --notification-text: #0c4a6e; /* Sky 800 */
+            --notification-error-bg: #fecaca; /* Red 200 */
+            --notification-error-text: #ef4444; /* Red 500 */
+            --button-primary-bg: #0284c7;
+            --button-primary-text: #ffffff;
+            --button-primary-hover-bg: #0369a1;
+            --text-green: #22c55e;
+            --text-orange: #f97316;
+            --connection-color: #0c4a6e;
+            --node-bg: #38bdf8;
+            --node-border: #0284c7;
+            --node-selected-border: #0369a1;
+            --node-text: #072540;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+            --modal-bg: #f0f9ff;
+            --pomodoro-bg: #bae6fd; /* Sky 200 */
+        }
+
+        /* Mono Contrast Theme */
+        .theme-mono-contrast {
+            --bg-primary: #0a0a0a; /* Near Black */
+            --bg-secondary: #1a1a1a; /* Dark Gray */
+            --text-primary: #f5f5f5; /* Light Gray */
+            --text-secondary: #a3a3a3; /* Medium Gray */
+            --border-color: #404040; /* Gray 800 */
+            --accent-blue: #00e676; /* Vibrant Green Accent */
+            --accent-blue-hover: #00c853; /* Darker Vibrant Green */
+            --nav-active-bg: #404040; /* Gray 800 */
+            --nav-active-text: #f5f5f5; /* Light Gray */
+            --card-front-bg: #1a1a1a;
+            --card-back-bg: #1a1a1a;
+            --input-bg: #1a1a1a;
+            --input-text: #f5f5f5;
+            --placeholder-text: #525252;
+            --notification-bg: #004d40; /* Dark Teal */
+            --notification-text: #80cbc4; /* Light Teal */
+            --notification-error-bg: #d32f2f; /* Dark Red */
+            --notification-error-text: #ffcdd2; /* Light Red */
+            --button-primary-bg: #00e676;
+            --button-primary-text: #0a0a0a;
+            --button-primary-hover-bg: #00c853;
+            --text-green: #00e676;
+            --text-orange: #ffab40; /* Orange Accent */
+            --connection-color: #a3a3a3;
+            --node-bg: #525252;
+            --node-border: #a3a3a3;
+            --node-selected-border: #00e676;
+            --node-text: #f5f5f5;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.8);
+            --modal-bg: #1a1a1a;
+            --pomodoro-bg: #262626; /* Gray 900 */
+        }
+
+
+        /* Apply variables */
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .text-primary { color: var(--text-primary); }
+        .text-secondary { color: var(--text-secondary); }
+        .bg-primary { background-color: var(--bg-primary); }
+        .bg-secondary { background-color: var(--bg-secondary); }
+        .border-border-color { border-color: var(--border-color); }
+        .accent-blue { color: var(--accent-blue); }
+        .bg-accent-blue { background-color: var(--accent-blue); }
+        .hover\:bg-accent-blue-hover:hover { background-color: var(--accent-blue-hover); }
+        .nav-item-active {
+            background-color: var(--nav-active-bg);
+            color: var(--nav-active-text);
+        }
+        .flashcard-front, .flashcard-back {
+            background-color: var(--card-front-bg);
+        }
+        .input-themed {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border-color: var(--border-color);
+        }
+        .input-themed::placeholder {
+            color: var(--placeholder-text);
+        }
+        .list-item-themed {
+            background-color: var(--bg-secondary);
+            border-color: var(--border-color);
+        }
+        .hover\:list-item-themed:hover {
+            background-color: var(--nav-active-bg);
+        }
+        .notification-toast {
+            background-color: var(--notification-bg);
+            color: var(--notification-text);
+        }
+        .notification-toast.error {
+            background-color: var(--notification-error-bg);
+            color: var(--notification-error-text);
+        }
+        .button-primary {
+            background-color: var(--button-primary-bg);
+            color: var(--button-primary-text);
+        }
+        .button-primary:hover {
+            background-color: var(--button-primary-hover-bg);
+        }
+        .text-green-600 { color: var(--text-green); }
+        .text-red-600 { color: var(--notification-error-text); } /* Ensure consistency for red text */
+        .text-orange-500 { color: var(--text-orange); }
+
+        /* General layout */
+        #app-container {
+            display: flex;
+            min-height: 100vh;
+            border-radius: 1rem; /* Rounded corners for the whole app */
+            overflow: hidden;
+        }
+
+        aside {
+            width: 250px;
+            flex-shrink: 0;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border-top-left-radius: 1rem;
+            border-bottom-left-radius: 1rem;
+        }
+
+        main {
+            flex-grow: 1;
+            padding: 1.5rem;
+            background-color: var(--bg-primary);
+            overflow-y: auto;
+            border-top-right-radius: 1rem;
+            border-bottom-right-radius: 1rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .nav-item:hover:not(.nav-item-active) {
+            background-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .flashcard-container {
+            width: 100%;
+            height: 350px;
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            border-radius: 0.75rem; /* Rounded corners for flashcards */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .flashcard-container.flipped .flashcard {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            overflow-y: auto;
+        }
+
+        .flashcard-front {
+            background-color: var(--card-front-bg);
+            color: var(--text-primary);
+        }
+
+        .flashcard-back {
+            background-color: var(--card-back-bg);
+            color: var(--text-primary);
+            transform: rotateY(180deg);
+        }
+
+        .quiz-option-btn, .soundscape-btn {
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background-color 0.2s, border-color 0.2s;
+            border-radius: 0.5rem;
+        }
+
+        .quiz-option-btn:hover, .soundscape-btn:hover {
+            background-color: var(--nav-active-bg);
+            border-color: var(--accent-blue);
+        }
+
+        .quiz-option-btn.selected {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px var(--accent-blue);
+        }
+
+        .quiz-option-btn.correct {
+            background-color: #d1fae5; /* Green 100 */
+            border-color: #34d399; /* Green 500 */
+            color: #065f46; /* Green 900 */
+        }
+
+        .quiz-option-btn.incorrect {
+            background-color: #fee2e2; /* Red 100 */
+            border-color: #ef4444; /* Red 500 */
+            color: #991b1b; /* Red 900 */
+        }
+
+        /* Modal styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-overlay-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .modal-overlay.modal-active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--modal-bg);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Notification Toast */
+        .notification-toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            z-index: 1001;
+            font-weight: 500;
+        }
+        .notification-toast.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .notification-toast.notification-success {
+            background-color: var(--notification-bg);
+            color: var(--notification-text);
+        }
+        .notification-toast.notification-error {
+            background-color: var(--notification-error-bg);
+            color: var(--notification-error-text);
+        }
+
+        /* Calendar Styling */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day-cell {
+            padding: 0.5rem;
+            aspect-ratio: 1 / 1; /* Make cells square */
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-day-cell:hover:not(.inactive) {
+            background-color: var(--nav-active-bg);
+            border-color: var(--accent-blue);
+        }
+
+        .calendar-day-cell.inactive {
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            opacity: 0.6;
+            cursor: not-allowed;
+            border-color: var(--border-color);
+        }
+
+        .calendar-day-cell.today {
+            background-color: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .calendar-day-cell.today .calendar-day-number {
+            color: white;
+        }
+
+        .calendar-day-cell.selected-day:not(.today) {
+            border: 2px solid var(--accent-blue);
+            box-shadow: 0 0 0 2px var(--accent-blue);
+        }
+
+        .calendar-day-number {
+            font-weight: 600;
+            color: var(--text-primary);
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            font-size: 0.875rem; /* text-sm */
+        }
+
+        .calendar-event-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-top: 0.25rem;
+            font-size: 0.625rem; /* text-xs */
+            color: var(--text-secondary);
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .calendar-event-marker {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .calendar-event-item.event-type-assignment .calendar-event-marker { background-color: #ef4444; /* Red */ }
+        .calendar-event-item.event-type-exam .calendar-event-marker { background-color: #f97316; /* Orange */ }
+        .calendar-event-item.event-type-study .calendar-event-marker { background-color: #22c55e; /* Green */ }
+        .calendar-event-item.event-type-other .calendar-event-marker { background-color: #6366f1; /* Indigo */ }
+
+        /* Event List for Day */
+        .events-for-day-list li {
+            position: relative;
+        }
+        .events-for-day-list li.event-type-assignment .calendar-event-marker { background-color: #ef4444; }
+        .events-for-day-list li.event-type-exam .calendar-event-marker { background-color: #f97316; }
+        .events-for-day-list li.event-type-study .calendar-event-marker { background-color: #22c55e; }
+        .events-for-day-list li.event-type-other .calendar-event-marker { background-color: #6366f1; }
+
+        /* Mind Map Canvas */
+        #mind-map-canvas {
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            border-radius: 0.75rem;
+            width: 100%;
+            height: 500px; /* Or adjust as needed */
+            touch-action: none; /* Prevent browser touch actions like scrolling */
+        }
+        /* Pomodoro Timer Specific Styling */
+        #pomodoro-timer-container {
+            background-color: var(--pomodoro-bg);
+        }
+
+        /* Achievements */
+        .achievement-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .achievement-card .icon {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+        }
+        .achievement-card h4 {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .achievement-card p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .achievement-card.locked {
+            filter: grayscale(80%);
+            opacity: 0.7;
+        }
+
+        /* Tutorial Highlight */
+        .highlighted-element {
+            position: relative;
+            z-index: 100; /* Bring highlighted element to front */
+            box-shadow: 0 0 0 4px var(--accent-blue), 0 0 15px rgba(0, 0, 0, 0.3); /* Add a glow */
+            transition: box-shadow 0.3s ease-in-out;
+            border-radius: 0.75rem; /* Match app general border radius */
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            aside {
+                display: none; /* Hide sidebar by default on smaller screens */
+            }
+            main {
+                flex-grow: 1;
+                border-radius: 0; /* No rounded corners for main if sidebar is hidden */
+            }
+            .mobile-header {
+                display: flex; /* Show mobile header */
+            }
+            #app-container {
+                border-radius: 0;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            aside {
+                display: flex; /* Show sidebar on larger screens */
+            }
+            .mobile-header {
+                display: none; /* Hide mobile header */
+            }
+        }
+
+        /* Mobile Sidebar specific styles */
+        #mobile-sidebar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-overlay-bg);
+            z-index: 1000;
+        }
+        #mobile-sidebar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Hide scrollbar for entire app, but allow content to scroll if needed */
+        body {
+            overflow: hidden; /* Hide main body scrollbar */
+        }
+        main {
+            overflow-y: auto; /* Allow scrolling within the main content area */
+        }
+
+        /* Custom styles for theme buttons in settings */
+        .theme-btn[data-theme="light"] { background-color: #f8fafc; color: #0f172a; }
+        .theme-btn[data-theme="dark"] { background-color: #1e293b; color: #f8fafc; }
+        .theme-btn[data-theme="vibrant"] { background-color: #06b6d4; color: #ffffff; }
+        .theme-btn[data-theme="forest-green"] { background-color: #10b981; color: #ffffff; }
+        .theme-btn[data-theme="ocean-blue"] { background-color: #3b82f6; color: #ffffff; }
+        .theme-btn[data-theme="warm-sunset"] { background-color: #f97316; color: #ffffff; }
+        .theme-btn[data-theme="cool-breeze"] { background-color: #0284c7; color: #ffffff; }
+        .theme-btn[data-theme="mono-contrast"] { background-color: #0a0a0a; color: #f5f5f5; border-color: #a3a3a3;} /* Added border for contrast */
+    </style>
 </head>
 <body class="bg-primary text-primary antialiased">
     <!-- Main Application Container -->
-    <!-- Added 'h-screen' to app-container to ensure it takes full height, making 'main' scrollable within it -->
     <div id="app-container" class="flex flex-col lg:flex-row min-h-screen w-full mx-auto shadow-lg rounded-2xl">
 
         <!-- Mobile Header (Visible on smaller screens) -->
@@ -29,7 +764,7 @@
 
         <!-- Mobile Sidebar (Hidden by default, shown via menu button) -->
         <div id="mobile-sidebar-container" class="hidden">
-            <aside id="mobile-sidebar" class="w-64 bg-secondary p-6 shadow-xl fixed h-full z-50 rounded-r-2xl overflow-y-auto">
+            <aside id="mobile-sidebar" class="w-64 bg-secondary p-6 shadow-xl fixed h-full z-50 rounded-r-2xl">
                 <div class="flex items-center justify-between mb-8">
                     <h2 class="text-2xl font-bold text-primary">AuraLearn</h2>
                     <button id="close-menu-button" class="p-2 rounded-md hover:bg-border-color text-primary">
@@ -94,8 +829,7 @@
         </div>
 
         <!-- Desktop Sidebar (Always visible on larger screens) -->
-        <!-- Added overflow-y-auto to desktop aside for scrollability if content exceeds height -->
-        <aside class="hidden lg:flex w-64 bg-secondary p-6 flex-col justify-between rounded-l-2xl overflow-y-auto">
+        <aside class="hidden lg:flex w-64 bg-secondary p-6 flex-col justify-between rounded-l-2xl">
             <div>
                 <h2 class="text-2xl font-bold text-primary mb-8">AuraLearn</h2>
                 <nav>
@@ -156,8 +890,7 @@
         </aside>
 
         <!-- Main Content Area -->
-        <!-- Ensured main content area is scrollable. Added dynamic height adjustment for smaller screens -->
-        <main class="flex-grow p-6 sm:p-8 md:p-10 rounded-r-2xl overflow-y-auto h-full lg:h-auto">
+        <main class="flex-grow p-6 sm:p-8 md:p-10 rounded-r-2xl overflow-y-auto">
             <!-- Global Search Bar -->
             <div class="mb-6">
                 <input type="text" id="global-search-input" placeholder="Search flashcards, notes, concepts..."
@@ -192,8 +925,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                     <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
                         <h2 class="text-2xl font-bold text-primary mb-4">Daily Review</h2>
-                        <!-- Added max-h-48 and overflow-y-auto to ensure scrollability for daily-queue-list -->
-                        <ul id="daily-queue-list" class="space-y-3 max-h-48 overflow-y-auto pr-2">
+                        <ul id="daily-queue-list" class="space-y-3">
                             <!-- Flashcards will be injected here by JS -->
                         </ul>
                         <div class="mt-6 flex flex-col sm:flex-row gap-3">
@@ -206,7 +938,7 @@
 
                     <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
                         <h2 class="text-2xl font-bold text-primary mb-4">Daily Challenge</h2>
-                        <p id="daily-challenge-text" class="text-secondary mb-3">Review 5 Flashcards to complete today's challenge!</p>
+                        <p id="daily-challenge-text" class="text-secondary mb-3">Review 5 flashcards to complete today's challenge!</p>
                         <div class="w-full bg-border-color rounded-full h-3 mb-2">
                             <div id="daily-challenge-progress" class="bg-accent-blue h-3 rounded-full" style="width: 0%;"></div>
                         </div>
@@ -219,8 +951,7 @@
                 <!-- Recommended Flashcards -->
                 <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8">
                     <h2 class="text-2xl font-bold text-primary mb-4">Recommended for You</h2>
-                    <!-- Added max-h-48 and overflow-y-auto for scrollability -->
-                    <div id="recommended-atoms-list" class="space-y-3 max-h-48 overflow-y-auto pr-2">
+                    <div id="recommended-atoms-list" class="space-y-3">
                         <!-- Recommended Flashcards will be injected here by JS -->
                     </div>
                 </div>
@@ -264,8 +995,7 @@
                             <i class="fas fa-plus mr-2"></i>Add Event
                         </button>
                     </div>
-                    <!-- Added max-h-64 and overflow-y-auto for scrollability -->
-                    <ul id="events-list-for-day" class="space-y-3 events-for-day-list max-h-64 overflow-y-auto pr-2">
+                    <ul id="events-list-for-day" class="space-y-3 events-for-day-list">
                         <!-- Events for selected day will be injected here by JS -->
                     </ul>
                 </div>
@@ -286,8 +1016,7 @@
                     <p class="mb-3">No subjects created yet. Start by adding your first flashcard!</p>
                     <button class="bg-accent-blue text-white px-4 py-2 rounded-lg hover:bg-accent-blue-hover transition-colors font-semibold" onclick="document.getElementById('quick-add-atom-btn-library').click()">Add First Flashcard</button>
                 </div>
-                <!-- Added overflow-y-auto to subject-grid to enable scrolling if many subjects -->
-                <div id="subject-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8 overflow-y-auto max-h-96">
+                <div id="subject-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
                     <!-- Subjects will be injected here by JS -->
                 </div>
 
@@ -296,8 +1025,7 @@
                     <p class="mb-3">No AI-generated materials yet. Head over to the AI Learning Studio to create some!</p>
                     <button class="bg-accent-blue text-white px-4 py-2 rounded-lg hover:bg-accent-blue-hover transition-colors font-semibold" onclick="navigate('ai-learning')">Go to AI Learning Studio</button>
                 </div>
-                <!-- Added max-h-96 and overflow-y-auto for scrollability -->
-                <div id="ai-materials-list" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                <div id="ai-materials-list" class="space-y-3">
                     <!-- AI Materials will be injected here by JS -->
                 </div>
             </section>
@@ -361,8 +1089,7 @@
 
                     <div id="ai-generated-output" class="bg-primary p-5 rounded-xl shadow-sm border border-border-color mt-8 hidden">
                         <h3 id="ai-output-title" class="text-xl font-bold text-primary mb-4">Generated Content</h3>
-                        <!-- Added overflow-y-auto for scrollability of generated content -->
-                        <div id="ai-output-content-display" class="text-secondary prose max-w-none max-h-96 overflow-y-auto pr-2">
+                        <div id="ai-output-content-display" class="text-secondary prose max-w-none">
                             <!-- AI generated content will be displayed here -->
                         </div>
                     </div>
@@ -386,10 +1113,7 @@
                             <!-- Options will be populated by JS -->
                         </select>
                     </div>
-                    <!-- Mind Map Canvas container for fixed height, content inside scrolls -->
-                    <div class="relative w-full overflow-hidden rounded-lg border border-border-color" style="height: 500px;">
-                        <canvas id="mind-map-canvas" class="w-full h-full block"></canvas>
-                    </div>
+                    <canvas id="mind-map-canvas" class="w-full h-[500px]"></canvas>
                     <p class="text-xs text-secondary mt-4">
                         Drag nodes to move. Click a node, then another to connect. Double-click a node to edit text.
                     </p>
@@ -404,8 +1128,7 @@
                     <div id="empty-glossary-message" class="text-center text-secondary hidden">
                         <p>Your glossary is empty. Extract keywords using the AI Learning Studio!</p>
                     </div>
-                    <!-- Added max-h-96 and overflow-y-auto for scrollability -->
-                    <div id="glossary-list" class="space-y-4 max-h-96 overflow-y-auto pr-2">
+                    <div id="glossary-list" class="space-y-4">
                         <!-- Glossary terms will be injected here by JS -->
                     </div>
                 </div>
@@ -444,8 +1167,7 @@
                 <div id="empty-goals-message" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color text-center text-secondary hidden">
                     <p>No learning goals set yet. Set a goal to track your long-term progress!</p>
                 </div>
-                <!-- Added max-h-64 and overflow-y-auto for scrollability -->
-                <div id="goals-list" class="space-y-4 max-h-64 overflow-y-auto pr-2">
+                <div id="goals-list" class="space-y-4">
                     <!-- Goals will be injected here by JS -->
                 </div>
             </section>
@@ -456,8 +1178,7 @@
                 <div id="empty-achievements-message" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color text-center text-secondary hidden">
                     <p>No achievements unlocked yet. Keep learning and reviewing to earn your first badge!</p>
                 </div>
-                <!-- Added max-h-[calc(100vh-200px)] and overflow-y-auto for scrollability -->
-                <div id="achievements-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
+                <div id="achievements-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <!-- Achievements will be injected here by JS -->
                 </div>
             </section>
@@ -475,15 +1196,13 @@
                     <div class="flashcard">
                         <div class="flashcard-face flashcard-front rounded-xl">
                             <p class="text-sm font-medium text-secondary mb-2" id="card-subject-front">Subject</p>
-                            <!-- Added overflow-y-auto to flashcard content -->
-                            <h3 id="card-question" class="text-2xl font-semibold text-primary mb-4 break-words overflow-y-auto max-h-48"></h3>
+                            <h3 id="card-question" class="text-2xl font-semibold text-primary mb-4 break-words"></h3>
                             <button id="show-answer-btn" class="button-primary px-6 py-3 rounded-lg font-semibold mt-4 shadow-md">Show Answer</button>
                         </div>
                         <div class="flashcard-face flashcard-back rounded-xl">
                             <p class="text-sm font-medium text-secondary mb-2" id="card-subject-back">Subject</p>
                             <h3 class="text-2xl font-semibold text-primary mb-4 break-words">Answer:</h3>
-                            <!-- Added overflow-y-auto to flashcard content -->
-                            <p id="card-answer" class="text-lg text-primary mb-6 break-words overflow-y-auto max-h-48"></p>
+                            <p id="card-answer" class="text-lg text-primary mb-6 break-words"></p>
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
                                 <button class="recall-btn px-4 py-2 rounded-lg font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors" data-rating="0">Forgot</button>
                                 <button class="recall-btn px-4 py-2 rounded-lg font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors" data-rating="1">Struggled</button>
@@ -498,7 +1217,7 @@
             <!-- View: Focus Tools -->
             <section id="view-focus" class="view-section hidden">
                 <h1 class="text-3xl font-bold mb-6 text-primary">Focus Tools</h1>
-                <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8 text-center">
+                <div id="pomodoro-timer-container" class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8 text-center">
                     <h2 class="text-2xl font-bold text-primary mb-4">Pomodoro Timer</h2>
                     <div class="text-6xl font-mono font-bold text-accent-blue mb-4" id="pomodoro-timer">25:00</div>
                     <p id="pomodoro-status" class="text-secondary mb-6">Time to focus!</p>
@@ -511,8 +1230,7 @@
 
                 <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color">
                     <h2 class="text-2xl font-bold text-primary mb-4">Ambient Soundscapes</h2>
-                    <!-- Added overflow-y-auto to soundscapes for scrollability -->
-                    <div id="soundscapes" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-64 overflow-y-auto pr-2">
+                    <div id="soundscapes" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         <!-- Soundscape buttons injected by JS -->
                     </div>
                 </div>
@@ -522,8 +1240,7 @@
             <section id="view-learning-hub" class="view-section hidden">
                 <h1 class="text-3xl font-bold mb-6 text-primary">Learning Hub: Master Your Learning</h1>
                 <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8">
-                    <!-- Added overflow-x-auto to tab-buttons for horizontal scroll on small screens -->
-                    <div class="flex flex-wrap gap-2 mb-6 border-b border-border-color pb-4 overflow-x-auto">
+                    <div class="flex flex-wrap gap-2 mb-6 border-b border-border-color pb-4">
                         <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="auralearnBasics">AuraLearn Basics</button>
                         <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="techniques">Learning Techniques</button>
                         <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="memorization">Memorization</button>
@@ -532,8 +1249,7 @@
                         <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="examPrep">Exam Prep</button>
                         <button class="tab-button px-4 py-2 rounded-lg font-semibold text-primary hover:bg-border-color transition-colors" data-category="advanced">Advanced Concepts</button>
                     </div>
-                    <!-- Added max-h-[calc(100vh-300px)] and overflow-y-auto for scrollability -->
-                    <div id="learning-hub-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[calc(100vh-300px)] overflow-y-auto pr-2">
+                    <div id="learning-hub-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <!-- Learning content will be injected here by JS -->
                     </div>
                 </div>
@@ -579,7 +1295,6 @@
                 <div class="bg-secondary p-6 rounded-xl shadow-sm border border-border-color mb-8">
                     <h2 class="text-2xl font-bold text-primary mb-4">Themes</h2>
                     <p class="text-secondary text-sm mb-4">Personalize your AuraLearn experience.</p>
-                    <!-- Added more themes here as buttons. Styling will be in style.css -->
                     <div class="flex flex-wrap gap-4">
                         <button data-theme="light" class="theme-btn border-2 border-border-color p-3 rounded-lg text-primary font-semibold hover:opacity-80 transition-opacity">Light</button>
                         <button data-theme="dark" class="theme-btn border-2 border-border-color p-3 rounded-lg text-primary font-semibold hover:opacity-80 transition-opacity">Dark</button>
@@ -618,8 +1333,7 @@
 
                     <h2 class="text-2xl font-bold text-primary mb-4">Detailed Guides</h2>
                     <p class="text-secondary mb-4">Dive deeper into specific concepts and features.</p>
-                    <!-- Added max-h-96 and overflow-y-auto for scrollability -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto pr-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="bg-primary p-4 rounded-lg border border-border-color cursor-pointer hover:bg-border-color transition-colors" data-guide="srs-deep-dive">
                             <h3 class="font-semibold text-primary">Deep Dive: Spaced Repetition System (SRS)</h3>
                             <p class="text-sm text-secondary">Understand how AuraLearn optimizes your memory.</p>
@@ -767,8 +1481,7 @@
                 <i class="fas fa-spinner fa-spin text-4xl"></i>
                 <p class="mt-4">Loading details...</p>
             </div>
-            <!-- Added max-h-[calc(90vh-100px)] and overflow-y-auto for scrollability -->
-            <div id="detail-content-text" class="text-secondary prose max-w-none text-base max-h-[calc(90vh-100px)] overflow-y-auto pr-2">
+            <div id="detail-content-text" class="text-secondary prose max-w-none text-base">
                 <!-- Detailed content will be injected here by JS -->
             </div>
         </div>
@@ -841,10 +1554,8 @@
 
             <!-- Quiz Question Container -->
             <div id="quiz-question-container">
-                <!-- Added overflow-y-auto for question text -->
-                <p id="quiz-question-text" class="text-lg text-primary font-semibold mb-6 overflow-y-auto max-h-32"></p>
-                <!-- Added overflow-y-auto for quiz options -->
-                <div id="quiz-options" class="grid grid-cols-1 gap-3 mb-6 overflow-y-auto max-h-48">
+                <p id="quiz-question-text" class="text-lg text-primary font-semibold mb-6"></p>
+                <div id="quiz-options" class="grid grid-cols-1 gap-3 mb-6">
                     <!-- Options injected here by JS -->
                 </div>
                 <p id="quiz-feedback" class="text-center font-semibold mb-4 hidden"></p>
@@ -879,8 +1590,7 @@
                 <h3 id="tutorial-step-title" class="text-xl font-bold text-primary">Tutorial Step</h3>
                 <button id="close-tutorial-step-modal" class="text-secondary hover:text-primary"><i class="fas fa-times text-lg"></i></button>
             </div>
-            <!-- Added max-h-[calc(90vh-100px)] and overflow-y-auto for scrollability -->
-            <div id="tutorial-step-content" class="text-secondary prose max-w-none text-base max-h-[calc(90vh-100px)] overflow-y-auto pr-2">
+            <div id="tutorial-step-content" class="text-secondary prose max-w-none text-base">
                 <!-- Content will be injected here by JS -->
             </div>
             <div class="flex justify-between mt-6">
