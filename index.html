@@ -11,6 +11,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
+    <!-- REQUIRED FOR MARKDOWN RENDERING -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
         /* Base styles using Inter font */
         body { font-family: 'Inter', sans-serif; }
@@ -48,6 +51,10 @@
             --modal-overlay-bg: rgba(0, 0, 0, 0.5);
             --modal-bg: #ffffff;
             --pomodoro-bg: #dbeafe; /* Light Blue 100 */
+            /* New variables for quick add button */
+            --button-secondary-bg: #dbeafe; /* Blue 100 */
+            --button-secondary-text: #2563eb; /* Blue 600 */
+            --button-secondary-hover-bg: #bfdbfe; /* Blue 200 */
         }
 
         /* Dark Theme */
@@ -83,6 +90,10 @@
             --modal-overlay-bg: rgba(0, 0, 0, 0.7);
             --modal-bg: #334155;
             --pomodoro-bg: #1f2937; /* Gray 800 */
+            /* New variables for quick add button */
+            --button-secondary-bg: #475569; /* Slate 600 */
+            --button-secondary-text: #60a5fa; /* Blue 400 */
+            --button-secondary-hover-bg: #64748b; /* Slate 500 */
         }
 
         /* Vibrant Theme */
@@ -118,6 +129,10 @@
             --modal-overlay-bg: rgba(0, 0, 0, 0.5);
             --modal-bg: #ffffff;
             --pomodoro-bg: #22d3ee; /* Cyan 500 */
+            /* New variables for quick add button */
+            --button-secondary-bg: #bae6fd; /* Cyan 200 */
+            --button-secondary-text: #06b6d4; /* Cyan 500 */
+            --button-secondary-hover-bg: #67e8f9; /* Cyan 400 */
         }
 
         /* Forest Green Theme */
@@ -153,6 +168,10 @@
             --modal-overlay-bg: rgba(0, 0, 0, 0.5);
             --modal-bg: #ffffff;
             --pomodoro-bg: #a7f3d0; /* Emerald 200 */
+            /* New variables for quick add button */
+            --button-secondary-bg: #d1fae5; /* Green 100 */
+            --button-secondary-text: #10b981; /* Emerald 600 */
+            --button-secondary-hover-bg: #a7f3d0; /* Emerald 200 */
         }
 
         /* Ocean Blue Theme */
@@ -188,6 +207,10 @@
             --modal-overlay-bg: rgba(0, 0, 0, 0.5);
             --modal-bg: #ffffff;
             --pomodoro-bg: #bfdbfe; /* Blue 200 */
+            /* New variables for quick add button */
+            --button-secondary-bg: #93c5fd; /* Blue 300 */
+            --button-secondary-text: #1e3a8a; /* Blue 900 */
+            --button-secondary-hover-bg: #60a5fa; /* Blue 400 */
         }
 
         /* Warm Sunset Theme */
@@ -223,6 +246,10 @@
             --modal-overlay-bg: rgba(0, 0, 0, 0.5);
             --modal-bg: #fff7ed;
             --pomodoro-bg: #fdba74; /* Orange 300 */
+            /* New variables for quick add button */
+            --button-secondary-bg: #ffd8a9; /* Orange 200 */
+            --button-secondary-text: #f97316; /* Orange 500 */
+            --button-secondary-hover-bg: #fdb074; /* Orange 400 */
         }
 
         /* Cool Breeze Theme */
@@ -258,6 +285,10 @@
             --modal-overlay-bg: rgba(0, 0, 0, 0.5);
             --modal-bg: #f0f9ff;
             --pomodoro-bg: #bae6fd; /* Sky 200 */
+            /* New variables for quick add button */
+            --button-secondary-bg: #7dd3fc; /* Sky 300 */
+            --button-secondary-text: #072540; /* Sky 950 */
+            --button-secondary-hover-bg: #38bdf8; /* Sky 400 */
         }
 
         /* Mono Contrast Theme */
@@ -293,6 +324,10 @@
             --modal-overlay-bg: rgba(0, 0, 0, 0.8);
             --modal-bg: #1a1a1a;
             --pomodoro-bg: #262626; /* Gray 900 */
+            /* New variables for quick add button */
+            --button-secondary-bg: #262626; /* Gray 900 */
+            --button-secondary-text: #00e676; /* Vibrant Green Accent */
+            --button-secondary-hover-bg: #404040; /* Gray 800 */
         }
 
 
@@ -318,8 +353,8 @@
             background-color: var(--card-front-bg);
         }
         .input-themed {
-            background-color: var(--input-bg);
-            color: var(--input-text);
+            background-color: var(--input-bg); /* Explicitly use variable */
+            color: var(--input-text);       /* Explicitly use variable */
             border-color: var(--border-color);
         }
         .input-themed::placeholder {
@@ -347,6 +382,15 @@
         .button-primary:hover {
             background-color: var(--button-primary-hover-bg);
         }
+        /* New custom button style for Quick Add */
+        .button-secondary {
+            background-color: var(--button-secondary-bg);
+            color: var(--button-secondary-text);
+        }
+        .button-secondary:hover {
+            background-color: var(--button-secondary-hover-bg);
+        }
+
         .text-green-600 { color: var(--text-green); }
         .text-red-600 { color: var(--notification-error-text); } /* Ensure consistency for red text */
         .text-orange-500 { color: var(--text-orange); }
@@ -741,6 +785,14 @@
         .theme-btn[data-theme="warm-sunset"] { background-color: #f97316; color: #ffffff; }
         .theme-btn[data-theme="cool-breeze"] { background-color: #0284c7; color: #ffffff; }
         .theme-btn[data-theme="mono-contrast"] { background-color: #0a0a0a; color: #f5f5f5; border-color: #a3a3a3;} /* Added border for contrast */
+
+        /* CSS for tutorial highlighting */
+        .tutorial-highlight {
+            border: 2px solid var(--accent-blue-hover); /* Or any color that stands out */
+            box-shadow: 0 0 10px rgba(0, 102, 255, 0.5); /* Example with an RGB color for glow */
+            z-index: 999; /* Ensure it's on top */
+            position: relative; /* Needed for z-index to work */
+        }
     </style>
 </head>
 <body class="bg-primary text-primary antialiased">
@@ -923,7 +975,8 @@
                         </ul>
                         <div class="mt-6 flex flex-col sm:flex-row gap-3">
                             <button id="start-review-btn" class="button-primary px-5 py-3 rounded-lg font-semibold flex-grow">Start Daily Review</button>
-                            <button id="quick-add-atom-btn-dashboard" class="bg-blue-100 text-accent-blue px-5 py-3 rounded-lg font-semibold hover:bg-blue-200 transition-colors flex-grow">
+                            <!-- Updated class for better visibility across themes -->
+                            <button id="quick-add-atom-btn-dashboard" class="button-secondary px-5 py-3 rounded-lg font-semibold hover:button-secondary-hover transition-colors flex-grow">
                                 <i class="fas fa-plus mr-2"></i>Quick Add Flashcard
                             </button>
                         </div>
@@ -999,7 +1052,8 @@
                 <h1 class="text-3xl font-bold mb-6 text-primary">Your Learning Library</h1>
 
                 <div class="mb-8">
-                    <button id="quick-add-atom-btn-library" class="button-primary px-5 py-3 rounded-lg font-semibold w-full sm:w-auto">
+                    <!-- Updated class for better visibility across themes -->
+                    <button id="quick-add-atom-btn-library" class="button-secondary px-5 py-3 rounded-lg font-semibold w-full sm:w-auto">
                         <i class="fas fa-plus mr-2"></i>Quick Add Flashcard
                     </button>
                 </div>
@@ -1031,7 +1085,8 @@
                         <label for="ai-input-mode-toggle" class="text-primary font-semibold">Input Mode:</label>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" value="" id="ai-input-mode-toggle" class="sr-only peer">
-                            <div class="w-11 h-6 bg-border-color peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-accent-blue rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border-color after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-blue"></div>
+                            <!-- Adjusted toggle colors to use theme variables -->
+                            <div class="w-11 h-6 bg-[var(--border-color)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-accent-blue rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-[var(--bg-primary)] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[var(--bg-primary)] after:border-[var(--border-color)] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--accent-blue)]"></div>
                             <span class="ml-3 text-sm font-medium text-primary">Topic / Text</span>
                         </label>
                     </div>
@@ -1043,7 +1098,7 @@
                     <div class="mt-4">
                         <label for="ai-content-subject-select" class="block text-primary text-sm font-semibold mb-2">Assign to Subject (for flashcards/notes):</label>
                         <div class="flex gap-2">
-                            <select id="ai-content-subject-select" class="flex-grow p-2 border rounded-lg bg-input-bg text-input-text">
+                            <select id="ai-content-subject-select" class="flex-grow p-2 border rounded-lg input-themed">
                                 <option value="">Select or Add New Subject</option>
                             </select>
                             <input type="text" id="ai-content-new-subject-input" placeholder="New subject name" class="p-2 border rounded-lg hidden flex-grow input-themed">
@@ -1051,8 +1106,8 @@
                         </div>
                     </div>
 
-                    <!-- NEW: Quiz Settings Container -->
-                    <div id="quiz-settings-container" class="hidden bg-gray-50 p-4 rounded-lg border border-border-color mt-4 space-y-3">
+                    <!-- NEW: Quiz Settings Container - Updated class for theme consistency -->
+                    <div id="quiz-settings-container" class="hidden bg-secondary p-4 rounded-lg border border-border-color mt-4 space-y-3">
                         <h4 class="font-semibold text-primary">Quiz Settings</h4>
                         <div>
                             <label for="quiz-question-count-input" class="block text-primary text-sm font-semibold mb-2">Number of Questions:</label>
@@ -1060,7 +1115,7 @@
                         </div>
                         <div>
                             <label for="quiz-difficulty-select" class="block text-primary text-sm font-semibold mb-2">Difficulty:</label>
-                            <select id="quiz-difficulty-select" class="w-full p-2 border border-border-color rounded-lg bg-input-bg text-input-text">
+                            <select id="quiz-difficulty-select" class="w-full p-2 border border-border-color rounded-lg input-themed">
                                 <option value="easy">Easy</option>
                                 <option value="medium" selected>Medium</option>
                                 <option value="hard">Hard</option>
@@ -1102,7 +1157,8 @@
                         <button id="mind-map-add-node-btn" class="button-primary px-4 py-2 rounded-lg font-semibold">Add Node</button>
                         <button id="mind-map-clear-all-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600">Clear All</button>
                         <button id="mind-map-save-btn" class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600">Save Map</button>
-                        <select id="mind-map-load-select" class="p-2 border rounded-lg bg-input-bg text-input-text">
+                        <!-- Updated class for theme consistency -->
+                        <select id="mind-map-load-select" class="p-2 border rounded-lg input-themed">
                             <option value="">Load Map</option>
                             <!-- Options will be populated by JS -->
                         </select>
@@ -1317,6 +1373,7 @@
                     <h2 class="text-2xl font-bold text-primary mb-4">Interactive Tours</h2>
                     <p class="text-secondary mb-4">Take a quick tour of key features to get started.</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                        <button class="button-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="app-overview">App Overview Tour</button>
                         <button class="button-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="dashboard">Dashboard Tour</button>
                         <button class="button-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="library">Library & Flashcards Tour</button>
                         <button class="button-primary px-5 py-3 rounded-lg font-semibold tutorial-tour-btn" data-tour="ai-learning">AI Learning Studio Tour</button>
@@ -1326,19 +1383,19 @@
                     <h2 class="text-2xl font-bold text-primary mb-4">Detailed Guides</h2>
                     <p class="text-secondary mb-4">Dive deeper into specific concepts and features.</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-primary p-4 rounded-lg border border-border-color cursor-pointer hover:bg-border-color transition-colors" data-guide="srs-deep-dive">
+                        <div class="bg-primary p-4 rounded-lg border border-border-color cursor-pointer hover:bg-border-color transition-colors tutorial-detailed-guide-item" data-guide="srs-deep-dive">
                             <h3 class="font-semibold text-primary">Deep Dive: Spaced Repetition System (SRS)</h3>
                             <p class="text-sm text-secondary">Understand how AuraLearn optimizes your memory.</p>
                         </div>
-                        <div class="bg-primary p-4 rounded-lg border border-border-color cursor-pointer hover:bg-border-color transition-colors" data-guide="customizing-ai">
+                        <div class="bg-primary p-4 rounded-lg border border-border-color cursor-pointer hover:bg-border-color transition-colors tutorial-detailed-guide-item" data-guide="customizing-ai">
                             <h3 class="font-semibold text-primary">Customizing AI Generation</h3>
                             <p class="text-sm text-secondary">Tips for getting the best results from the AI Studio.</p>
                         </div>
-                        <div class="bg-primary p-4 rounded-lg border border-border-color cursor-pointer hover:bg-border-color transition-colors" data-guide="goal-setting">
+                        <div class="bg-primary p-4 rounded-lg border border-border-color cursor-pointer hover:bg-border-color transition-colors tutorial-detailed-guide-item" data-guide="goal-setting">
                             <h3 class="font-semibold text-primary">Effective Goal Setting</h3>
                             <p class="text-sm text-secondary">Learn how to set and achieve your learning goals.</p>
                         </div>
-                        <div class="bg-primary p-4 rounded-lg border border-border-color cursor-pointer hover:bg-border-color transition-colors" data-guide="data-management">
+                        <div class="bg-primary p-4 rounded-lg border border-border-color cursor-pointer hover:bg-border-color transition-colors tutorial-detailed-guide-item" data-guide="data-management">
                             <h3 class="font-semibold text-primary">Data Backup & Import</h3>
                             <p class="text-sm text-secondary">Keep your learning progress safe and sound.</p>
                         </div>
@@ -1373,7 +1430,8 @@
             <div class="mb-4">
                 <label for="quick-add-subject" class="block text-primary text-sm font-semibold mb-2">Subject:</label>
                 <div class="flex gap-2">
-                    <select id="quick-add-subject" class="flex-grow p-2 border rounded-lg bg-input-bg text-input-text">
+                    <!-- Added input-themed for consistent styling -->
+                    <select id="quick-add-subject" class="flex-grow p-2 border rounded-lg input-themed">
                         <option value="">Select or Add New Subject</option>
                     </select>
                     <input type="text" id="new-subject-input" placeholder="New subject name" class="p-2 border rounded-lg hidden flex-grow input-themed">
@@ -1413,7 +1471,7 @@
             </div>
             <div class="mb-4">
                 <label for="event-type-select" class="block text-primary text-sm font-semibold mb-2">Event Type:</label>
-                <select id="event-type-select" class="w-full p-3 border rounded-lg bg-input-bg text-input-text">
+                <select id="event-type-select" class="w-full p-3 border rounded-lg input-themed">
                     <option value="assignment">Assignment</option>
                     <option value="exam">Exam</option>
                     <option value="study">Study Session</option>
@@ -1445,7 +1503,7 @@
             </div>
             <div class="mb-4">
                 <label for="goal-target-type" class="block text-primary text-sm font-semibold mb-2">Target Type:</label>
-                <select id="goal-target-type" class="w-full p-3 border rounded-lg bg-input-bg text-input-text">
+                <select id="goal-target-type" class="w-full p-3 border rounded-lg input-themed">
                     <option value="flashcards">Mastered Flashcards</option>
                     <option value="time">Study Time (Hours/Week)</option>
                 </select>
