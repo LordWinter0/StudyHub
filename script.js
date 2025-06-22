@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { title: "Use Second Brain", summary: "Organizing your knowledge outside your head.", details: "" },
                 { title: "5 Productivity Tips Teachers Never Teach", summary: "Unconventional but effective study habits.", details: "" },
                 { title: "Manage Your Study Schedule", summary: "Creating and sticking to an effective learning routine.", details: "" },
-                { title: "Best Study Schedules for YOU!", summary: "Tailoring study plans to individual needs.", details: "" },
+                { title: "Best Study Schedules for YOU!", summary: "Tailoring study plans to individual needs.", retails: "" },
                 { title: "Combat ADHD (Study Tips)", "summary": "Strategies for studying with attention challenges.", details: "" },
                 { title: "5 Most Effective Note-Taking Methods", summary: "Optimizing your notes for better retention and recall.", details: "" },
                 { title: "5 Effective Study Methods to Boost Motivation", summary: "Techniques to stay engaged and energized.", details: "" },
@@ -513,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <li><strong>Measurable:</strong> Ensure your goal can be tracked. AuraLearn helps with this by tracking mastered flashcards and study time.</li>
                         <li><strong>Achievable:</strong> Set realistic goals that challenge you but are not impossible.</li>
                         <li><strong>Relevant:</strong> Your goals should align with your broader academic or personal development objectives.</li>
-                        <li><strong>Time-bound:</strong> Give your goal a clear end date. This creates urgency.</li>
+                        <li><strong>Time-bound:</b> Give your goal a clear end date. This creates urgency.</li>
                     </ul>
                     <h3>How to Set Goals in AuraLearn</h3>
                     <ul>
@@ -535,14 +535,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     </ul>
                     <h3>How to Export Your Data</h3>
                     <ul>
-                        <li>In the <strong>Settings</strong> view, click the "<strong>Export Data</strong>" button. This will download a JSON file containing all your user profile, flashcards, subjects, AI materials, glossary, and mind maps.</li>
-                        <li><em>Recommendation: Store this file in a safe place, like cloud storage (Google Drive, Dropbox) or an external hard drive.</em></li>
+                        <li>In the <strong>Settings</strong> view, click the "<strong>Export Data</strong>" button. This will download a JSON file containing all your user profile, flashcards, subjects, AI materials, glossary, and mind maps. *Recommendation: Store this file in a safe place, like cloud storage (Google Drive, Dropbox) or an external hard drive.*</li>
                     </ul>
                     <h3>How to Import Your Data</h3>
                     <ul>
-                        <li>To restore your data, go to <strong>Settings</strong> and click "<strong>Import Data</strong>". Select the JSON file you previously exported.</li>
-                        <li><strong>Warning:</strong> Importing data will replace your current AuraLearn data. Only import data you trust and intend to use.</li>
-                        <li><em>This method does not merge data; it overwrites.</em></li>
+                        <li>To restore your data, go to <strong>Settings</strong> and click "<strong>Import Data</strong>". Select the JSON file you previously exported. <strong>Warning:</strong> Importing data will replace your current AuraLearn data. Only import data you trust and intend to use. *This method does not merge data; it overwrites.*</li>
                     </ul>
                     <h3>Conclusion</h3>
                     <ul>
@@ -611,7 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Gemini API configuration (placeholder - Canvas will provide this at runtime)
-    const apiKey = "AIzaSyBQOxAbJgKw3NCxj3KOoHnVb_ItMTTwXdM"; // This will be automatically populated by the Canvas environment
+    const apiKey = ""; // This will be automatically populated by the Canvas environment
 
     // --- Helper Functions ---
 
@@ -1116,21 +1113,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (toggleNewSubjectInputBtn.classList.contains('hidden') && newSubjectName) {
-            // User typed a new subject name directly
-            subjectId = newSubjectName.toLowerCase().replace(/\s+/g, '-');
-            if (!mockData.subjects.some(s => s.id === subjectId)) {
-                mockData.subjects.push({
-                    id: subjectId,
-                    name: newSubjectName,
-                    color: 'bg-gray-200', // Default color for new subjects
-                    textColor: 'text-gray-800'
-                });
-            }
-        } else if (!subjectId && !newSubjectName) {
-            showNotification('Please select or add a subject.', true);
+        if (newSubjectInput.classList.contains('hidden') && subjectId === '') {
+            // User selected "Select or Add New Subject" but didn't type a new name
+            showNotification('Please select an existing subject or type a new one.', true);
             return;
-        } else if (newSubjectName && subjectId === '') {
+        }
+
+        if (!newSubjectInput.classList.contains('hidden') && newSubjectName) {
+            // User typed a new subject name in the input field
             subjectId = newSubjectName.toLowerCase().replace(/\s+/g, '-');
             if (!mockData.subjects.some(s => s.id === subjectId)) {
                 mockData.subjects.push({
@@ -1140,6 +1130,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     textColor: 'text-gray-800'
                 });
             }
+        } else if (!newSubjectInput.classList.contains('hidden') && !newSubjectName) {
+            showNotification('Please enter a name for the new subject.', true);
+            return;
         }
 
 
@@ -1162,8 +1155,8 @@ document.addEventListener('DOMContentLoaded', () => {
         quickAddQuestionInput.value = '';
         quickAddAnswerInput.value = '';
         newSubjectInput.value = '';
-        newSubjectInput.classList.add('hidden');
-        toggleNewSubjectInputBtn.textContent = 'Add New Subject';
+        newSubjectInput.classList.add('hidden'); // Hide new subject input after adding
+        toggleNewSubjectInputBtn.textContent = 'Add New Subject'; // Reset button text
         populateSubjectSelect(quickAddSubjectSelect); // Re-populate to show new subject
         hideModal(quickAddFlashcardModal);
         renderSubjects(); // Re-render library subjects if currently in library view
@@ -1185,30 +1178,35 @@ document.addEventListener('DOMContentLoaded', () => {
             emptyLibraryMessage.classList.add('hidden');
         }
 
-        // Group flashcards by subject
-        const flashcardsBySubject = mockData.flashcards.reduce((acc, flashcard) => {
-            const subject = mockData.subjects.find(s => s.id === flashcard.subjectId) ||
-                            defaultSubjects.find(s => s.id === flashcard.subjectId);
-            const subjectName = subject ? subject.name : 'Uncategorized';
-            const subjectId = subject ? subject.id : 'uncategorized'; // Use 'uncategorized' for grouping
-            const subjectColor = subject ? subject.color : 'bg-gray-200';
-            const subjectTextColor = subject ? subject.textColor : 'text-gray-800';
-
-            if (!acc[subjectId]) {
-                acc[subjectId] = {
-                    name: subjectName,
-                    id: subjectId,
-                    color: subjectColor,
-                    textColor: subjectTextColor,
-                    flashcards: []
-                };
+        // Combine default and user-defined subjects for display, ensuring unique IDs
+        const allDisplaySubjects = {};
+        defaultSubjects.forEach(s => allDisplaySubjects[s.id] = { ...s, flashcards: [] });
+        mockData.subjects.forEach(s => {
+            if (!allDisplaySubjects[s.id]) {
+                allDisplaySubjects[s.id] = { ...s, flashcards: [] };
             }
-            acc[subjectId].flashcards.push(flashcard);
-            return acc;
-        }, {});
+        });
+
+        // Group flashcards by subject
+        mockData.flashcards.forEach(flashcard => {
+            const subject = allDisplaySubjects[flashcard.subjectId] || {
+                id: 'uncategorized',
+                name: 'Uncategorized',
+                color: 'bg-gray-200',
+                textColor: 'text-gray-800',
+                flashcards: []
+            };
+            if (!allDisplaySubjects[subject.id]) {
+                allDisplaySubjects[subject.id] = subject;
+            }
+            allDisplaySubjects[subject.id].flashcards.push(flashcard);
+        });
 
         // Render each subject card
-        Object.values(flashcardsBySubject).forEach(subject => {
+        Object.values(allDisplaySubjects)
+              .filter(s => s.flashcards && s.flashcards.length > 0) // Only show subjects with flashcards
+              .sort((a, b) => a.name.localeCompare(b.name)) // Sort alphabetically
+              .forEach(subject => {
             const card = document.createElement('div');
             card.className = `${subject.color} ${subject.textColor} p-6 rounded-xl shadow-sm border border-border-color cursor-pointer hover:shadow-md transition-shadow`;
             card.dataset.subjectId = subject.id; // Store subject ID for detail view
@@ -1575,7 +1573,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function saveEvent() {
         const title = eventTitleInput.value.trim();
-        const dateString = eventDateInput.value; // YYYY-MM-DD from input
+        const dateString = eventDateInput.value; // Date string from input
         const time = eventTimeInput.value;
         const notes = eventNotesInput.value.trim();
         const type = eventTypeSelect.value;
@@ -1735,18 +1733,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (newSubjectName && subjectId === '') {
+        if (aiContentNewSubjectInput.classList.contains('hidden') && subjectId === '') {
+             showNotification('Please select an existing subject or type a new one.', true);
+             return;
+         }
+
+        if (!aiContentNewSubjectInput.classList.contains('hidden') && newSubjectName) {
+            // User typed a new subject name in the input field
             subjectId = newSubjectName.toLowerCase().replace(/\s+/g, '-');
             if (!mockData.subjects.some(s => s.id === subjectId)) {
                 mockData.subjects.push({
                     id: subjectId,
                     name: newSubjectName,
-                    color: 'bg-gray-200',
+                    color: 'bg-gray-200', // Default color for new subjects
                     textColor: 'text-gray-800'
                 });
-                populateSubjectSelect(aiContentSubjectSelect, subjectId); // Update select with new subject
-                showNotification(`New subject "${newSubjectName}" added!`);
             }
+        } else if (!aiContentNewSubjectInput.classList.contains('hidden') && !newSubjectName) {
+            showNotification('Please enter a name for the new subject.', true);
+            return;
         }
 
         aiGenerationStatus.classList.remove('hidden');
@@ -3210,7 +3215,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (currentOnboardingStep === 1) {
             onboardingText.textContent = "Great! How many hours can you realistically dedicate to learning each week?";
         } else if (currentOnboardingStep === 2) {
-            onboardingText.textContent = "Almost there! What subjects or areas are you currently focusing on? (e.g., Biology, History, Programming)";
+            onboardingText.textContent = "Almost there! What subjects or areas are you currently focusing on? (comma-separated)";
         }
     }
 
@@ -3843,10 +3848,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Quick Add Flashcard
     quickAddFlashcardBtnDashboard.addEventListener('click', () => {
         populateSubjectSelect(quickAddSubjectSelect); // Populate dropdown before showing
+        newSubjectInput.classList.add('hidden'); // Ensure new subject input is hidden initially
+        toggleNewSubjectInputBtn.textContent = 'Add New Subject'; // Reset button text
+        quickAddSubjectSelect.value = ''; // Ensure no subject is pre-selected
         showModal(quickAddFlashcardModal);
     });
     quickAddFlashcardBtnLibrary.addEventListener('click', () => {
         populateSubjectSelect(quickAddSubjectSelect); // Populate dropdown before showing
+        newSubjectInput.classList.add('hidden'); // Ensure new subject input is hidden initially
+        toggleNewSubjectInputBtn.textContent = 'Add New Subject'; // Reset button text
+        quickAddSubjectSelect.value = ''; // Ensure no subject is pre-selected
         showModal(quickAddFlashcardModal);
     });
     closeQuickAddModalBtn.addEventListener('click', () => hideModal(quickAddFlashcardModal));
@@ -3861,6 +3872,7 @@ document.addEventListener('DOMContentLoaded', () => {
             newSubjectInput.focus();
         } else {
             toggleNewSubjectInputBtn.textContent = 'Add New Subject';
+            newSubjectInput.value = ''; // Clear new subject input when hidden
         }
     });
 
@@ -3924,6 +3936,20 @@ document.addEventListener('DOMContentLoaded', () => {
     predictExamQuestionsBtn.addEventListener('click', () => generateAiContent('exam-questions'));
     summarizeContentBtn.addEventListener('click', () => generateAiContent('summary'));
 
+    // Handle toggle for new subject input in AI Learning Studio
+    toggleAIContentNewSubjectInput.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent form submission
+        aiContentNewSubjectInput.classList.toggle('hidden');
+        if (!aiContentNewSubjectInput.classList.contains('hidden')) {
+            toggleAIContentNewSubjectInput.textContent = 'Hide New Subject Field';
+            aiContentSubjectSelect.value = ''; // Clear selection when new subject input is shown
+            aiContentNewSubjectInput.focus();
+        } else {
+            toggleAIContentNewSubjectInput.textContent = 'Add New Subject';
+            aiContentNewSubjectInput.value = ''; // Clear new subject input when hidden
+        }
+    });
+
     // AI Quiz Modal
     quizSubmitAnswerBtn.addEventListener('click', submitQuizAnswer);
     closeQuizModalBtn.addEventListener('click', () => hideModal(quizModal));
@@ -3942,7 +3968,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ensure quiz settings are hidden when other AI generation buttons are clicked
     [generateAiNotesBtn, generateNotesFlashcardsBtn, extractKeywordsBtn, predictExamQuestionsBtn, summarizeContentBtn].forEach(btn => {
         btn.addEventListener('click', () => {
-            quizSettingsContainer.classList.add('hidden');
+            // Only hide if the quiz button wasn't the one pressed
+            if (btn.id !== 'generate-quiz-btn') {
+                quizSettingsContainer.classList.add('hidden');
+            }
         });
     });
 
