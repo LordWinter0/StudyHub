@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM Element References ---
+    // --- DOM Element References JAPHET ---
     const appContainer = document.getElementById('app-container');
     const themeButtons = document.querySelectorAll('.theme-btn');
     const navLinks = document.querySelectorAll('.nav-item');
