@@ -270,8 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 'cool-breeze', name: 'Cool Breeze' },
             { id: 'mono-contrast', name: 'Mono Contrast' }
         ],
-        learningHubContent: { /* ... (same as before) ... */
-             auralearnBasics: [
+        learningHubContent: {
+            auralearnBasics: [
                 { title: "What are Flashcards?", summary: "The building blocks of your knowledge in AuraLearn.", details: "In AuraLearn, a 'Flashcard' is the smallest, most fundamental piece of information or concept you want to master, presented as a question-answer pair. Breaking down knowledge into these atomic units allows AuraLearn's intelligent Spaced Repetition System (SRS) to precisely track your mastery of each individual piece and schedule it for optimal review, ensuring you don't waste time on what you already know while reinforcing challenging concepts." }, // Updated 'Learning Atom'
                 { title: "How Spaced Repetition Works", summary: "A science-backed method for long-term memory.", details: "AuraLearn's core is its Spaced Repetition System (SRS). After you review a 'Flashcard', you rate how well you recalled it. Based on your rating, AuraLearn's algorithm calculates the optimal time to show you that card again - just before you're likely to forget it. Easy concepts are reviewed less often, difficult ones more frequently. This adaptive scheduling is scientifically proven to move information from short-term to long-term memory much more efficiently than traditional cramming." }, // Updated 'Learning Atom'
                 { title: "Your Mastery Score", summary: "Understanding your progress.", details: "Your 'Mastery Score' in AuraLearn reflects how deeply ingrained a 'Flashcard' is in your long-term memory. It's dynamically updated based on your recall performance during study sessions. The higher your mastery, the less frequently a card needs to be reviewed. This metric provides a clear, objective view of your knowledge retention over time across all your subjects." } // Updated 'Learning Atom'
@@ -332,9 +332,117 @@ document.addEventListener('DOMContentLoaded', () => {
                 { title: "Desirable Difficulties", summary: "Strategies that slow learning but aid long-term retention.", details: "" },
                 { title: "Growth Mindset", summary: "Believing intelligence can be developed.", details: "" },
                 { title: "Pomodoro Technique", summary: "Structured time management for focus.", details: "" }
+            ],
+            howToStudySubjects: [ // NEW SECTION FOR STUDYING SPECIFIC SUBJECTS
+                {
+                    title: "How to Study Mathematics",
+                    summary: "Mastering math requires consistent practice and conceptual understanding.",
+                    details: `
+                    ### Key Strategies for Math:
+
+                    1.  **Practice, Practice, Practice:** Math is not a spectator sport. Work through as many problems as possible.
+                    2.  **Understand Concepts, Not Just Formulas:** Don't just memorize formulas; understand *why* and *how* they work.
+                    3.  **Show Your Work:** Write down every step. This helps you catch errors and reinforce your understanding.
+                    4.  **Review Mistakes:** Analyze errors to understand where you went wrong. This is crucial for improvement.
+                    5.  **Seek Help Promptly:** If you're stuck, ask your teacher, tutor, or a classmate for help. Don't let gaps in understanding build up.
+                    6.  **Teach Others:** Explaining a concept to someone else solidifies your own understanding.
+                    7.  **Use Active Recall:** After studying a concept, try to explain it or solve a problem related to it without looking at your notes.
+                    `
+                },
+                {
+                    title: "How to Study Science (e.g., Biology, Chemistry, Physics)",
+                    summary: "Science learning benefits from conceptual understanding, practical application, and active recall.",
+                    details: `
+                    ### Key Strategies for Science:
+
+                    1.  **Understand the "Why" and "How":** Focus on the underlying principles and processes, not just isolated facts.
+                    2.  **Visualize Concepts:** Use diagrams, flowcharts, and mind maps (like AuraLearn's!) to understand complex systems and relationships.
+                    3.  **Relate to Real-World Examples:** Connect scientific concepts to everyday phenomena to make them more tangible.
+                    4.  **Practice Problems & Experiments:** For chemistry and physics, solve numerous problems. For biology, understand experimental design and results.
+                    5.  **Use Flashcards for Terminology:** Science has a lot of new vocabulary. Flashcards are excellent for mastering definitions.
+                    6.  **Active Reading:** Don't just skim textbooks. Read actively, asking questions, summarizing paragraphs, and making notes.
+                    7.  **Concept Check Questions:** Many textbooks have questions at the end of sections/chapters. Use these for self-testing.
+                    `
+                },
+                {
+                    title: "How to Study History / AP History",
+                    summary: "History involves understanding narratives, analyzing sources, and developing strong argumentative skills.",
+                    details: `
+                    ### Key Strategies for History:
+
+                    1.  **Focus on Themes and Connections:** Don't just memorize dates and names. Understand the "big picture" – why events happened, their causes and effects, and how they connect across time and space.
+                    2.  **Create Timelines and Chronologies:** Visualizing the sequence of events is critical.
+                    3.  **Analyze Primary and Secondary Sources:** Practice identifying bias, purpose, and audience. Understand how historians use evidence.
+                    4.  **Practice Essay Writing:** For AP History, regularly practice writing Document-Based Questions (DBQs), Long Essay Questions (LEQs), and Short Answer Questions (SAQs). Focus on thesis development, evidence, and analysis.
+                    5.  **Create Flashcards for Key Terms, People, and Events:** Use them for quick recall of specific facts.
+                    6.  **Discuss and Debate:** Engage with classmates or study groups to discuss different interpretations and arguments.
+                    7.  **Use Visuals:** Maps, political cartoons, and historical artwork can provide valuable context.
+                    `
+                },
+                {
+                    title: "How to Study Languages",
+                    summary: "Language acquisition is an ongoing process of immersion, practice, and consistent effort.",
+                    details: `
+                    ### Key Strategies for Languages:
+
+                    1.  **Consistency is Key:** Dedicate time *every day*, even if it's just 15-20 minutes. Regular exposure is more effective than long, infrequent sessions.
+                    2.  **Immersion:** Surround yourself with the language. Change your phone settings, listen to music/podcasts, watch movies/TV shows (with subtitles initially), and read books/news.
+                    3.  **Vocabulary with Context:** Don't just memorize word lists. Learn new words in sentences or phrases. Use flashcards with example sentences.
+                    4.  **Practice Speaking (Even to Yourself):** Don't be afraid to make mistakes. Practice speaking out loud, even if it's just repeating phrases or describing your surroundings. Find a language partner if possible.
+                    5.  **Master Grammar Incrementally:** Focus on one or two grammar points at a time until you feel comfortable. Practice applying them.
+                    6.  **Utilize Spaced Repetition:** Flashcards are invaluable for vocabulary and irregular verb conjugations.
+                    7.  **Listen Actively:** Pay attention to pronunciation, intonation, and natural phrasing. Repeat what you hear.
+                    `
+                },
+                {
+                    title: "How to Study Bookkeeping",
+                    summary: "Bookkeeping requires meticulous attention to detail, understanding rules, and practical application.",
+                    details: `
+                    ### Key Strategies for Bookkeeping:
+
+                    1.  **Understand the Fundamental Rules:** Master the accounting equation (Assets = Liabilities + Equity) and the rules of debit and credit. These are the foundation.
+                    2.  **Practice Journal Entries:** This is the core of bookkeeping. Work through numerous examples of transactions and create their corresponding journal entries.
+                    3.  **Follow the Accounting Cycle:** Understand each step: transactions -> journal -> ledger -> trial balance -> financial statements.
+                    4.  **Reconciliation Practice:** Learn how to reconcile bank statements and other accounts. This highlights errors and ensures accuracy.
+                    5.  **Attention to Detail:** Double-check every entry. A misplaced decimal or a wrong account can throw off the entire system.
+                    6.  **Use Practice Software (Optional but Recommended):** If available, practice using accounting software to get hands-on experience.
+                    7.  **Review Financial Statements:** Understand what each statement tells you about a business's financial health.
+                    `
+                },
+                {
+                    title: "How to Study MAPEH (Music, Arts, PE, Health)",
+                    summary: "MAPEH is diverse, requiring a blend of theoretical knowledge, practical skills, and self-awareness.",
+                    details: `
+                    ### Key Strategies for MAPEH:
+
+                    **Music:**
+                    1.  **Theory & Notation:** Understand scales, chords, rhythms, and how to read sheet music. Use flashcards for terms.
+                    2.  **Active Listening:** Listen to various genres and identify instruments, melodies, harmonies, and forms.
+                    3.  **Instrument/Vocal Practice:** Consistent, deliberate practice is essential for skill development.
+                    4.  **Performance & Feedback:** Practice performing and seek constructive feedback.
+
+                    **Arts:**
+                    1.  **Practice Techniques:** Experiment with different mediums (drawing, painting, sculpting) and techniques.
+                    2.  **Observation:** Train your eye to observe details, light, shadow, and perspective in the world around you.
+                    3.  **Study Art History:** Understand movements, artists, and their cultural contexts. Use visuals and timelines.
+                    4.  **Critique & Reflection:** Reflect on your own work and critique others constructively to develop an artistic eye.
+
+                    **Physical Education (PE):**
+                    1.  **Understand Principles:** Learn about exercise physiology, rules of sports, and health benefits of activity.
+                    2.  **Consistent Activity:** Engage in regular physical activity. Practice skills for sports you're learning.
+                    3.  **Goal Setting:** Set personal fitness goals and track your progress.
+                    4.  **Safety & First Aid:** Learn basic safety guidelines for physical activities and emergency responses.
+
+                    **Health:**
+                    1.  **Body Systems & Functions:** Understand human anatomy and physiology. Diagrams and flashcards are useful.
+                    2.  **Nutrition & Wellness:** Learn about balanced diets, healthy habits, and disease prevention.
+                    3.  **Critical Thinking:** Evaluate health information from various sources.
+                    4.  **Mental Health Awareness:** Understand concepts related to mental well-being and stress management.
+                    `
+                }
             ]
         },
-        tutorialContent: { /* ... (same as before) ... */
+        tutorialContent: {
             dashboard: {
                 title: "Dashboard Overview",
                 steps: [
@@ -1359,10 +1467,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         detailTitle.textContent = material.title;
-        detailContentText.innerHTML = marked.parse(material.content); // Ensure Markdown parsing
-        detailContentText.classList.remove('hidden');
-        detailLoading.classList.add('hidden');
+        detailContentText.classList.add('hidden');
+        detailLoading.classList.remove('hidden');
         showModal(detailModal);
+
+        if (material.content) {
+            if (typeof marked !== 'undefined') {
+                detailContentText.innerHTML = marked.parse(material.content); // Ensure Markdown parsing
+            } else {
+                detailContentText.textContent = material.content; // Fallback to plain text if marked is not loaded
+            }
+            detailContentText.classList.remove('hidden');
+            detailLoading.classList.add('hidden');
+        } else {
+            showNotification("Material content is empty.", true);
+            detailLoading.classList.add('hidden');
+        }
     }
 
     /**
